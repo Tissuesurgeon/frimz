@@ -118,6 +118,37 @@ describe("conversation strategy", () => {
     expect(result.shouldAskQuestion).toBe(false);
   });
 
+  it("closes warmly when the user wraps up", () => {
+    const result = turn("Thanks, that's all for now.");
+    expect(result.conversationalMove).toBe("summarize");
+    expect(result.shouldAskQuestion).toBe(false);
+    expect(result.offersDraft).toBeUndefined();
+    expect(turn("I know what to build now.").conversationalMove).toBe("summarize");
+    expect(turn("This was really helpful, I'll start building.").conversationalMove).toBe("summarize");
+  });
+
+  it("offers a draft once when the wrap-up meets substantial thinking", () => {
+    const result = chooseConversationStrategy({
+      mode: "challenge",
+      userMessage: "Thanks, I have what I need.",
+      memories: [decision],
+      offerDraft: true,
+    });
+    expect(result.offersDraft).toBe(true);
+    expect(result.conversationalMove).toBe("summarize");
+    expect(result.shouldAskQuestion).toBe(true);
+    expect(result.reasoningFocus).toMatch(/ask once/i);
+    expect(result.reasoningFocus).toContain("Project brief");
+  });
+
+  it("keeps talking when a thank-you opens a new thread", () => {
+    for (const message of ["Thanks! Now what about pricing?", "Thanks, but I'm not sure about the pricing", "Thanks. Next, let's look at onboarding"]) {
+      const result = chooseConversationStrategy({ mode: "think", userMessage: message, offerDraft: true });
+      expect(result.conversationalMove).not.toBe("summarize");
+      expect(result.offersDraft).toBeUndefined();
+    }
+  });
+
   it("connects a conflicting preference without announcing it", () => {
     const result = turn("I'm thinking we should launch with 15 features.", [preference]);
     expect(result.conversationalMove).toBe("connect");

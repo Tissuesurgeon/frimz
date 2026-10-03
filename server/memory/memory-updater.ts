@@ -29,3 +29,11 @@ export function planMemoryWrite(existing: MemoryRecord[], incoming: MemoryDraft)
 
   return { action: "create", supersedeId };
 }
+
+/** The turn moved the thinking: it keeps something new beyond working style, or the idea itself appeared or changed. */
+export function isMeaningfulProgress(existing: MemoryRecord[], incoming: MemoryDraft[], ideaMoved: boolean) {
+  return (
+    ideaMoved ||
+    incoming.some((memory) => memory.type !== "user_preference" && planMemoryWrite(existing, memory).action !== "skip")
+  );
+}

@@ -1,3 +1,5 @@
+import { cache } from "react";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { and, eq, inArray } from "drizzle-orm";
 import { requireUser } from "@/server/auth/current-user";
@@ -6,15 +8,28 @@ import { getDb } from "@/db";
 import { memoryIndex } from "@/db/schema";
 import { indicatorPhrase } from "@/server/agent/indicator-label";
 import { ChatView, type ChatMessage } from "@/components/chat/chat-view";
+import { THINKING_COOKIE } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
-export default async function ConversationPage({ params }: { params: Promise<{ conversationId: string }> }) {
+type Params = { params: Promise<{ conversationId: string }> };
+
+const loadConversation = cache(async (conversationId: string) => {
   const user = await requireUser();
-  if (!user) notFound();
-  const { conversationId } = await params;
+  if (!user) return null;
   const result = await getConversation(user.id, conversationId);
-  if (!result) notFound();
+  return result ? { user, result } : null;
+});
+
+export async function generateMetadata({ params }: Params) {
+  const loaded = await loadConversation((await params).conversationId);
+  return loaded ? { title: loaded.result.conversation.title } : {};
+}
+
+export default async function ConversationPage({ params }: Params) {
+  const loaded = await loadConversation((await params).conversationId);
+  if (!loaded) notFound();
+  const { user, result } = loaded;
   const ids = result.messages.flatMap((message) => message.metadata?.indicators?.map((item) => item.memoryId) ?? []);
   const labels = ids.length
     ? await getDb()
@@ -30,10 +45,21 @@ export default async function ConversationPage({ params }: { params: Promise<{ c
       role: message.role as "user" | "assistant",
       content: message.content,
       error: message.metadata?.error,
+      createdAt: message.createdAt.toISOString(),
+      draft: message.metadata?.writeUp ? { format: message.metadata.writeUp.format } : undefined,
       indicators: message.metadata?.indicators?.map((indicator) => ({
         ...indicator,
+        kind: typeById.get(indicator.memoryId) ?? "",
         label: indicatorPhrase(typeById.get(indicator.memoryId) ?? ""),
       })),
     }));
-  return <ChatView conversationId={result.conversation.id} title={result.conversation.title} initialMessages={messages} />;
+  const thinkingOpen = (await cookies()).get(THINKING_COOKIE)?.value === "open";
+  return (
+    <ChatView
+      conversationId={result.conversation.id}
+      title={result.conversation.title}
+      initialMessages={messages}
+      initialThinkingOpen={thinkingOpen}
+    />
+  );
 }

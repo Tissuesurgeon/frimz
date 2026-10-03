@@ -10,6 +10,7 @@ import { indicatorPhrase } from "@/server/agent/indicator-label";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 
 export async function POST(request: Request) {
   const user = await requireUser();
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
               ...item,
               indicators: item.indicators.map((indicator) => ({
                 ...indicator,
+                kind: typeById.get(indicator.memoryId) ?? "",
                 label: indicatorPhrase(typeById.get(indicator.memoryId) ?? ""),
               })),
             });

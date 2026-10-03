@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { getDb } from "@/db";
 import { memoryIndex } from "@/db/schema";
 import type { MemoryRecord, MemoryStatus, MemoryType } from "./types";
@@ -61,6 +61,23 @@ export class PostgresMemoryIndex implements MemoryIndex {
       .from(memoryIndex)
       .where(and(eq(memoryIndex.userId, userId), eq(memoryIndex.status, "active")))
       .orderBy(desc(memoryIndex.createdAt));
+    return rows.map(toRecord);
+  }
+
+  async listActiveForIdea(userId: string, ideaId: string, limit = 40) {
+    const rows = await getDb()
+      .select()
+      .from(memoryIndex)
+      .where(
+        and(
+          eq(memoryIndex.userId, userId),
+          eq(memoryIndex.ideaId, ideaId),
+          eq(memoryIndex.status, "active"),
+          ne(memoryIndex.type, "user_preference"),
+        ),
+      )
+      .orderBy(desc(memoryIndex.createdAt))
+      .limit(limit);
     return rows.map(toRecord);
   }
 

@@ -1,6 +1,6 @@
 # Frimz
 
-Frimz is an AI thinking partner that remembers how your ideas evolve.
+Frimz is an AI thinking partner that remembers the evolution of your thinking and turns that accumulated context into something you can keep building on.
 
 ```text
 Think.
@@ -9,6 +9,7 @@ Develop.
 Remember.
 Return.
 Continue.
+Build.
 ```
 
 ## What is Frimz?
@@ -46,22 +47,30 @@ EXPLORE
   ↓
 DEVELOP
   ↓
+CAPTURE
+  ↓
 REMEMBER
+  ↓
+STRUCTURE
   ↓
 RETURN
   ↓
 CONTINUE
+  ↓
+BUILD
 ```
 
-A later conversation can continue the idea, explain a rejection, and reconstruct how the idea arrived, using memories that came from earlier real messages.
+A later conversation can continue the idea, explain a rejection, and reconstruct how the idea arrived, using memories that came from earlier real messages. Each idea also keeps a living picture of where the thinking stands, which the user can read, correct, and turn into a written draft.
 
 ## Key features
 
 - Persistent memory of thinking, not a copy of every message
 - Conversations that continue across sessions and devices for the same account
+- Living context: a versioned, editable "Current thinking" brief for each idea
 - Idea evolution from real idea events
 - Working-style adaptation from stored preferences
 - Memory inspection, editing, and forgetting
+- Write-ups drafted from the accumulated context, offered when a conversation wraps up
 - Think, Plan, Write, and Challenge modes on one agent
 
 ## Why memory matters
@@ -100,6 +109,143 @@ Supersede / Forget
 
 A memory is kept when it would help a future conversation. Editing writes a new Walrus blob and marks the previous index row superseded. Forgetting marks the row forgotten so retrieval skips it. Walrus blobs are immutable; forgetting does not claim a physical delete.
 
+## Living Context
+
+Every idea has one **context brief**, shown in the app as "Current thinking". It is Frimz's working understanding of what the user is working on: a structured, versioned picture of where the thinking stands.
+
+```text
+Where it stands      a short paragraph
+Problem              Target user          Goal
+Current idea         Current direction
+Key insights         Decisions (with reasons)
+Directions set aside (with reasons)       Assumptions
+Open questions       Next to explore      How it got here
+```
+
+Only filled sections are shown. A section is never padded with a guess.
+
+### Why it exists
+
+Memories are atomic. "Start with individual students" and "universities have a slow sales cycle" are separate facts, recalled one at a time by meaning. That suits recall. A returning conversation also needs the whole picture at once: which decisions hold, which directions are closed, and what is still open. The brief is that picture, kept current so Frimz starts each turn from it and so the user can read it, correct it, and take it elsewhere.
+
+### How it differs from memory
+
+| | Walrus memories | Context brief |
+| --- | --- | --- |
+| Shape | One durable fact per memory | One structured document per idea |
+| Store | Walrus Memory, catalogued in `memory_index` | PostgreSQL `context_briefs`, every version in `context_brief_versions` |
+| Written by | Extraction after a reply | `ContextSynthesizer` after meaningful progress, or the user |
+| Used for | Recalling the relevant pieces by meaning | The first section of Frimz's context on every turn about the idea |
+| A change | New blob, older row superseded | New version, earlier versions kept |
+
+The brief is built from memories and the conversation. It never replaces them: Walrus stays the semantic store, and superseded or forgotten memories stay out of synthesis because only active index rows are read.
+
+### How it is generated and updated
+
+```text
+Reply streamed and saved
+        ↓
+after(): memory extraction to Walrus (unchanged)
+        ↓
+Meaningful progress?   a kept memory other than a preference, or a new or changed idea
+        ↓ yes
+Mark the idea's brief stale
+        ↓
+Newer user message waiting?   yes → stop; the next turn's step covers both
+        ↓ no
+Take the synthesis lock (expires after three minutes)
+        ↓
+ContextSynthesizer   idea + current brief + active memories + last 30 messages
+        ↓
+Guards
+        ↓
+Different from the current brief?   no → clear the stale mark, keep the version
+        ↓ yes
+Save version N + 1, checked against the version it read
+        ↓
+Idea events for a new problem, target user, goal, or direction
+```
+
+The step runs in `after()`, so it never delays or breaks a reply. A failure is logged and the brief stays at its previous version. `ContextSynthesizer` calls the existing `LLMProvider`, so Cursor stays the only model, and each call is a fresh agent with no tools.
+
+The synthesis prompt labels every line USER or FRIMZ and asks for JSON. The guards in `server/context/brief-guards.ts` then enforce what a model cannot be trusted to keep:
+
+- **Decisions belong to the user.** A decision or a set-aside direction needs support: a user line, an existing brief item, an active memory, or a Frimz suggestion the user explicitly accepted ("yes, let's do that"). An unaccepted suggestion stays a suggestion.
+- **Facts come from the user.** The problem, target user, goal, and current idea must share words with something the user said.
+- **Nothing vanishes quietly.** A decision, set-aside direction, or open question that disappears without a stated reason is restored. A changed direction moves the earlier one into "How it got here".
+- **The latest user direction wins, and history is kept.** A reversal replaces the current direction, and the earlier one stays visible as history.
+- **Corrections stick.** A section the user edited keeps the user's text until the user says something newer about it.
+- **Placeholders and injection are dropped.** "N/A", "TBD", duplicates, and instruction-like text never reach a version. Lists are capped.
+
+### How it shapes later conversations
+
+```text
+User message
+     ↓
+Resolve idea ──→ load its brief ──→ recall Walrus memories
+     ↓
+FRIMZ CONTEXT
+  CURRENT CONTEXT BRIEF (version N)     first, with user-corrected sections marked
+  IDEA, WORKING STYLE, RELEVANT MEMORIES
+  CONVERSATION
+     ↓
+Reply
+```
+
+The brief is framed as the working understanding built from earlier turns. The newest user message leads: when it points somewhere new, Frimz follows it, and the brief catches up after the reply. A new conversation about the same idea finds its brief through the idea title, with a conservative word-overlap match for a first message that paraphrases it.
+
+### How the user edits it
+
+"Current thinking" opens from the conversation header: a side panel on wide screens, a sheet on smaller ones, and a bottom sheet on phones. It also appears on the idea page and under Memory → Current thinking.
+
+- **Copy** puts the brief on the clipboard as Markdown.
+- **Edit** saves a version with source `edit` and marks the changed sections as corrected by the user. If a background update landed first, the save returns 409 and the editor keeps the draft, so the user can lay their changes over the new version.
+- **Regenerate** rebuilds the brief from the idea's conversations and memories. It returns 409 while a background update holds the lock. User corrections survive a rebuild.
+
+After a reply, the chat checks every three seconds, for up to three minutes and for as long as an update is running, until the background step has seen that reply. A new version updates in place, highlights the sections that changed (except under reduced motion), and leaves a quiet "Current thinking updated" note under the reply.
+
+### How it connects to idea evolution
+
+A version that changes the problem, target user, goal, or direction adds an idea event, so the timeline shows those moments next to the memory-driven events. The idea page shows the current brief in place of the older decision summary, lists every version with its change summary, and opens earlier versions read-only.
+
+### How it supports write-ups
+
+There is no draft button. When the user wraps up ("thanks, that's all", "I have what I need", "I'll start building") and the brief has substance, Frimz says where the thinking landed and asks once whether a written draft would help, naming two or three fitting formats. A substantial brief has a problem, idea, or goal, plus a direction or decision, across at least four sections. Frimz asks once per brief version.
+
+```text
+Wrap-up message ──→ brief draftable, no offer at this version? ──→ summary + one offer
+                                                                         ↓
+"yes" · "a proposal" · "a one-pager for investors" ──→ WriteUpGenerator ──→ draft, labelled in chat
+"make it shorter" right after a draft ──────────────→ revision of that draft
+"write this up as a project brief" at any time ─────→ draft
+```
+
+`WriteUpGenerator` streams through the same `LLMProvider`. Its inputs are the brief, the idea's active memories, the recent conversation, and the previous draft when revising. It invents no names, numbers, dates, or results; it labels assumptions and keeps open questions open; Frimz suggestions appear as options. Formats: project brief, product concept, problem statement, research summary, proposal, business concept, technical concept, strategy document, thinking summary, or a custom shape the user describes. Draft bodies collapse to one line in the extraction and synthesis inputs, so Frimz's own prose never feeds back into memories or the brief.
+
+### Conceptual architecture
+
+```text
+                           FRIMZ
+                             │
+                    AI THINKING PARTNER
+                             │
+             ┌───────────────┼────────────────┐
+             │               │                │
+           THINK          REMEMBER           BUILD
+             │               │                │
+       Conversation        Walrus          Context brief
+          agent            Memory              │
+             │               │          ┌──────┼──────┐
+       ┌─────┼─────┐         │          │      │      │
+    Explore Challenge Plan   │       Brief  Versions  Write-ups
+       └─────┼─────┘         │
+             └──────┬────────┘
+                    ▼
+             IDEA EVOLUTION
+                    ▼
+       USER-CONTROLLED THINKING
+```
+
 ## Architecture
 
 ```text
@@ -113,30 +259,32 @@ Frimz API
  │
  ▼
 FrimzAgent
- ├───────────────┐
- │               │
- ▼               ▼
-Memory          Context
-Orchestrator    Builder
- │               │
- ▼               ▼
-Walrus          Cursor
-Memory          LLM
- │               │
- └───────┬───────┘
-         ▼
-      Response
+ ├────────────────┬─────────────────┐
+ │                │                 │
+ ▼                ▼                 ▼
+Memory          Context brief     Context
+Orchestrator    service           Builder
+ │                │                 │
+ ▼                ▼                 ▼
+Walrus          PostgreSQL        Cursor LLM
+Memory          briefs and        replies, synthesis,
+                versions          and write-ups
+ │                │                 │
+ └────────────────┴────────┬────────┘
+                           ▼
+                        Response
 ```
 
-- The web app is the chat, ideas, memory, and settings UI.
+- The web app is the chat, current thinking, ideas, memory, and settings UI.
 - The API authenticates the session and never trusts a client-supplied user id.
 - `FrimzAgent` owns the conversational behavior.
 - The memory orchestrator recalls, filters, and later extracts.
-- The context builder assembles a small prompt from the current conversation and relevant memories.
+- The brief service keeps one versioned context brief per idea. `ContextSynthesizer` updates it and `WriteUpGenerator` drafts from it.
+- The context builder assembles a small prompt: the context brief first, then the idea, working style, relevant memories, and the conversation.
 - Walrus Memory is the semantic store.
 - Cursor supplies model inference.
 
-PostgreSQL holds application state, including a `memory_index` so memories can be listed, edited, superseded, and forgotten. Walrus does not have a normal list or update API.
+PostgreSQL holds application state, including a `memory_index` so memories can be listed, edited, superseded, and forgotten, and the context briefs with their versions. Walrus does not have a normal list or update API.
 
 ## Cursor LLM architecture
 
@@ -176,10 +324,12 @@ Official docs: [Walrus Memory quick start](https://docs.wal.app/walrus-memory/sd
 | --- | --- |
 | `users` | Account email, name, and password hash |
 | `sessions` | Sign-in records. The browser session is an Auth.js JWT cookie |
-| `conversations` | A thread, its title, and the current idea |
-| `messages` | Transcript. Metadata stores memory-indicator ids only |
+| `conversations` | A thread, its title, the current idea, and the last reply the background step processed |
+| `messages` | Transcript. Metadata stores memory-indicator ids, draft offers, and draft markers |
 | `ideas` | A concept the user is developing |
-| `idea_events` | Chronological changes to an idea |
+| `idea_events` | Chronological changes to an idea, including brief changes to its problem, target user, goal, and direction |
+| `context_briefs` | The current context brief for each idea: version, data, sections the user corrected, stale and lock times |
+| `context_brief_versions` | Every version of a brief, append-only, with its source (`synthesis`, `edit`, `regenerate`) and change summary |
 | `user_settings` | Display name and theme |
 | `memory_index` | Lifecycle catalog for Walrus blobs |
 | `memory_activity` | Real retrieve, store, supersede, and forget events |
@@ -216,37 +366,42 @@ Recall relevant memories
        ↓
 Filter stale/forgotten memories
        ↓
-Rank context
+Load the idea's context brief
        ↓
-Build FrimzContext
-       ↓
-Select mode behavior
-       ↓
-Cursor model
+Write-up turn? ── yes ──→ WriteUpGenerator prompt
+       ↓ no                        │
+Rank context                       │
+       ↓                           │
+Build FrimzContext (brief first)   │
+       ↓                           │
+Select mode behavior               │
+       ↓                           │
+Cursor model ←─────────────────────┘
        ↓
 Stream response
        ↓
 Persist message
        ↓
-Background memory extraction
+Background step in after()
        ↓
-Validate
+Memory extraction: validate, deduplicate, supersede, store
        ↓
-Deduplicate
+Link the conversation to its idea
        ↓
-Supersede conflicts
+Meaningful progress → mark the brief stale → synthesize → guards → new version
        ↓
-Store durable memory
+Record the reply as processed
 ```
 
-Extraction uses `after()` and cannot fail the reply. A Cursor failure returns: "Frimz couldn't connect to its AI model right now. Please try again." A Walrus failure leaves the conversation usable.
+The background step uses `after()` and cannot fail the reply. A Cursor failure returns: "Frimz couldn't connect to its AI model right now. Please try again." A Walrus failure leaves the conversation usable, and the brief still updates from the conversation.
 
 ## Project structure
 
 ```text
 app/                  routes, landing page, chat, ideas, memory, settings
-components/           shell, chat, memory, settings, landing
+components/           shell, chat, thinking, memory, settings, landing
 server/agent/         FrimzAgent, context builder, response strategy, prompts
+server/context/       context brief: synthesizer, guards, repository, service, write-ups
 server/llm/           LLMProvider and CursorLLMProvider
 server/memory/        validation, retrieval, Walrus store, orchestrator
 server/conversations/ conversation and message services
@@ -322,15 +477,19 @@ npm run build
 
 Unit tests cover extraction parsing, the future-value filter, retrieval filtering, namespace isolation, superseding decisions and preferences, later-turn context, working-style adaptation, idea-event gating, and the Cursor and Walrus adapters.
 
+Context brief tests cover the meaningful-progress check after extraction, normalization, the guards (a Frimz suggestion against a user decision, accepted suggestions, rejections, direction changes, restored items, user corrections, injection), synthesis parsing, versioning, coalescing and lock handling, edit conflicts, user isolation, the wrap-up offer, write-up routing, and failure handling. They use a mocked provider and an in-memory brief repository.
+
 Cursor and Walrus are mocked. Fixtures exist only inside `tests/`. They are not loaded into the database and are not demo evidence.
 
 ## Deployment
 
-The Cursor SDK runs a local agent bridge inside the Node process. Deploy Frimz as a long-running Node 22 server, not as a serverless function that freezes the process.
+The Cursor SDK starts a local agent inside the Node process for each turn, so Frimz ships as one Node 22 server.
 
-The `Dockerfile` installs dependencies, runs `npm run build`, and starts `npm start`. Provide the environment variables above and a reachable `DATABASE_URL`. Run `npm run db:migrate` against that database before serving traffic. Suitable hosts include Fly, Railway, or a VPS.
+`Dockerfile` is a three-stage image: install, `npm run build`, then a standalone server started with `node server.js`. It listens on `$PORT`, and on 3000 when `PORT` is unset. `Dockerfile.vercel` is that same file. Vercel detects the name, builds the image, and sends every request to it. On Vercel, `PORT` defaults to 80.
 
-Do not put API keys in the image.
+Set the environment variables from the table above on the host. Keep API keys out of the image. Point `DATABASE_URL` at a reachable Postgres database. The Compose database is for local development. Run `npm run db:migrate` against the production database before serving traffic.
+
+A chat turn, the Walrus write, and the brief update after it share one function run, so the chat route asks for 300 seconds. If Vercel cuts the request off, raise the function duration for the project.
 
 ## Security
 
@@ -338,15 +497,16 @@ Do not put API keys in the image.
 - Database and Walrus access are scoped to that user
 - Namespaces are server-derived
 - Request bodies are checked with Zod
-- Chat is rate limited per user
+- Chat, brief edits, and brief regeneration are rate limited per user
+- Brief routes read and write only the signed-in user's ideas, conversations, and briefs
 - Markdown is sanitized
 - Security headers are set in `next.config.ts`
 - Logs omit keys, passwords, and session secrets
-- The system prompt treats user and memory text as data, not as instructions
+- The system, synthesis, and write-up prompts treat user, memory, and brief text as data to reason about, and the brief guards drop instruction-like items
 
 ## Privacy and memory controls
 
-Frimz remembers durable thinking so a later conversation can continue. You can read memories at `/memory`, edit them, or forget them. Editing supersedes the previous memory. Forgetting stops retrieval. See `/privacy` for what is stored.
+Frimz remembers durable thinking so a later conversation can continue. You can read memories at `/memory`, edit them, or forget them. Editing supersedes the previous memory. Forgetting stops retrieval. Current thinking is under `/memory?view=thinking` and beside each conversation, where you can copy, edit, or regenerate it. See `/privacy` for what is stored.
 
 This README does not claim certifications or a physical Walrus delete on forget.
 
@@ -369,13 +529,15 @@ This is a workflow, not fabricated evidence:
 3. Develop an idea
 4. Make a decision
 5. Reject a direction
-6. Continue the conversation later
-7. Ask Frimz what it remembers
-8. Ask how the idea evolved
-9. Inspect Memory
-10. Edit or forget a memory
+6. Open Current thinking and correct a section that reads wrong
+7. Wrap up and accept the draft Frimz offers
+8. Continue the conversation later
+9. Ask Frimz what it remembers
+10. Ask how the idea evolved
+11. Inspect Memory
+12. Edit or forget a memory
 
-The product test is whether a later conversation is better because of memory. Storage alone is not the test.
+The product test is whether a later conversation is better because of memory and the brief. Storage alone is not the test.
 
 ## Roadmap
 

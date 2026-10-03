@@ -1,12 +1,20 @@
+import { isEmptyBrief, renderBriefForPrompt, type BriefField, type ContextBriefData } from "@/lib/context-brief";
 import type { MemoryRecord } from "@/server/memory/types";
 import type { ConversationStrategy } from "./conversation-types";
 import { renderConversationStrategy } from "./prompts/conversation-strategy";
+
+export type ContextBriefInput = {
+  version: number;
+  data: ContextBriefData;
+  userFields: BriefField[];
+};
 
 export type ContextInput = {
   preferences: MemoryRecord[];
   memories: MemoryRecord[];
   ideaTitle?: string;
   ideaDescription?: string;
+  brief?: ContextBriefInput | null;
   transcript: { role: string; content: string }[];
   userMessage: string;
   strategy?: ConversationStrategy;
@@ -29,6 +37,16 @@ export function buildFrimzContext(input: ContextInput) {
   const active = input.memories.filter((memory) => memory.status === "active" && memory.type !== "user_preference");
   const ofType = (type: MemoryRecord["type"]) => active.filter((memory) => memory.type === type).map(line);
   const lines = ["FRIMZ CONTEXT", ""];
+
+  if (input.brief && !isEmptyBrief(input.brief.data)) {
+    lines.push(`CURRENT CONTEXT BRIEF (version ${input.brief.version})`);
+    lines.push(
+      "The working understanding of this work, built from earlier turns. It informs this reply. The latest user message leads: when it points somewhere new, follow it.",
+    );
+    lines.push("");
+    lines.push(renderBriefForPrompt(input.brief.data, input.brief.userFields));
+    lines.push("");
+  }
 
   lines.push("CURRENT IDEA");
   lines.push(input.ideaTitle ? input.ideaTitle : "None identified yet.");

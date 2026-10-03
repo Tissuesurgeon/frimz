@@ -6,6 +6,10 @@ const MIN_LENGTH = 12;
 const EPHEMERAL = /^(hi|hello|hey|thanks|thank you|ok|okay|yes|no)[.!]?$/i;
 const INJECTION = /ignore (all|previous|prior) instructions/i;
 
+export function looksLikeInjection(text: string) {
+  return INJECTION.test(text);
+}
+
 export type RawMemory = {
   type?: unknown;
   content?: unknown;

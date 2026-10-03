@@ -5,19 +5,26 @@ import { logEvent } from "@/lib/logger";
 import { getLLMProvider } from "@/server/llm/cursor-provider";
 import { FRIMZ_SYSTEM_PROMPT } from "@/server/agent/prompts/frimz-system";
 import { MEMORY_EXTRACTION_PROMPT } from "@/server/agent/prompts/memory-extraction";
-import { buildFrimzContext } from "@/server/agent/context-builder";
+import { buildFrimzContext, type ContextBriefInput } from "@/server/agent/context-builder";
 import { buildBehaviorAddendum } from "@/server/agent/response-strategy";
 import { chooseConversationStrategy } from "@/server/agent/conversational-strategy";
 import { renderConversationStrategy } from "@/server/agent/prompts/conversation-strategy";
 import type { Mode } from "@/lib/modes";
 import { parseExtraction, validateIdea, validateMemories } from "./memory-validator";
 import { indicatorMemories, mergePreferences } from "./memory-retrieval";
-import { planMemoryWrite } from "./memory-updater";
+import { isMeaningfulProgress, planMemoryWrite } from "./memory-updater";
 import { getMemoryStore } from "./memory-runtime";
 import { PostgresMemoryIndex } from "./memory-index";
-import type { MemoryDraft, MemoryRecord } from "./types";
+import type { MemoryDraft, MemoryRecord, MemoryType } from "./types";
 import { shouldCreateIdeaEvent } from "@/server/ideas/idea-events";
-import { addIdeaEvent, findIdeaByTitle, listIdeas, matchIdeaTitle, upsertIdea } from "@/server/ideas/idea-service";
+import {
+  addIdeaEvent,
+  closestIdea,
+  findIdeaByTitle,
+  listIdeas,
+  matchIdeaTitle,
+  upsertIdea,
+} from "@/server/ideas/idea-service";
 import { recordActivity, recordLog } from "@/server/conversations/conversation-service";
 
 export async function recallForTurn(userId: string, message: string, ideaTitle?: string) {
@@ -52,6 +59,8 @@ export function contextForTurn(input: {
   memories: MemoryRecord[];
   ideaTitle?: string;
   ideaDescription?: string;
+  brief?: ContextBriefInput | null;
+  offerDraft?: boolean;
   transcript: { role: string; content: string }[];
   userMessage: string;
 }) {
@@ -61,12 +70,14 @@ export function contextForTurn(input: {
     memories: input.memories,
     preferences: input.preferences,
     ideaTitle: input.ideaTitle,
+    offerDraft: input.offerDraft,
   });
   const context = buildFrimzContext({
     preferences: input.preferences,
     memories: input.memories,
     ideaTitle: input.ideaTitle,
     ideaDescription: input.ideaDescription,
+    brief: input.brief,
     transcript: input.transcript,
     userMessage: input.userMessage,
     strategy,
@@ -81,58 +92,81 @@ export function contextForTurn(input: {
   };
 }
 
+export type ExtractionOutcome = {
+  ideaId: string | null;
+  /** New durable thinking, or an idea that appeared or changed status. */
+  progress: boolean;
+  /** Memory types written to Walrus this turn. */
+  kinds: MemoryType[];
+};
+
+export function extractionInput(input: {
+  transcript: { role: string; content: string }[];
+  ideaTitle?: string;
+  knownIdeas?: string[];
+}) {
+  const lines = [`CURRENT IDEA: ${input.ideaTitle || "None identified yet."}`];
+  const others = (input.knownIdeas ?? []).filter((title) => title !== input.ideaTitle).slice(0, 12);
+  if (others.length > 0) lines.push(`OTHER IDEAS: ${others.join("; ")}`);
+  lines.push("", "CONVERSATION");
+  for (const message of input.transcript.slice(-20)) lines.push(`${message.role}: ${message.content}`);
+  return lines.join("\n");
+}
+
 export async function extractMemories(input: {
   userId: string;
   conversationId: string;
   transcript: { role: string; content: string }[];
   ideaTitle?: string;
-}) {
+  knownIdeas?: string[];
+}): Promise<ExtractionOutcome> {
+  const none: ExtractionOutcome = { ideaId: null, progress: false, kinds: [] };
   const provider = getLLMProvider();
   let raw = "";
   try {
     const response = await provider.generate({
       messages: [
         { role: "system", content: MEMORY_EXTRACTION_PROMPT },
-        {
-          role: "user",
-          content: input.transcript
-            .slice(-20)
-            .map((message) => `${message.role}: ${message.content}`)
-            .join("\n"),
-        },
+        { role: "user", content: extractionInput(input) },
       ],
     });
     raw = response.text;
   } catch (error) {
     logEvent("extraction_failed", { userId: input.userId, message: error instanceof Error ? error.message : "failed" });
     await recordLog("error", { phase: "extraction" }, input.userId, input.conversationId).catch(() => undefined);
-    return;
+    return none;
   }
 
   const draft = parseExtraction(raw);
   const memories = validateMemories(draft);
   const idea = validateIdea(draft.idea);
   await recordActivity(input.userId, "analyzed", `${memories.length} kept`, null, input.conversationId);
-  if (memories.length === 0 && !idea) return;
+  if (memories.length === 0 && !idea) return none;
 
   let ideaId: string | null = null;
+  let ideaMoved = false;
   if (idea) {
+    const before = await findIdeaByTitle(input.userId, idea.title);
     const saved = await upsertIdea(input.userId, idea);
     ideaId = saved.id;
+    ideaMoved = !before || before.status !== saved.status;
   } else if (input.ideaTitle) {
-    const existing = await findIdeaByTitle(input.userId, input.ideaTitle);
-    ideaId = existing?.id ?? null;
+    const current = await findIdeaByTitle(input.userId, input.ideaTitle);
+    ideaId = current?.id ?? null;
   }
+
+  const existing = await new PostgresMemoryIndex().list(input.userId);
+  const progress = isMeaningfulProgress(existing, memories, ideaMoved);
 
   const store = getMemoryStore();
   if (!store) {
     await recordLog("walrus", { failure: "not_configured", phase: "store" }, input.userId, input.conversationId).catch(
       () => undefined,
     );
-    return;
+    return { ideaId, progress, kinds: [] };
   }
 
-  const existing = await store.list(input.userId);
+  const kinds: MemoryType[] = [];
   for (const memory of memories) {
     const plan = planMemoryWrite(existing, memory);
     if (plan.action === "skip") continue;
@@ -157,6 +191,7 @@ export async function extractMemories(input: {
           .where(and(eq(memoryIndex.id, created.id), eq(memoryIndex.userId, input.userId)));
       }
       await recordActivity(input.userId, "stored", memory.type, created.id, input.conversationId);
+      kinds.push(memory.type);
       if (plan.supersedeId) {
         await recordActivity(input.userId, "superseded", memory.type, plan.supersedeId, input.conversationId);
       }
@@ -183,6 +218,7 @@ export async function extractMemories(input: {
       await recordActivity(input.userId, "error", "persist_failed", null, input.conversationId);
     }
   }
+  return { ideaId, progress, kinds };
 }
 
 export async function resolveIdea(userId: string, message: string, currentIdeaId: string | null) {
@@ -194,5 +230,5 @@ export async function resolveIdea(userId: string, message: string, currentIdeaId
     if (named && named.id !== currentIdeaId) return named;
     if (current) return current;
   }
-  return named ?? null;
+  return named ?? closestIdea(message, ideas);
 }

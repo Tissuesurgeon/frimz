@@ -45,6 +45,60 @@ describe("context and adaptation", () => {
     expect(context).toContain("Do not quote them back as memories.");
   });
 
+  it("puts the context brief first and marks what the user corrected", () => {
+    const context = buildFrimzContext({
+      preferences: [preference],
+      memories: [decision],
+      ideaTitle: "Study partner",
+      brief: {
+        version: 4,
+        data: {
+          problem: "Students lose the thread between study sessions",
+          decisions: [{ text: "Start with individual students", reason: "Faster feedback" }],
+          openQuestions: ["How much of the last session should come back?"],
+        },
+        userFields: ["problem"],
+      },
+      transcript: [],
+      userMessage: "Where were we?",
+    });
+    const brief = context.indexOf("CURRENT CONTEXT BRIEF (version 4)");
+    expect(brief).toBeGreaterThan(-1);
+    expect(brief).toBeLessThan(context.indexOf("CURRENT IDEA"));
+    expect(brief).toBeLessThan(context.indexOf("WORKING STYLE"));
+    expect(context).toContain("The latest user message leads");
+    expect(context).toContain("PROBLEM (corrected by the user)\nStudents lose the thread between study sessions");
+    expect(context).toContain("- Start with individual students Reason: Faster feedback");
+  });
+
+  it("carries the brief into a later conversation even when recall finds nothing", () => {
+    const context = buildFrimzContext({
+      preferences: [],
+      memories: [],
+      ideaTitle: "Study partner",
+      brief: {
+        version: 2,
+        data: { decisions: [{ text: "Start with individual students" }], currentDirection: "One student at a time" },
+        userFields: [],
+      },
+      transcript: [],
+      userMessage: "Let's pick this back up.",
+    });
+    expect(context).toContain("DECISIONS\n- Start with individual students");
+    expect(context).toContain("CURRENT DIRECTION\nOne student at a time");
+  });
+
+  it("leaves the brief out until it has content", () => {
+    const context = buildFrimzContext({
+      preferences: [],
+      memories: [],
+      brief: { version: 0, data: {}, userFields: [] },
+      transcript: [],
+      userMessage: "Hi",
+    });
+    expect(context).not.toContain("CURRENT CONTEXT BRIEF");
+  });
+
   it("changes the behavior addendum when a preference asks for alternatives", () => {
     const addendum = buildBehaviorAddendum("think", [preference]);
     expect(addendum).toContain("several approaches");

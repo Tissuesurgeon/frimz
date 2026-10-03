@@ -42,6 +42,8 @@ export type ConversationStrategy = {
   relevantMemoryIds: string[];
   shouldAskQuestion: boolean;
   reasoningFocus?: string;
+  /** This reply ends by offering a written draft of the current thinking. */
+  offersDraft?: boolean;
 };
 
 export type IntentSignal =
@@ -59,4 +61,5 @@ export type IntentSignal =
   | "clarify"
   | "factual"
   | "plan"
+  | "wrap_up"
   | "unclear";

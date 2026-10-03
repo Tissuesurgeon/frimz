@@ -23,6 +23,8 @@ Return JSON only, with this shape:
 }
 
 Rules:
+- The idea is the piece of work the conversation develops: a product, a project, a plan, or a problem the user keeps working on. Include idea whenever the conversation develops one, and give the memories about it the same ideaTitle. Leave idea out only for small talk or a one-off question.
+- When the conversation continues the current idea or one of the other ideas listed, use that exact title for idea.title and ideaTitle, even when the framing changes. Describe the change in the description and as an idea_change memory. A new title is for a genuinely different idea.
 - Preferences are working style only: response length, technical depth, number of alternatives, challenge level, communication style, structure, brainstorming style.
 - Do not turn a preference into an idea event. Leave ideaTitle empty for preferences.
 - Set changesIdea true only when an insight changes the idea's direction.

@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { ideaEvents, ideas, memoryIndex } from "@/db/schema";
+import { contentTokens } from "@/server/context/brief-guards";
 import type { IdeaStatus } from "@/server/memory/types";
 
 export async function listIdeas(userId: string) {
@@ -105,4 +106,31 @@ export function matchIdeaTitle(message: string, titles: { id: string; title: str
   const lower = message.toLowerCase();
   const hits = titles.filter((idea) => idea.title.length > 2 && lower.includes(idea.title.toLowerCase()));
   return hits.length === 1 ? hits[0] : null;
+}
+
+/** A looser match for the first message of a conversation: most of one title's words appear in it. */
+export function closestIdea<T extends { id: string; title: string }>(message: string, titles: T[]): T | null {
+  const words = new Set(contentTokens(message));
+  const scored = titles
+    .map((idea) => {
+      const title = contentTokens(idea.title);
+      const shared = title.filter((word) => words.has(word)).length;
+      return { idea, shared, ratio: title.length > 0 ? shared / title.length : 0 };
+    })
+    .filter((entry) => entry.shared >= 2 && entry.ratio >= 0.5)
+    .sort((a, b) => b.ratio - a.ratio || b.shared - a.shared);
+  const [best, next] = scored;
+  if (!best) return null;
+  if (next && next.ratio === best.ratio && next.shared === best.shared) return null;
+  return best.idea;
+}
+
+export async function recentIdeaTitles(userId: string, limit = 12) {
+  const rows = await getDb()
+    .select({ title: ideas.title })
+    .from(ideas)
+    .where(eq(ideas.userId, userId))
+    .orderBy(desc(ideas.updatedAt))
+    .limit(limit);
+  return rows.map((row) => row.title);
 }

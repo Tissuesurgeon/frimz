@@ -1,0 +1,909 @@
+/* Every element below renders in its finished state by default. Motion only
+   runs inside prefers-reduced-motion: no-preference, and scroll-linked
+   motion only where animation-timeline is supported. */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+@keyframes word-in {
+  from { opacity: 0.001; transform: translateY(0.32em); filter: blur(6px); }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.55); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-8px); filter: blur(4px); }
+}
+
+@keyframes grow-y {
+  from { transform: scaleY(0); }
+}
+
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+}
+
+@keyframes draw {
+  from { stroke-dashoffset: 1; }
+}
+
+@keyframes dim {
+  from { opacity: 1; }
+}
+
+@keyframes breathe {
+  0% { opacity: 0.6; transform: scale(0.86); }
+  70%, 100% { opacity: 0; transform: scale(1.22); }
+}
+
+/* ---------- buttons ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .cta {
+    transition: transform 160ms var(--ease-out-expo), background-color 160ms var(--ease-out-expo), border-color 160ms var(--ease-out-expo);
+  }
+
+  .cta:hover { transform: translateY(-1px); }
+  .cta:active { transform: translateY(0) scale(0.98); }
+}
+
+/* ---------- hero entrance ---------- */
+
+.word {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .word {
+    animation: word-in 760ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--w, 0) * 55ms + 80ms);
+  }
+
+  .rise {
+    animation: rise 640ms var(--ease-out-expo) both;
+    animation-delay: var(--d, 0ms);
+  }
+}
+
+/* ---------- idea lineage ---------- */
+
+.lineage {
+  position: relative;
+  border: 1px solid rgb(243 246 244 / 0.12);
+  border-radius: 1.5rem;
+  background: rgb(243 246 244 / 0.04);
+  padding: 1.75rem 1.5rem 2rem;
+  color: var(--forest-foreground);
+}
+
+@media (min-width: 640px) {
+  .lineage { padding: 2.25rem 2.25rem 2.5rem; }
+}
+
+.caption {
+  font-size: 0.8125rem;
+  color: var(--forest-muted);
+}
+
+.track {
+  margin-top: 1.75rem;
+}
+
+.stop {
+  --node: 28px;
+  --gap: 18px;
+  position: relative;
+  padding-left: calc(var(--node) + var(--gap));
+  padding-bottom: 2rem;
+}
+
+.stop:last-child {
+  padding-bottom: 0;
+}
+
+.stop:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--node) / 2 - 0.75px);
+  top: calc(var(--node) / 2);
+  bottom: calc(var(--node) / -2);
+  width: 1.5px;
+  background: rgb(197 214 206 / 0.5);
+  transform-origin: top;
+}
+
+.node {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: var(--node);
+  height: var(--node);
+  border: 1.5px solid var(--sage);
+  border-radius: 8px;
+  background: var(--forest);
+}
+
+.now .node {
+  border-color: var(--forest-foreground);
+  background: var(--forest-foreground);
+}
+
+.now .node::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 1.5px solid rgb(243 246 244 / 0.55);
+  border-radius: 12px;
+  opacity: 0;
+}
+
+.when {
+  font-size: 0.8125rem;
+  line-height: var(--node);
+  color: var(--forest-muted);
+}
+
+.what {
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+.now .what {
+  font-size: 1.375rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 640px) {
+  .now .what { font-size: 1.5rem; }
+}
+
+.note {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--forest-muted);
+}
+
+.fork {
+  position: relative;
+  margin-top: 0.875rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  line-height: 20px;
+  color: var(--forest-muted);
+}
+
+/* Leaves the spine 18px above the fork row and lands on the glyph's centre. */
+.forkLine {
+  position: absolute;
+  left: calc((var(--node) / 2 + var(--gap)) * -1);
+  top: -18px;
+  width: calc(var(--node) / 2 + var(--gap) - 4px);
+  height: 28px;
+  overflow: visible;
+  fill: none;
+  stroke: rgb(197 214 206 / 0.55);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.forkLine path {
+  stroke-dasharray: 1;
+}
+
+.forkGlyph {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.struck {
+  position: relative;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+.struck::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 52%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  transform-origin: left;
+}
+
+.tag {
+  border: 1px solid rgb(197 214 206 / 0.35);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  line-height: 18px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lineage .caption {
+    animation: fade 500ms ease-out both;
+  }
+
+  .stop {
+    --t: calc(var(--i, 0) * 820ms + 260ms);
+  }
+
+  .node {
+    animation: pop 520ms var(--ease-out-expo) both;
+    animation-delay: var(--t);
+  }
+
+  .when,
+  .what {
+    animation: slide-in 560ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--t) + 70ms);
+  }
+
+  .what {
+    animation-delay: calc(var(--t) + 130ms);
+  }
+
+  .stop:not(:last-child)::before {
+    animation: grow-y 560ms var(--ease-out-quart) both;
+    animation-delay: calc(var(--t) + 300ms);
+  }
+
+  .note {
+    animation: slide-in 560ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--t) + 320ms);
+  }
+
+  .forkLine path {
+    animation: draw 480ms var(--ease-out-quart) both;
+    animation-delay: calc(var(--t) + 260ms);
+  }
+
+  .forkGlyph,
+  .tag {
+    animation: fade 400ms ease-out both;
+    animation-delay: calc(var(--t) + 560ms);
+  }
+
+  .forkText {
+    animation: slide-in 480ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--t) + 520ms);
+  }
+
+  .struck {
+    animation: dim 400ms ease-out both;
+    animation-delay: calc(var(--t) + 1100ms);
+  }
+
+  .struck::after {
+    animation: grow-x 420ms var(--ease-out-quart) both;
+    animation-delay: calc(var(--t) + 1050ms);
+  }
+
+  .now .node::after {
+    animation: breathe 3.2s var(--ease-out-quart) infinite;
+    animation-delay: calc(var(--t) + 700ms);
+  }
+}
+
+/* ---------- sessions: forgetting vs keeping ---------- */
+
+.sessions {
+  position: relative;
+  display: grid;
+  gap: 24px;
+  max-width: 22rem;
+  view-timeline: --sessions block;
+}
+
+.lane {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 14px;
+}
+
+.laneDay {
+  width: 2rem;
+  flex: none;
+  font-size: 0.75rem;
+  line-height: 14px;
+  color: var(--muted-foreground);
+}
+
+.start {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border: 1.5px solid color-mix(in srgb, var(--foreground) 38%, transparent);
+  border-radius: 4px;
+}
+
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--foreground) 18%, transparent);
+}
+
+.forget .lane {
+  opacity: 0.4;
+}
+
+.keyBar,
+.carried {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.carried {
+  position: relative;
+  z-index: 1;
+}
+
+.thread {
+  position: absolute;
+  left: calc(2rem + 8px + 6.25px);
+  top: 7px;
+  width: 1.5px;
+  height: 76px;
+  background: var(--primary);
+  transform-origin: top;
+}
+
+@keyframes lane-forget {
+  0% { opacity: 0; }
+  35% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+@keyframes key-on {
+  from { background: color-mix(in srgb, var(--foreground) 18%, transparent); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .forget .lane {
+      animation: lane-forget linear both;
+      animation-timeline: --sessions;
+    }
+
+    .forget .lane:nth-child(1) { animation-range: entry 20% cover 40%; }
+    .forget .lane:nth-child(2) { animation-range: entry 50% cover 46%; }
+    .forget .lane:nth-child(3) { animation-range: entry 80% cover 52%; }
+
+    .keep .lane {
+      animation: fade linear both;
+      animation-timeline: --sessions;
+    }
+
+    .keep .lane:nth-of-type(1) { animation-range: entry 20% cover 30%; }
+    .keep .lane:nth-of-type(2) { animation-range: entry 50% cover 36%; }
+    .keep .lane:nth-of-type(3) { animation-range: entry 80% cover 42%; }
+
+    .keyBar {
+      animation: key-on linear both;
+      animation-timeline: --sessions;
+      animation-range: cover 30% cover 38%;
+    }
+
+    .thread {
+      animation: grow-y linear both;
+      animation-timeline: --sessions;
+      animation-range: cover 36% cover 52%;
+    }
+
+    .carried {
+      animation: pop linear both;
+      animation-timeline: --sessions;
+      animation-range: cover 42% cover 46%;
+    }
+
+    .lane:nth-of-type(3) .carried { animation-range: cover 50% cover 54%; }
+  }
+}
+
+/* ---------- memory thread: Monday to Friday ---------- */
+
+.day {
+  --node: 28px;
+  --gap: 18px;
+  position: relative;
+  padding-left: calc(var(--node) + var(--gap));
+  padding-bottom: 2.5rem;
+  view-timeline: --day block;
+}
+
+.day:last-child {
+  padding-bottom: 0;
+}
+
+.day:not(:last-child)::before,
+.day:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--node) / 2 - 0.75px);
+  top: calc(var(--node) / 2);
+  bottom: calc(var(--node) / -2);
+  width: 1.5px;
+}
+
+.day:not(:last-child)::before {
+  background: var(--border);
+}
+
+.day:not(:last-child)::after {
+  background: var(--primary);
+  transform-origin: top;
+}
+
+.dayNode {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  display: grid;
+  width: var(--node);
+  height: var(--node);
+  place-items: center;
+  border: 1.5px solid var(--primary);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--primary);
+}
+
+.frimzNode {
+  border: 0;
+  background: transparent;
+}
+
+.dayName {
+  font-size: 0.875rem;
+  line-height: var(--node);
+  color: var(--muted-foreground);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .day:not(:last-child)::after {
+      animation: grow-y linear both;
+      animation-timeline: --day;
+      animation-range: contain 0% contain 45%;
+    }
+
+    .reply {
+      animation: rise linear both;
+      animation-timeline: --day;
+      animation-range: entry 10% cover 30%;
+    }
+  }
+}
+
+/* ---------- Walrus store and recall loop ---------- */
+
+.loop {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.box {
+  fill: rgb(243 246 244 / 0.05);
+  stroke: rgb(243 246 244 / 0.18);
+  stroke-width: 1;
+}
+
+.msg {
+  fill: rgb(197 214 206 / 0.24);
+}
+
+.msgKey {
+  fill: var(--forest-foreground);
+}
+
+.msgBack {
+  fill: var(--sage);
+}
+
+.blob {
+  fill: rgb(159 191 179 / 0.5);
+}
+
+.blobOpen {
+  fill: none;
+  stroke: rgb(159 191 179 / 0.45);
+  stroke-width: 1.25;
+}
+
+.blobArrive,
+.blobDepart {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.channel {
+  fill: none;
+  stroke: rgb(197 214 206 / 0.45);
+  stroke-width: 1.25;
+  stroke-dasharray: 2 6;
+  stroke-linecap: round;
+}
+
+.arrow {
+  fill: rgb(197 214 206 / 0.7);
+}
+
+.packetStore {
+  fill: var(--forest-foreground);
+}
+
+.packetRecall {
+  fill: var(--sage);
+}
+
+/* Each orbit rotates around the centre of its arc. The inner packet turns the
+   other way so it stays upright while it travels. */
+.orbitStore {
+  transform-box: view-box;
+  transform-origin: 220px 102.25px;
+  transform: rotate(50.4deg);
+}
+
+.orbitRecall {
+  transform-box: view-box;
+  transform-origin: 220px 57.75px;
+  transform: rotate(50.4deg);
+}
+
+.upright {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(-50.4deg);
+}
+
+@keyframes orbit-store {
+  0%, 8% { transform: rotate(0deg); opacity: 0; }
+  11%, 29% { opacity: 1; }
+  32%, 100% { transform: rotate(100.8deg); opacity: 0; }
+}
+
+@keyframes upright-store {
+  0%, 8% { transform: rotate(0deg); }
+  32%, 100% { transform: rotate(-100.8deg); }
+}
+
+@keyframes orbit-recall {
+  0%, 52% { transform: rotate(0deg); opacity: 0; }
+  55%, 73% { opacity: 1; }
+  76%, 100% { transform: rotate(100.8deg); opacity: 0; }
+}
+
+@keyframes upright-recall {
+  0%, 52% { transform: rotate(0deg); }
+  76%, 100% { transform: rotate(-100.8deg); }
+}
+
+@keyframes key-glow {
+  0% { fill: rgb(197 214 206 / 0.24); }
+  5%, 30% { fill: var(--forest-foreground); }
+  40%, 100% { fill: rgb(197 214 206 / 0.24); }
+}
+
+@keyframes back-glow {
+  0%, 74% { fill: rgb(197 214 206 / 0.24); }
+  79%, 95% { fill: var(--sage); }
+  100% { fill: rgb(197 214 206 / 0.24); }
+}
+
+@keyframes blob-arrive {
+  0%, 30% { fill: rgb(159 191 179 / 0.5); transform: none; }
+  34% { fill: var(--forest-foreground); transform: scale(1.12); }
+  46%, 100% { fill: rgb(159 191 179 / 0.5); transform: none; }
+}
+
+@keyframes blob-depart {
+  0%, 44% { fill: rgb(159 191 179 / 0.5); }
+  50% { fill: var(--sage); }
+  58%, 100% { fill: rgb(159 191 179 / 0.5); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loop * {
+    animation-duration: 8s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  .orbitStore { animation-name: orbit-store; }
+  .orbitStore .upright { animation-name: upright-store; }
+  .orbitRecall { animation-name: orbit-recall; }
+  .orbitRecall .upright { animation-name: upright-recall; }
+  .msgKey { animation-name: key-glow; }
+  .msgBack { animation-name: back-glow; }
+  .blobArrive { animation-name: blob-arrive; }
+  .blobDepart { animation-name: blob-depart; }
+}
+
+.legendKey {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 3px;
+}
+
+/* ---------- evolve: one idea, three turns ---------- */
+
+.evolution {
+  view-timeline: --evolution block;
+}
+
+.turns {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.turn {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.turnNode {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  place-items: center;
+  border: 1.5px solid var(--primary);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--primary);
+}
+
+.turn:last-child .turnNode {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.turn:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 13.25px;
+  top: 28px;
+  height: 1.25rem;
+  width: 1.5px;
+  background: var(--primary);
+  transform-origin: top;
+}
+
+.turnText {
+  padding-top: 3px;
+  line-height: 1.45;
+}
+
+.turn:last-child .turnText {
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .turns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .turn {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .turn:not(:last-child)::after {
+    left: 36px;
+    right: -1rem;
+    top: 13.25px;
+    width: auto;
+    height: 1.5px;
+    transform-origin: left;
+  }
+
+  .turnText {
+    padding-top: 0;
+    padding-right: 0.5rem;
+  }
+}
+
+/* ---------- build: a brief and a draft ---------- */
+
+.sketch {
+  max-width: 34rem;
+  view-timeline: --sketch block;
+}
+
+.sheet {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--background);
+  padding: 1.125rem 1.25rem 0.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.sheetRow {
+  display: grid;
+  grid-template-columns: 7.75rem minmax(0, 1fr);
+  gap: 0.75rem;
+  border-top: 1px solid var(--border);
+  padding: 0.625rem 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.sheetLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 479px) {
+  .sheetRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.125rem;
+  }
+}
+
+.draftDoc {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+  width: min(72%, 22rem);
+  margin: -0.875rem 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--background);
+  padding: 1.625rem 1rem 1rem;
+}
+
+.draftChip {
+  width: fit-content;
+  border-radius: 999px;
+  background: var(--secondary);
+  padding: 0.125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--secondary-foreground);
+}
+
+.draftLine {
+  display: block;
+  height: 7px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--foreground) 14%, transparent);
+}
+
+@keyframes tuck {
+  from { opacity: 0; transform: translateY(-28%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .turn {
+      animation: rise linear both;
+      animation-timeline: --evolution;
+    }
+
+    .turn:nth-child(1) { animation-range: entry 30% cover 34%; }
+    .turn:nth-child(2) { animation-range: entry 55% cover 40%; }
+    .turn:nth-child(3) { animation-range: entry 80% cover 46%; }
+
+    .turn:not(:last-child)::after {
+      animation: grow-y linear both;
+      animation-timeline: --evolution;
+    }
+
+    .turn:nth-child(1)::after { animation-range: cover 30% cover 40%; }
+    .turn:nth-child(2)::after { animation-range: cover 36% cover 46%; }
+
+    .sheetRow {
+      animation: rise linear both;
+      animation-timeline: --sketch;
+    }
+
+    .sheetRow:nth-child(1) { animation-range: entry 30% cover 30%; }
+    .sheetRow:nth-child(2) { animation-range: entry 45% cover 34%; }
+    .sheetRow:nth-child(3) { animation-range: entry 60% cover 38%; }
+    .sheetRow:nth-child(4) { animation-range: entry 75% cover 42%; }
+
+    .draftDoc {
+      animation: tuck linear both;
+      animation-timeline: --sketch;
+      animation-range: cover 40% cover 52%;
+    }
+  }
+
+  @media (min-width: 768px) {
+    @supports (animation-timeline: view()) {
+      .turn:not(:last-child)::after { animation-name: grow-x; }
+    }
+  }
+}
+
+/* ---------- closing path ---------- */
+
+.closing {
+  width: 100%;
+  max-width: 20rem;
+  height: auto;
+  overflow: visible;
+  view-timeline: --closing block;
+}
+
+.closingLine {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+}
+
+.closingTail {
+  fill: none;
+  stroke: color-mix(in srgb, var(--primary) 55%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 8;
+}
+
+.closingStart {
+  fill: var(--primary);
+}
+
+.closingOpen {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .closingLine {
+      animation: draw linear both;
+      animation-timeline: --closing;
+      animation-range: entry 30% cover 45%;
+    }
+
+    .closingOpen {
+      animation: pop linear both;
+      animation-timeline: --closing;
+      animation-range: cover 40% cover 50%;
+    }
+
+    .closingTail {
+      animation: fade linear both;
+      animation-timeline: --closing;
+      animation-range: cover 46% cover 58%;
+    }
+  }
+}

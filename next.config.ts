@@ -8,7 +8,17 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The Docker image runs this server. Vercel uses Dockerfile.vercel, not the serverless build.
+  output: "standalone",
   serverExternalPackages: ["@cursor/sdk", "@mysten-incubation/memwal"],
+  outputFileTracingIncludes: {
+    "/*": [
+      "./node_modules/@cursor/sdk/**/*",
+      "./node_modules/@mysten-incubation/memwal/**/*",
+      "./node_modules/@mysten/seal/**/*",
+      "./node_modules/@mysten/sui/**/*",
+    ],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

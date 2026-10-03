@@ -1,4 +1,5 @@
 import type { Mode } from "@/lib/modes";
+import { WRITE_UP_FORMATS } from "@/lib/write-up";
 import type { MemoryRecord } from "@/server/memory/types";
 import { analyzeIntent } from "./intent-analyzer";
 import { conflictingMemories, deriveConversationState } from "./conversation-state";
@@ -143,6 +144,14 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         shouldAskQuestion: false,
         reasoningFocus: "Offer a short sequence they can react to. Keep undecided choices open.",
       });
+    case "wrap_up":
+      return strategy({
+        intent: "reflection",
+        thinkingStage: "reflect",
+        conversationalMove: "summarize",
+        shouldAskQuestion: false,
+        reasoningFocus: "They are wrapping up. Close warmly in a sentence or two and leave the thread where they put it.",
+      });
     default:
       return strategy({
         intent: "unclear",
@@ -179,12 +188,16 @@ function modeMove(mode: Mode): { move: ConversationalMove; stage: ThinkingStage;
   return null;
 }
 
+const DRAFT_OFFER = `They are wrapping up and the current thinking has substance. In two or three sentences, say where the thinking landed, using the context brief. Then ask once whether they would like a written draft of it, naming the two or three formats from this list that fit the work best: ${WRITE_UP_FORMATS.map((format) => format.label).join(", ")}. Keep the offer to one short sentence.`;
+
 export function chooseConversationStrategy(input: {
   mode: Mode;
   userMessage: string;
   memories?: MemoryRecord[];
   preferences?: MemoryRecord[];
   ideaTitle?: string;
+  /** The brief is ready for a draft and none has been offered at this version. */
+  offerDraft?: boolean;
 }): ConversationStrategy {
   const memories = input.memories ?? [];
   const preferences = input.preferences ?? [];
@@ -197,6 +210,17 @@ export function chooseConversationStrategy(input: {
   const analysis = analyzeIntent(input.userMessage);
   const historyIds = ids([...state.decisions, ...state.ideaChanges, ...state.rejections]);
   let chosen = fromSignal(analysis.explicit ? analysis.signal : "unclear", historyIds);
+
+  if (analysis.signal === "wrap_up" && input.offerDraft) {
+    chosen = strategy({
+      intent: "reflection",
+      thinkingStage: "reflect",
+      conversationalMove: "summarize",
+      shouldAskQuestion: true,
+      reasoningFocus: DRAFT_OFFER,
+      offersDraft: true,
+    });
+  }
 
   if (!analysis.explicit) {
     const bias = modeMove(input.mode);
@@ -211,7 +235,7 @@ export function chooseConversationStrategy(input: {
     }
   }
 
-  const locked: ConversationalMove[] = ["draft", "reflect", "synthesize", "confirm", "answer"];
+  const locked: ConversationalMove[] = ["draft", "reflect", "synthesize", "confirm", "answer", "summarize"];
   if (!locked.includes(chosen.conversationalMove)) {
     const conflicts = conflictingMemories(input.userMessage, state);
     if (conflicts.length > 0) {

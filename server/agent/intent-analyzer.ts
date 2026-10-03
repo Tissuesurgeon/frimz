@@ -23,6 +23,17 @@ const RULES: Array<{ signal: IntentSignal; intent: ConversationalIntent; pattern
   { signal: "factual", intent: "question", pattern: /what does .{1,80} mean\??$|^(what is|who is|define)\b/i },
 ];
 
+const CLOSING =
+  /\b(thanks|thank you|that'?s (all|it|everything|enough)( for (now|today))?|that (helps|helped)|(this|that) (was|is|has been) (really |very |super )?helpful|i (think i )?(have|got) what i need|i'?m (done|good)( for (now|today))?|good for (now|today)|let'?s (stop|pause|wrap( this| it)? up)|i'?ll start (building|on it|there|with (that|this))|time to (build|start)|that'?s the plan|i know what to (build|do) now)\b/i;
+const CONTINUING =
+  /\?|(?<!(?:for|build|do) )\bnow\b|\b(next|but|however|also|what about|how (do|would|should|can|could)|can you|could you|would you|let'?s (talk|think|look|explore|figure|discuss|move|go back)|i want to|i'?d like to|tell me|help me)\b/i;
+
+/** The user is closing the conversation and is not opening a new thread. */
+export function isWrapUp(message: string) {
+  const text = message.trim();
+  return text.length <= 160 && CLOSING.test(text) && !CONTINUING.test(text);
+}
+
 export function analyzeIntent(message: string): IntentAnalysis {
   const text = message.trim();
   if (/^what should (i|we) do\b/i.test(text) || /^what do you think\b/i.test(text)) {
@@ -33,6 +44,7 @@ export function analyzeIntent(message: string): IntentAnalysis {
     if (rule.signal === "factual" && text.length > 120) continue;
     if (rule.pattern.test(text)) return { signal: rule.signal, intent: rule.intent, explicit: true };
   }
+  if (isWrapUp(text)) return { signal: "wrap_up", intent: "reflection", explicit: true };
   if (text.length < 24 && /^(hi|hello|hey|thanks|thank you)\b/i.test(text)) {
     return { signal: "unclear", intent: "casual", explicit: false };
   }

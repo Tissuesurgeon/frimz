@@ -32,8 +32,10 @@ export async function GET(_request: Request, { params }: Params) {
       content: message.content,
       createdAt: message.createdAt,
       error: message.metadata?.error ?? false,
+      draft: message.metadata?.writeUp ? { format: message.metadata.writeUp.format } : undefined,
       indicators: (message.metadata?.indicators ?? []).map((indicator) => ({
         ...indicator,
+        kind: typeById.get(indicator.memoryId) ?? "",
         label: indicatorPhrase(typeById.get(indicator.memoryId) ?? ""),
       })),
     })),

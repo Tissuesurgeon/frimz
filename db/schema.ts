@@ -1,5 +1,6 @@
 import {
   index,
+  integer,
   jsonb,
   pgTable,
   real,
@@ -8,6 +9,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { BriefField, ContextBriefData } from "@/lib/context-brief";
 
 export type IndicatorType = "remembered" | "connected";
 
@@ -15,6 +17,8 @@ export type MessageMetadata = {
   memoryUsed?: boolean;
   indicators?: { type: IndicatorType; memoryId: string }[];
   error?: boolean;
+  draftOffer?: { briefVersion: number };
+  writeUp?: { format: string; briefVersion: number };
 };
 
 export const users = pgTable("users", {
@@ -60,6 +64,7 @@ export const conversations = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     title: text("title").notNull().default("New conversation"),
     currentIdeaId: uuid("current_idea_id").references(() => ideas.id, { onDelete: "set null" }),
+    contextCheckedMessageId: uuid("context_checked_message_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -152,6 +157,58 @@ export const memoryActivity = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("memory_activity_user_idx").on(table.userId)],
+);
+
+export const contextBriefs = pgTable(
+  "context_briefs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    ideaId: uuid("idea_id")
+      .notNull()
+      .references(() => ideas.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    version: integer("version").notNull().default(0),
+    data: jsonb("data").$type<ContextBriefData>().notNull().default({}),
+    changeSummary: text("change_summary").notNull().default(""),
+    userFields: jsonb("user_fields").$type<BriefField[]>().notNull().default([]),
+    userEditedAt: timestamp("user_edited_at", { withTimezone: true }),
+    lastConversationId: uuid("last_conversation_id").references(() => conversations.id, {
+      onDelete: "set null",
+    }),
+    staleSince: timestamp("stale_since", { withTimezone: true }),
+    synthesizingAt: timestamp("synthesizing_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("context_briefs_idea_idx").on(table.ideaId),
+    index("context_briefs_user_idx").on(table.userId),
+  ],
+);
+
+export const contextBriefVersions = pgTable(
+  "context_brief_versions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    briefId: uuid("brief_id")
+      .notNull()
+      .references(() => contextBriefs.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    source: text("source").notNull(),
+    changeSummary: text("change_summary").notNull().default(""),
+    data: jsonb("data").$type<ContextBriefData>().notNull(),
+    conversationId: uuid("conversation_id").references(() => conversations.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("context_brief_versions_brief_version_idx").on(table.briefId, table.version)],
 );
 
 export const appLogs = pgTable(

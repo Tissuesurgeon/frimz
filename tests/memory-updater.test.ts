@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { planMemoryWrite } from "@/server/memory/memory-updater";
-import type { MemoryRecord } from "@/server/memory/types";
+import { isMeaningfulProgress, planMemoryWrite } from "@/server/memory/memory-updater";
+import type { MemoryDraft, MemoryRecord } from "@/server/memory/types";
 
 const existing: MemoryRecord = {
   id: "old",
@@ -45,6 +45,27 @@ describe("memory supersede", () => {
       changesIdea: false,
     });
     expect(plan).toEqual({ action: "create", supersedeId: "pref" });
+  });
+
+  it("counts a turn as progress for the brief only when it moves the thinking", () => {
+    const draft = (partial: Partial<MemoryDraft>): MemoryDraft => ({
+      type: "decision",
+      content: "User wants to target individual students first.",
+      reason: "",
+      importance: 0.8,
+      ideaTitle: "Study partner",
+      supersedes: "",
+      changesIdea: false,
+      ...partial,
+    });
+    expect(isMeaningfulProgress([existing], [draft({})], false)).toBe(true);
+    expect(isMeaningfulProgress([existing], [draft({ type: "open_question", content: "Who pays for it?" })], false)).toBe(true);
+    expect(isMeaningfulProgress([existing], [draft({ content: "User wants to target universities." })], false)).toBe(false);
+    expect(isMeaningfulProgress([existing], [draft({ type: "user_preference", content: "User prefers short answers." })], false)).toBe(
+      false,
+    );
+    expect(isMeaningfulProgress([existing], [], false)).toBe(false);
+    expect(isMeaningfulProgress([existing], [], true)).toBe(true);
   });
 
   it("skips duplicates", () => {

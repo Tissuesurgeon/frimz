@@ -12,8 +12,13 @@ import {
   recordLog,
   touchConversation,
 } from "@/server/conversations/conversation-service";
-import { contextForTurn, extractMemories, recallForTurn, resolveIdea } from "@/server/memory/memory-orchestrator";
+import { contextForTurn, recallForTurn, resolveIdea } from "@/server/memory/memory-orchestrator";
 import { indicatorPhrase } from "@/server/agent/indicator-label";
+import { briefForIdea } from "@/server/context/brief-runtime";
+import { updateThinkingAfterTurn } from "@/server/context/context-updater";
+import { LLMWriteUpGenerator, planWriteUp } from "@/server/context/write-up";
+import { PostgresMemoryIndex } from "@/server/memory/memory-index";
+import { isDraftable } from "@/lib/context-brief";
 import type { IndicatorType, MessageMetadata } from "@/db/schema";
 
 export type ChatEvent =
@@ -22,7 +27,8 @@ export type ChatEvent =
   | {
       type: "done";
       messageId: string;
-      indicators: { type: IndicatorType; memoryId: string; label: string }[];
+      indicators: { type: IndicatorType; memoryId: string; label: string; kind: string }[];
+      draft?: { format: string };
     }
   | { type: "error"; message: string };
 
@@ -93,25 +99,57 @@ export async function* runChatTurn(input: {
   }
 
   const recall = await recallForTurn(input.userId, userText, idea?.title);
+  const stored = idea ? await briefForIdea(input.userId, idea.id).catch(() => null) : null;
+  const brief = stored ? { version: stored.version, data: stored.data, userFields: stored.userFields } : null;
   const transcript = (await getConversation(input.userId, conversationId))?.messages ?? [];
   const prior = transcript.filter((message) => message.role === "user" || message.role === "assistant");
   const history = input.retry ? prior : prior.slice(0, -1);
-  const prompt = contextForTurn({
-    mode: input.mode,
-    preferences: recall.preferences,
-    memories: recall.memories,
-    ideaTitle: idea?.title,
-    ideaDescription: idea?.description,
-    transcript: history.map((message) => ({ role: message.role, content: message.content })),
-    userMessage: userText,
-  });
+  const lastUser = prior.map((message) => message.role).lastIndexOf("user");
+  const before = lastUser > 0 ? prior[lastUser - 1] : null;
+  const previousReply = before?.role === "assistant" ? before : null;
+
+  const writeUp = planWriteUp({ message: userText, previous: previousReply });
+  const offered = (version: number) =>
+    prior.some(
+      (message) =>
+        message.role === "assistant" &&
+        (message.metadata?.draftOffer?.briefVersion === version || message.metadata?.writeUp?.briefVersion === version),
+    );
+  const prompt = writeUp
+    ? null
+    : contextForTurn({
+        mode: input.mode,
+        preferences: recall.preferences,
+        memories: recall.memories,
+        ideaTitle: idea?.title,
+        ideaDescription: idea?.description,
+        brief,
+        offerDraft: Boolean(brief && isDraftable(brief.data) && !offered(brief.version)),
+        transcript: history.map((message) => ({ role: message.role, content: message.content })),
+        userMessage: userText,
+      });
 
   const started = Date.now();
   let assistant = "";
   let failed = false;
   try {
     const provider = getLLMProvider();
-    for await (const chunk of provider.stream({ ...prompt, signal: input.signal })) {
+    const chunks = writeUp
+      ? new LLMWriteUpGenerator(provider).stream(
+          {
+            plan: writeUp,
+            request: userText,
+            ideaTitle: idea?.title,
+            brief,
+            memories: idea
+              ? await new PostgresMemoryIndex().listActiveForIdea(input.userId, idea.id).catch(() => recall.memories)
+              : recall.memories,
+            transcript: history,
+          },
+          input.signal,
+        )
+      : provider.stream({ ...prompt!, signal: input.signal });
+    for await (const chunk of chunks) {
       if (input.signal?.aborted) break;
       assistant += chunk.text;
       yield { type: "token", text: chunk.text };
@@ -139,9 +177,11 @@ export async function* runChatTurn(input: {
     conversationId,
   ).catch(() => undefined);
 
+  const draft = writeUp ? { format: writeUp.format?.id ?? "custom", briefVersion: brief?.version ?? 0 } : undefined;
+
   if (input.signal?.aborted) {
     if (assistant.trim()) {
-      await addMessage(conversationId, "assistant", assistant);
+      await addMessage(conversationId, "assistant", assistant, draft ? { writeUp: draft } : undefined);
     }
     return;
   }
@@ -153,24 +193,32 @@ export async function* runChatTurn(input: {
     return;
   }
 
-  const selected = new Set(prompt.strategy.shouldUseMemory ? prompt.strategy.relevantMemoryIds : []);
+  const selected = new Set(prompt?.strategy.shouldUseMemory ? prompt.strategy.relevantMemoryIds : []);
   const indicators = (recall.indicators ?? []).filter((indicator) => selected.has(indicator.memoryId));
-  const metadata: MessageMetadata | undefined =
-    indicators.length > 0 ? { memoryUsed: true, indicators } : undefined;
-  const saved = await addMessage(conversationId, "assistant", assistant, metadata);
+  const metadata: MessageMetadata = {};
+  if (indicators.length > 0) Object.assign(metadata, { memoryUsed: true, indicators });
+  if (draft) metadata.writeUp = draft;
+  if (prompt?.strategy.offersDraft && brief) metadata.draftOffer = { briefVersion: brief.version };
+  const saved = await addMessage(
+    conversationId,
+    "assistant",
+    assistant,
+    Object.keys(metadata).length > 0 ? metadata : undefined,
+  );
   for (const indicator of indicators) {
     await recordActivity(input.userId, "used", indicator.type, indicator.memoryId, conversationId);
   }
 
   const snapshot = (await getConversation(input.userId, conversationId))?.messages ?? [];
   after(() =>
-    extractMemories({
+    updateThinkingAfterTurn({
       userId: input.userId,
       conversationId: conversationId!,
+      assistantMessageId: saved.id,
       ideaTitle: idea?.title,
-      transcript: snapshot.map((message) => ({ role: message.role, content: message.content })),
+      transcript: snapshot,
     }).catch((error: unknown) => {
-      logEvent("extraction_failed", {
+      logEvent("thinking_update_failed", {
         userId: input.userId,
         message: error instanceof Error ? error.message : "failed",
       });
@@ -180,9 +228,10 @@ export async function* runChatTurn(input: {
   yield {
     type: "done",
     messageId: saved.id,
-    indicators: indicators.map((indicator) => ({
-      ...indicator,
-      label: indicatorPhrase(recall.memories.find((memory) => memory.id === indicator.memoryId)?.type ?? ""),
-    })),
+    indicators: indicators.map((indicator) => {
+      const kind = recall.memories.find((memory) => memory.id === indicator.memoryId)?.type ?? "";
+      return { ...indicator, kind, label: indicatorPhrase(kind) };
+    }),
+    ...(draft ? { draft: { format: draft.format } } : {}),
   };
 }
