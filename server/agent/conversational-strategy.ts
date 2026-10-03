@@ -162,7 +162,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "challenge",
         conversationalMove: "challenge",
         shouldAskQuestion: false,
-        reasoningFocus: "Name the assumption, say why it matters, and offer a clearer framing. Do not decide.",
+        reasoningFocus: "Name the assumption, say why it matters, and offer a clearer framing. Do not decide. If they disagree, adapt. Do not repeat the same challenge.",
       });
     case "direction":
       return strategy({
@@ -172,13 +172,22 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         shouldAskQuestion: false,
         reasoningFocus: "Offer a few directions they can react to. Do not pick one.",
       });
+    case "weighing":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "synthesize",
+        shouldAskQuestion: false,
+        reasoningFocus: "They are thinking aloud between options. Name the tradeoff they are weighing. Do not force a choice yet.",
+      });
     case "vague":
       return strategy({
         intent: "exploration",
         thinkingStage: "explore",
         conversationalMove: "explore",
-        shouldAskQuestion: true,
-        reasoningFocus: "One framing, then one question, and an alternate door. Do not judge it and do not produce a plan. No feature list.",
+        shouldAskQuestion: false,
+        reasoningFocus:
+          "Create space. They may not have a concrete idea yet. Offer a few directions they can enter. Do not force problem, persona, or MVP. No feature list.",
       });
     case "clarify":
       return strategy({
@@ -192,27 +201,28 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
       return strategy({
         intent: "exploration",
         thinkingStage: "discover",
-        conversationalMove: "ask",
-        shouldAskQuestion: true,
-        bareQuestion: true,
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
         reasoningFocus:
-          "They have not put an idea down yet. Stay with them and help them find it. Do not teach them how to phrase it, and do not wait for a polished version. One question that draws out the half-formed thought.",
+          "They have not put an idea down yet. Create space. We do not need the exact idea yet. Do not teach them how to phrase it or run a methodology interview.",
       });
     case "uncertain":
       return strategy({
         intent: "exploration",
         thinkingStage: "discover",
-        conversationalMove: "clarify",
-        shouldAskQuestion: true,
-        reasoningFocus: "Stay at the problem. One question. Do not force a product idea.",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        reasoningFocus:
+          "Stay broad. They may not have a problem or product yet. Offer a few angles or create space. Do not force problem, persona, market, or MVP.",
       });
     case "discover":
       return strategy({
         intent: "exploration",
         thinkingStage: "discover",
-        conversationalMove: "clarify",
-        shouldAskQuestion: true,
-        reasoningFocus: "The idea is still early. One framing, one question, and an alternate door. No feature list. Do not produce a plan.",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        reasoningFocus:
+          "Early interest in a space, not necessarily a problem yet. Create space and offer a few directions they can enter. Do not interview them into a startup workshop.",
       });
     case "brainstorm":
       return strategy({
@@ -271,8 +281,8 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         intent: "unclear",
         thinkingStage: "explore",
         conversationalMove: "explore",
-        shouldAskQuestion: true,
-        reasoningFocus: "Pick up where they left off. Add one pressure. Do not explain what they just said.",
+        shouldAskQuestion: false,
+        reasoningFocus: "Pick up where they left off. Add one useful step. Do not explain what they just said. Do not force a methodology.",
       });
   }
 }
@@ -296,7 +306,7 @@ function modeMove(mode: Mode): { move: ConversationalMove; stage: ThinkingStage;
     return {
       move: "explore",
       stage: "explore",
-      focus: "Brainstorm the thought with them. Do not survey the whole category. Do not explain it back.",
+      focus: "Create space or offer directions they can enter. Do not run a startup workshop. Do not explain it back.",
     };
   }
   return null;

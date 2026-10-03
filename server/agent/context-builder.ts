@@ -44,7 +44,7 @@ export function buildFrimzContext(input: ContextInput) {
   if (!fresh && input.brief && !isEmptyBrief(input.brief.data)) {
     lines.push(`CURRENT CONTEXT BRIEF (version ${input.brief.version})`);
     lines.push(
-      "The working understanding of this work, built from earlier turns. It informs this reply. The latest user message leads: when it points somewhere new, follow it.",
+      "The working understanding of this work. It informs this reply but does not override the user's latest explicit intent in the latest message.",
     );
     lines.push("");
     lines.push(renderBriefForPrompt(input.brief.data, input.brief.userFields));

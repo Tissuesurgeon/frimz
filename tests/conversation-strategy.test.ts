@@ -38,19 +38,18 @@ function turn(userMessage: string, memories: MemoryRecord[] = []) {
 }
 
 describe("conversation strategy", () => {
-  it("stays with them when the idea is not on the table yet", () => {
+  it("creates space when the idea is not on the table yet", () => {
     const result = turn("Help me explore an idea I'm working on. I don't have the idea yet.");
-    expect(result.conversationalMove).toBe("ask");
-    expect(result.shouldAskQuestion).toBe(true);
-    expect(result.reasoningFocus).toMatch(/help them find it/i);
-    expect(result.reasoningFocus).toMatch(/half-formed/i);
-    expect(renderConversationStrategy(result)).toMatch(/Do not preface it/);
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.shouldAskQuestion).toBe(false);
+    expect(result.reasoningFocus).toMatch(/Create space/i);
+    expect(result.reasoningFocus).toMatch(/exact idea/i);
   });
 
   it("explores a vague idea instead of judging it", () => {
     const result = turn("I have an idea but I'm not sure if it's good.");
     expect(result.conversationalMove).toBe("explore");
-    expect(result.reasoningFocus).toMatch(/not judge/i);
+    expect(result.reasoningFocus).toMatch(/Create space|Do not force problem/i);
   });
 
   it("helps when the direction is unknown", () => {
@@ -223,11 +222,25 @@ describe("conversation strategy", () => {
     expect(readme.shouldAskQuestion).toBe(false);
   });
 
-  it("stays at the problem when they are uncertain", () => {
+  it("stays broad when they are uncertain", () => {
     const result = turn("I don't really know. I just feel like there should be something there.");
-    expect(result.conversationalMove).toBe("clarify");
-    expect(result.shouldAskQuestion).toBe(true);
-    expect(result.reasoningFocus).toMatch(/problem/i);
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.shouldAskQuestion).toBe(false);
+    expect(result.reasoningFocus).toMatch(/Stay broad/i);
+    expect(result.reasoningFocus).toMatch(/Do not force problem/i);
+  });
+
+  it("synthesizes when they weigh options aloud", () => {
+    const result = turn("Maybe students. Although universities might be better. Actually, I'm not sure.");
+    expect(result.conversationalMove).toBe("synthesize");
+    expect(result.shouldAskQuestion).toBe(false);
+    expect(result.reasoningFocus).toMatch(/Do not force a choice/i);
+  });
+
+  it("does not workshop an early interest in a space", () => {
+    const result = turn("I've been thinking about building something for university students, but I don't really know what yet.");
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.reasoningFocus).toMatch(/startup workshop/i);
   });
 
   it("switches topic without dragging the old one back", () => {

@@ -69,6 +69,7 @@ export type IntentSignal =
   | "brainstorm"
   | "disagree"
   | "uncertain"
+  | "weighing"
   | "reset"
   | "switch_topic"
   | "focus_shift"

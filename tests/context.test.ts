@@ -66,7 +66,7 @@ describe("context and adaptation", () => {
     expect(brief).toBeGreaterThan(-1);
     expect(brief).toBeLessThan(context.indexOf("CURRENT IDEA"));
     expect(brief).toBeLessThan(context.indexOf("WORKING STYLE"));
-    expect(context).toContain("The latest user message leads");
+    expect(context).toContain("does not override the user's latest explicit intent");
     expect(context).toContain("PROBLEM (corrected by the user)\nStudents lose the thread between study sessions");
     expect(context).toContain("- Start with individual students Reason: Faster feedback");
   });

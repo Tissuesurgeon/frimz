@@ -4,7 +4,7 @@ const MOVES: Record<ConversationalMove, string> = {
   answer: "Answer the question. If the current work makes it concrete, add one sentence. Do not turn it into an interview.",
   ask: "One question that helps them think. On a blank start, do not preface it with a method.",
   clarify: "One framing, then one question, and another door they can take. No feature list.",
-  explore: "Add one distinction that develops their point. Do not agree by restating them, and do not produce a feature list.",
+  explore: "Add one distinction or a few directions they can enter. Do not agree by restating them. While exploring, do not push MVP, roadmap, or business model unless they do.",
   challenge: "Name the assumption, say why it matters, and offer a clearer framing. They decide. If they disagree, drop your previous view and build on theirs.",
   compare: "Compare and synthesize: value, strength, and risk on each side. Note if they combine. One optional next step. Do not pick a winner.",
   connect: "Bring in the relevant earlier context as reasoning, without labeling it as a memory lookup.",
@@ -35,6 +35,7 @@ export function renderConversationStrategy(strategy: ConversationStrategy) {
       ? "Use only the memories selected for this turn. Weave them in as reasoning. Do not invent steps that are not in that history."
       : "Do not invent earlier conversations. If the needed history is absent, say so.",
   );
+  lines.push("Latest user intent outranks the brief and memory for steering this reply.");
   lines.push("Talk with them. Do not explain what they just said.");
   lines.push("The user owns the decision.");
   return lines.join("\n");
