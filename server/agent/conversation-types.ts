@@ -44,6 +44,10 @@ export type ConversationStrategy = {
   reasoningFocus?: string;
   /** This reply ends by offering a written draft of the current thinking. */
   offersDraft?: boolean;
+  /** A blank start: one question, with no lesson in front of it. */
+  bareQuestion?: boolean;
+  /** This turn does not steer from the brief or recalled memories. */
+  freshStart?: boolean;
 };
 
 export type IntentSignal =
@@ -57,9 +61,21 @@ export type IntentSignal =
   | "challenge"
   | "direction"
   | "vague"
+  | "blank"
   | "discover"
   | "clarify"
   | "factual"
   | "plan"
+  | "brainstorm"
+  | "disagree"
+  | "uncertain"
+  | "reset"
+  | "switch_topic"
+  | "focus_shift"
+  | "return_idea"
+  | "reject_boundary"
+  | "mind_change"
+  | "reframe"
+  | "connect_familiar"
   | "wrap_up"
   | "unclear";

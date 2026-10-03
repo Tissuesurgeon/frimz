@@ -31,7 +31,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "reflect",
         conversationalMove: "synthesize",
         shouldAskQuestion: false,
-        reasoningFocus: "They are stuck. Name what is already settled, in a sentence or two. Do not ask another question.",
+        reasoningFocus: "They are circling or lost. Name what is already settled and the tradeoff underneath. Do not ask another question.",
       });
     case "draft":
       return strategy({
@@ -39,7 +39,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "develop",
         conversationalMove: "draft",
         shouldAskQuestion: false,
-        reasoningFocus: "Produce the requested piece. Leave choices they have not made explicit.",
+        reasoningFocus: "Produce the requested piece. Mark a missing fact. Leave choices they have not made explicit.",
       });
     case "reflect":
       return strategy({
@@ -60,7 +60,75 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "decide",
         conversationalMove: "compare",
         shouldAskQuestion: false,
-        reasoningFocus: "Name the tradeoff they are actually in. Do not choose for them.",
+        reasoningFocus:
+          "Compare and synthesize: each side's core value, strength, and risk. Note if they combine. Do not choose for them. One optional next step they can take or leave.",
+      });
+    case "return_idea":
+      return strategy({
+        intent: "reflection",
+        thinkingStage: "reflect",
+        conversationalMove: "reflect",
+        shouldUseMemory: historyIds.length > 0,
+        relevantMemoryIds: historyIds,
+        shouldAskQuestion: false,
+        reasoningFocus:
+          historyIds.length > 0
+            ? "Recall the last direction, a rejection or decision that mattered, and the open question. Do not assume they still agree. Offer to continue or rethink."
+            : "The history needed is not in context. Say so and ask what to pick up.",
+      });
+    case "connect_familiar":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "connect",
+        shouldUseMemory: historyIds.length > 0,
+        relevantMemoryIds: historyIds,
+        shouldAskQuestion: false,
+        reasoningFocus:
+          "Name the connection to earlier work and the difference that matters now. Do not cite a memory id or announce that you remember.",
+      });
+    case "switch_topic":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: true,
+        reasoningFocus: "Switch with them. Leave the old topic aside. One question that opens the new thread. Do not force the previous topic back.",
+      });
+    case "focus_shift":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: true,
+        reasoningFocus: "Follow the branch they chose. Keep the rest as background only. Contribute one useful angle on the new focus, then one question or let them pick a starting angle.",
+      });
+    case "mind_change":
+      return strategy({
+        intent: "decision",
+        thinkingStage: "decide",
+        conversationalMove: "confirm",
+        shouldUseMemory: historyIds.length > 0,
+        relevantMemoryIds: historyIds,
+        shouldAskQuestion: true,
+        reasoningFocus:
+          "Accept the new direction. Recall the previous decision and its reason as history. Ask one question about what changed their assessment. Do not reject the new choice.",
+      });
+    case "reject_boundary":
+      return strategy({
+        intent: "decision",
+        thinkingStage: "decide",
+        conversationalMove: "confirm",
+        shouldAskQuestion: false,
+        reasoningFocus: "Treat this as a rejected direction and a constraint. Reflect the boundary. Do not claim you decided.",
+      });
+    case "reframe":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "develop",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        reasoningFocus: "Recognize the conceptual shift and develop it with one distinction. Do not jump to a feature list.",
       });
     case "perspective":
       return strategy({
@@ -86,7 +154,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "decide",
         conversationalMove: "confirm",
         shouldAskQuestion: false,
-        reasoningFocus: "Recognize the decision. Do not reopen it.",
+        reasoningFocus: "Reflect the decision they just made and the reason they gave. Do not claim you decided. Do not reopen it.",
       });
     case "challenge":
       return strategy({
@@ -94,7 +162,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "challenge",
         conversationalMove: "challenge",
         shouldAskQuestion: false,
-        reasoningFocus: "Name the assumption in a sentence and one other way to see it. Do not decide.",
+        reasoningFocus: "Name the assumption, say why it matters, and offer a clearer framing. Do not decide.",
       });
     case "direction":
       return strategy({
@@ -109,8 +177,8 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         intent: "exploration",
         thinkingStage: "explore",
         conversationalMove: "explore",
-        shouldAskQuestion: false,
-        reasoningFocus: "Brainstorm the idea with them. Do not judge it and do not produce a plan.",
+        shouldAskQuestion: true,
+        reasoningFocus: "One framing, then one question, and an alternate door. Do not judge it and do not produce a plan. No feature list.",
       });
     case "clarify":
       return strategy({
@@ -120,13 +188,59 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         shouldAskQuestion: true,
         reasoningFocus: "Say the sharper problem in one sentence, then ask one question that tests it.",
       });
-    case "discover":
+    case "blank":
       return strategy({
         intent: "exploration",
         thinkingStage: "discover",
         conversationalMove: "ask",
         shouldAskQuestion: true,
-        reasoningFocus: "The idea is still early. Add one observation, then ask the smallest useful question. Do not produce a plan. Do not explain the category.",
+        bareQuestion: true,
+        reasoningFocus:
+          "They have not put an idea down yet. Stay with them and help them find it. Do not teach them how to phrase it, and do not wait for a polished version. One question that draws out the half-formed thought.",
+      });
+    case "uncertain":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "discover",
+        conversationalMove: "clarify",
+        shouldAskQuestion: true,
+        reasoningFocus: "Stay at the problem. One question. Do not force a product idea.",
+      });
+    case "discover":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "discover",
+        conversationalMove: "clarify",
+        shouldAskQuestion: true,
+        reasoningFocus: "The idea is still early. One framing, one question, and an alternate door. No feature list. Do not produce a plan.",
+      });
+    case "brainstorm":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        reasoningFocus: "Offer a few directions they can react to. Do not pick one.",
+      });
+    case "disagree":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldUseMemory: historyIds.length > 0,
+        relevantMemoryIds: historyIds,
+        shouldAskQuestion: false,
+        reasoningFocus: "Drop the previous view and build on theirs. Do not defend it.",
+      });
+    case "reset":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "discover",
+        conversationalMove: "ask",
+        shouldUseMemory: false,
+        shouldAskQuestion: true,
+        freshStart: true,
+        reasoningFocus: "They want a fresh exploration. Do not use previous idea context to steer. One question that opens the new thread.",
       });
     case "factual":
       return strategy({
@@ -142,7 +256,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "plan",
         conversationalMove: "plan",
         shouldAskQuestion: false,
-        reasoningFocus: "Offer a short sequence they can mark up. Keep undecided choices open.",
+        reasoningFocus: "Offer a short sequence they can mark up. Keep undecided choices open. Do not lock a decision.",
       });
     case "wrap_up":
       return strategy({
@@ -236,7 +350,8 @@ export function chooseConversationStrategy(input: {
   }
 
   const locked: ConversationalMove[] = ["draft", "reflect", "synthesize", "confirm", "answer", "summarize"];
-  if (!locked.includes(chosen.conversationalMove)) {
+  const hold = chosen.freshStart || /do not defend/i.test(chosen.reasoningFocus ?? "");
+  if (!hold && !locked.includes(chosen.conversationalMove)) {
     const conflicts = conflictingMemories(input.userMessage, state);
     if (conflicts.length > 0) {
       chosen = strategy({

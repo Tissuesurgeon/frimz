@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { chooseConversationStrategy } from "@/server/agent/conversational-strategy";
+import { buildFrimzContext } from "@/server/agent/context-builder";
 import { renderConversationStrategy } from "@/server/agent/prompts/conversation-strategy";
 import type { MemoryRecord } from "@/server/memory/types";
 
@@ -37,6 +38,15 @@ function turn(userMessage: string, memories: MemoryRecord[] = []) {
 }
 
 describe("conversation strategy", () => {
+  it("stays with them when the idea is not on the table yet", () => {
+    const result = turn("Help me explore an idea I'm working on. I don't have the idea yet.");
+    expect(result.conversationalMove).toBe("ask");
+    expect(result.shouldAskQuestion).toBe(true);
+    expect(result.reasoningFocus).toMatch(/help them find it/i);
+    expect(result.reasoningFocus).toMatch(/half-formed/i);
+    expect(renderConversationStrategy(result)).toMatch(/Do not preface it/);
+  });
+
   it("explores a vague idea instead of judging it", () => {
     const result = turn("I have an idea but I'm not sure if it's good.");
     expect(result.conversationalMove).toBe("explore");
@@ -155,5 +165,135 @@ describe("conversation strategy", () => {
     expect(result.shouldUseMemory).toBe(true);
     expect(result.relevantMemoryIds).toContain(preference.id);
     expect(result.reasoningFocus).toMatch(/do not cite/i);
+  });
+
+  it("compares when asked to compare", () => {
+    const result = turn("Compare the two ideas.");
+    expect(result.conversationalMove).toBe("compare");
+    expect(result.reasoningFocus).toMatch(/do not choose/i);
+  });
+
+  it("challenges when asked to challenge", () => {
+    const result = turn("Challenge this idea.");
+    expect(result.conversationalMove).toBe("challenge");
+    expect(result.reasoningFocus).toMatch(/do not decide/i);
+  });
+
+  it("offers directions when asked for ideas", () => {
+    const result = turn("Give me ideas for what we could build on top of this.");
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.reasoningFocus).toMatch(/do not pick/i);
+  });
+
+  it("synthesizes when they are lost", () => {
+    const result = turn("I'm getting lost. What have we actually figured out?");
+    expect(result.conversationalMove).toBe("synthesize");
+    expect(result.shouldAskQuestion).toBe(false);
+  });
+
+  it("recalls a decision from stored history", () => {
+    const result = turn("What did we decide about the target market?", [decision]);
+    expect(result.conversationalMove).toBe("reflect");
+    expect(result.shouldUseMemory).toBe(true);
+    expect(result.relevantMemoryIds).toContain(decision.id);
+  });
+
+  it("adapts when they disagree", () => {
+    const result = turn("I disagree. I actually think the other way is important.", [decision]);
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.reasoningFocus).toMatch(/do not defend/i);
+  });
+
+  it("recognizes let's start with as their decision", () => {
+    const result = turn("Let's start with individual students.");
+    expect(result.conversationalMove).toBe("confirm");
+    expect(result.reasoningFocus).toMatch(/do not reopen/i);
+  });
+
+  it("plans when they say the idea is ready", () => {
+    const result = turn("I think we've got the idea. Let's make a plan.");
+    expect(result.conversationalMove).toBe("plan");
+    expect(result.reasoningFocus).toMatch(/do not lock/i);
+  });
+
+  it("drafts a brief or a readme without a question tour", () => {
+    expect(turn("Turn everything we've discussed into a project brief.").conversationalMove).toBe("draft");
+    const readme = turn("Write the README now.");
+    expect(readme.conversationalMove).toBe("draft");
+    expect(readme.shouldAskQuestion).toBe(false);
+  });
+
+  it("stays at the problem when they are uncertain", () => {
+    const result = turn("I don't really know. I just feel like there should be something there.");
+    expect(result.conversationalMove).toBe("clarify");
+    expect(result.shouldAskQuestion).toBe(true);
+    expect(result.reasoningFocus).toMatch(/problem/i);
+  });
+
+  it("switches topic without dragging the old one back", () => {
+    const result = turn("Actually I'm tired of thinking about education. Let's work on a crypto idea instead.", [decision]);
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.reasoningFocus).toMatch(/Do not force the previous topic/i);
+  });
+
+  it("follows a focus branch within the same idea", () => {
+    const result = turn("Let's continue the idea, but don't talk about product features. I want to understand the business opportunity.");
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.reasoningFocus).toMatch(/branch they chose/i);
+  });
+
+  it("returns to an earlier idea with memory", () => {
+    const result = turn("Let's go back to the education idea.", [decision]);
+    expect(result.conversationalMove).toBe("reflect");
+    expect(result.shouldUseMemory).toBe(true);
+    expect(result.reasoningFocus).toMatch(/Do not assume they still agree/i);
+  });
+
+  it("treats a boundary as a rejection constraint", () => {
+    const result = turn("No, I don't want this to become another generic AI tutor.");
+    expect(result.conversationalMove).toBe("confirm");
+    expect(result.reasoningFocus).toMatch(/rejected direction/i);
+  });
+
+  it("develops a conceptual reframe", () => {
+    const result = turn("Maybe the problem isn't that students forget things. Maybe it's that they don't know what to study next.");
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.reasoningFocus).toMatch(/conceptual shift/i);
+  });
+
+  it("accepts a mind change and asks what shifted", () => {
+    const result = turn("I've changed my mind. I think universities should be the initial target.", [decision]);
+    expect(result.conversationalMove).toBe("confirm");
+    expect(result.shouldAskQuestion).toBe(true);
+    expect(result.reasoningFocus).toMatch(/Do not reject the new choice/i);
+  });
+
+  it("plans when they want to build", () => {
+    const result = turn("Okay, enough thinking. Let's build it.");
+    expect(result.conversationalMove).toBe("plan");
+  });
+
+  it("does not steer from prior context on a fresh start", () => {
+    const message = "Forget everything about this idea. I want to start from zero.";
+    const result = turn(message, [decision]);
+    expect(result.freshStart).toBe(true);
+    expect(result.shouldUseMemory).toBe(false);
+    const context = buildFrimzContext({
+      preferences: [],
+      memories: [decision],
+      ideaTitle: "Study partner",
+      brief: {
+        version: 2,
+        data: { problem: "Students lose the thread", decisions: [{ text: "Start with students" }] },
+        userFields: [],
+      },
+      transcript: [],
+      userMessage: message,
+      strategy: result,
+    });
+    expect(context).not.toContain("CURRENT CONTEXT BRIEF");
+    expect(context).not.toContain("Start with students");
+    expect(context).not.toContain(decision.content);
+    expect(context).toContain("None identified yet.");
   });
 });

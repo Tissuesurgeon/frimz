@@ -33,12 +33,15 @@ function line(memory: MemoryRecord) {
 }
 
 export function buildFrimzContext(input: ContextInput) {
+  const fresh = input.strategy?.freshStart === true;
   const preferences = input.preferences.filter((memory) => memory.type === "user_preference" && memory.status === "active");
-  const active = input.memories.filter((memory) => memory.status === "active" && memory.type !== "user_preference");
+  const active = fresh
+    ? []
+    : input.memories.filter((memory) => memory.status === "active" && memory.type !== "user_preference");
   const ofType = (type: MemoryRecord["type"]) => active.filter((memory) => memory.type === type).map(line);
   const lines = ["FRIMZ CONTEXT", ""];
 
-  if (input.brief && !isEmptyBrief(input.brief.data)) {
+  if (!fresh && input.brief && !isEmptyBrief(input.brief.data)) {
     lines.push(`CURRENT CONTEXT BRIEF (version ${input.brief.version})`);
     lines.push(
       "The working understanding of this work, built from earlier turns. It informs this reply. The latest user message leads: when it points somewhere new, follow it.",
@@ -49,8 +52,8 @@ export function buildFrimzContext(input: ContextInput) {
   }
 
   lines.push("CURRENT IDEA");
-  lines.push(input.ideaTitle ? input.ideaTitle : "None identified yet.");
-  if (input.ideaDescription) lines.push(input.ideaDescription);
+  lines.push(!fresh && input.ideaTitle ? input.ideaTitle : "None identified yet.");
+  if (!fresh && input.ideaDescription) lines.push(input.ideaDescription);
   lines.push("");
 
   section(lines, "DECISIONS", ofType("decision"));

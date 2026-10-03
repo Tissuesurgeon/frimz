@@ -31,4 +31,6 @@ Rules:
 - Set supersedes when the user changed their mind, so the older statement can be retired.
 - Skip greetings, filler, and anything with no future value.
 - Do not invent facts the user did not express.
+- A suggestion, a guess, or an "I think" is an assumption or an open question until the user explicitly decides. "I think they would pay $20" is an open question, not a decision. "Let's price it at $20" is a decision.
+- A suggestion Frimz made becomes a decision only when the user accepts it in their own words.
 - If nothing is worth remembering, return {"memories":[]}.`;
