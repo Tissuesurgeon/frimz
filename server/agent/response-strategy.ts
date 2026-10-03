@@ -1,8 +1,8 @@
 import type { Mode } from "@/lib/modes";
 import type { MemoryRecord } from "@/server/memory/types";
 
-const PRINCIPLES = `You explore, explain, challenge, compare, suggest, and ask.
-You do not decide, execute, or act autonomously.
+const PRINCIPLES = `You brainstorm with them. You explore, challenge, compare, suggest, and ask.
+You do not explain their point back to them. You do not decide, execute, or act autonomously.
 Never invent a memory. Never claim a memory that is absent from the provided context.
 When thinking changes, treat the newer direction as current.
 Use a memory only when it is relevant. When you connect an earlier idea, say why it matters.

@@ -31,7 +31,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "reflect",
         conversationalMove: "synthesize",
         shouldAskQuestion: false,
-        reasoningFocus: "They are stuck. Summarize what is already established. Do not ask another question.",
+        reasoningFocus: "They are stuck. Name what is already settled, in a sentence or two. Do not ask another question.",
       });
     case "draft":
       return strategy({
@@ -60,7 +60,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "decide",
         conversationalMove: "compare",
         shouldAskQuestion: false,
-        reasoningFocus: "Lay out the tradeoffs. Do not choose for them.",
+        reasoningFocus: "Name the tradeoff they are actually in. Do not choose for them.",
       });
     case "perspective":
       return strategy({
@@ -68,7 +68,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "explore",
         conversationalMove: "explore",
         shouldAskQuestion: false,
-        reasoningFocus: "Contribute a perspective. The user decides.",
+        reasoningFocus: "Add one perspective they can push back on. The user decides.",
       });
     case "reversal":
       return strategy({
@@ -94,7 +94,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "challenge",
         conversationalMove: "challenge",
         shouldAskQuestion: false,
-        reasoningFocus: "Name the assumption and another way to see it. Do not decide.",
+        reasoningFocus: "Name the assumption in a sentence and one other way to see it. Do not decide.",
       });
     case "direction":
       return strategy({
@@ -102,7 +102,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "explore",
         conversationalMove: "explore",
         shouldAskQuestion: false,
-        reasoningFocus: "Offer a few directions. Do not pick one.",
+        reasoningFocus: "Offer a few directions they can react to. Do not pick one.",
       });
     case "vague":
       return strategy({
@@ -110,7 +110,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "explore",
         conversationalMove: "explore",
         shouldAskQuestion: false,
-        reasoningFocus: "Explore the idea. Do not judge it and do not produce a plan.",
+        reasoningFocus: "Brainstorm the idea with them. Do not judge it and do not produce a plan.",
       });
     case "clarify":
       return strategy({
@@ -118,7 +118,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "clarify",
         conversationalMove: "clarify",
         shouldAskQuestion: true,
-        reasoningFocus: "Restate the clearer problem, then ask one question that tests it.",
+        reasoningFocus: "Say the sharper problem in one sentence, then ask one question that tests it.",
       });
     case "discover":
       return strategy({
@@ -126,7 +126,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "discover",
         conversationalMove: "ask",
         shouldAskQuestion: true,
-        reasoningFocus: "The idea is still early. Contribute one observation, then ask the smallest useful question. Do not produce a plan.",
+        reasoningFocus: "The idea is still early. Add one observation, then ask the smallest useful question. Do not produce a plan. Do not explain the category.",
       });
     case "factual":
       return strategy({
@@ -142,7 +142,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "plan",
         conversationalMove: "plan",
         shouldAskQuestion: false,
-        reasoningFocus: "Offer a short sequence they can react to. Keep undecided choices open.",
+        reasoningFocus: "Offer a short sequence they can mark up. Keep undecided choices open.",
       });
     case "wrap_up":
       return strategy({
@@ -150,7 +150,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "reflect",
         conversationalMove: "summarize",
         shouldAskQuestion: false,
-        reasoningFocus: "They are wrapping up. Close warmly in a sentence or two and leave the thread where they put it.",
+        reasoningFocus: "They are wrapping up. Close in a sentence or two and leave the thread where they put it.",
       });
     default:
       return strategy({
@@ -158,7 +158,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "explore",
         conversationalMove: "explore",
         shouldAskQuestion: true,
-        reasoningFocus: "Stay one step ahead of what they just said.",
+        reasoningFocus: "Pick up where they left off. Add one pressure. Do not explain what they just said.",
       });
   }
 }
@@ -168,21 +168,21 @@ function modeMove(mode: Mode): { move: ConversationalMove; stage: ThinkingStage;
     return {
       move: "challenge",
       stage: "challenge",
-      focus: "Look at the assumption doing the work. Do not decide.",
+      focus: "Name the assumption doing the work, in a sentence. Do not decide.",
     };
   }
   if (mode === "plan") {
     return {
       move: "plan",
       stage: "plan",
-      focus: "Turn the current thought into a short direction they can react to.",
+      focus: "Turn the current thought into a short direction they can mark up.",
     };
   }
   if (mode === "think") {
     return {
       move: "explore",
       stage: "explore",
-      focus: "Explore the thought. Do not survey the whole category.",
+      focus: "Brainstorm the thought with them. Do not survey the whole category. Do not explain it back.",
     };
   }
   return null;
