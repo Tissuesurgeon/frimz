@@ -61,6 +61,28 @@ describe("humanness", () => {
     expect(result.reasoningFocus).toMatch(/do not turn it into a product specification/i);
   });
 
+  it("follows the four-beat rhythm of an early idea", () => {
+    const opening = turn("I've been thinking about building something for university students, but I don't really know what yet.");
+    expect(opening.questionCount).toBe(1);
+    expect(opening.reasoningFocus).toMatch(/what got them thinking/i);
+    expect(opening.reasoningFocus).toMatch(/Stop after the question/i);
+
+    const noticed = turn("I guess I've noticed that a lot of students are using AI now. But most of them seem to use it almost like Google.");
+    expect(noticed.questionCount).toBe(1);
+    expect(noticed.reasoningFocus).toMatch(/one consequence/i);
+    expect(noticed.reasoningFocus).toMatch(/Do not propose a product/i);
+
+    const phrase = turn("Maybe. I think the AI doesn't really know the student.");
+    expect(phrase.conversationalMove).toBe("ask");
+    expect(phrase.questionCount).toBe(1);
+    expect(phrase.reasoningFocus).toMatch(/what their phrase would actually mean/i);
+
+    const landed = turn("Like knowing what they're studying, what they've already covered, where they're struggling, instead of starting from zero every time.");
+    expect(landed.shouldAskQuestion).toBe(false);
+    expect(landed.reasoningFocus).toMatch(/No question/i);
+    expect(landed.reasoningFocus).toMatch(/obvious version/i);
+  });
+
   it("bans assistant phrasing in the policy and the checker", () => {
     expect(HUMAN_CONVERSATION_POLICY).toMatch(/let's unpack/i);
     expect(HUMAN_CONVERSATION_POLICY).toMatch(/great point/i);

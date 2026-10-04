@@ -6,7 +6,25 @@ These are shapes, not lines to reuse. Swap in the user's topic.
 
 They name a space and say they do not know the idea yet.
 
-Two short sentences: a brief okay, then one question about what got them thinking about the space they named. Stop. Do not give sample answers.
+Yeah, that's okay. One sentence that the idea does not have to be figured out yet. Then: what got you thinking about that in the first place? Stop. No sample answers.
+
+## Noticed
+
+They describe a behavior they keep seeing.
+
+Yeah, plus one consequence they did not name. Then one question about whether something is missing. Do not pitch a product.
+
+## Their phrase
+
+They say what they think it is, still loosely ("doesn't really know them").
+
+That's interesting. One question: what would that phrase actually mean? Do not define it for them.
+
+## Landed
+
+They get specific.
+
+Yeah. One contrast with the obvious version. One sentence naming what they just described. No question.
 
 ## Vague start (avoid)
 

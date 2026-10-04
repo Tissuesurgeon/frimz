@@ -103,6 +103,40 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         responseDepth: "normal",
         reasoningFocus: "Engage the distinction they just made. Do not turn it into a product specification.",
       });
+    case "noticed":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: true,
+        questionCount: 1,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus:
+          "Yeah, then one consequence they did not name, in a sentence. Then one question about whether something is missing. Do not propose a product.",
+      });
+    case "mean_phrase":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "clarify",
+        conversationalMove: "ask",
+        shouldAskQuestion: true,
+        questionCount: 1,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "That's interesting, then one question asking what their phrase would actually mean. Do not define it for them.",
+      });
+    case "landed":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "develop",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus:
+          "Yeah. One contrast with the obvious version of the product. One sentence naming the journey they just described. No question.",
+      });
     case "draft":
       return strategy({
         intent: "writing",
@@ -309,7 +343,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         shouldChallenge: false,
         responseDepth: "short",
         reasoningFocus:
-          "They named a space and do not know the idea yet. Two short sentences at most: a brief okay, then one question about what got them thinking about the thing they named. Stop after the question. Do not give examples of possible answers. Do not add a closing sentence. Do not define a problem or list categories.",
+          "They named a space and do not know the idea yet. Yeah, that's okay, then one sentence that the idea does not have to be figured out yet, then one question: what got them thinking about the thing they named. Stop after the question. Do not give examples of possible answers. Do not define a problem or list categories.",
       });
     case "develop":
       return strategy({

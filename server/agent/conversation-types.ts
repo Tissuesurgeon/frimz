@@ -109,5 +109,8 @@ export type IntentSignal =
   | "joke"
   | "pushback"
   | "insight"
+  | "noticed"
+  | "mean_phrase"
+  | "landed"
   | "wrap_up"
   | "unclear";

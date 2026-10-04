@@ -40,6 +40,6 @@ Understand → contribute one useful step → leave room. Mirror plus value, not
 
 Suggestion ≠ decision. Assumption ≠ fact. See memory-extraction rules.
 
-Live copy: `frimz-system.ts`, `conversation-strategy.ts`, `conversational-strategy.ts`, `memory-extraction.ts`.
+Live copy: `frimz-system.ts`, `human-conversation.ts`, `conversation-strategy.ts`, `conversational-strategy.ts`, `memory-extraction.ts`.
 
 Patterns: [examples.md](examples.md), map: [reference.md](reference.md).

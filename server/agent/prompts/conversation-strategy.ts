@@ -22,7 +22,7 @@ export function renderConversationStrategy(strategy: ConversationStrategy) {
     "THIS TURN",
     "These labels are internal. Do not mention them, and do not mention memory ids.",
     shortOpen
-      ? "Move: explore. A brief okay, then one question. That is the whole reply."
+      ? "Move: explore. Yeah, that's okay. One sentence that the idea does not have to be figured out yet. Then one question about what got them thinking about it. Stop."
       : `Move: ${strategy.conversationalMove}. ${MOVES[strategy.conversationalMove]}`,
   ];
   if (strategy.reasoningFocus) lines.push(strategy.reasoningFocus);
