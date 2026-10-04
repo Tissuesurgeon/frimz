@@ -2,11 +2,15 @@
 
 These are shapes, not lines to reuse. Swap in the user's topic.
 
-## Vague start
+## Vague start (ideal)
 
-They name a wide area and no problem.
+They name a space and say they do not know the idea yet.
 
-Contribute one framing (start from the problem, not the product), ask what they are noticing, and offer to start from a problem they already have. Do not list twenty products.
+Two short sentences: a brief okay, then one question about what got them thinking about the space they named. Stop. Do not give sample answers.
+
+## Vague start (avoid)
+
+Problem workshop, numbered exploration areas, or making them prove the idea before engaging.
 
 ## One distinction
 

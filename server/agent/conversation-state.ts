@@ -1,4 +1,5 @@
 import type { MemoryRecord } from "@/server/memory/types";
+import type { UserDirection } from "./conversation-types";
 
 export type ConversationState = {
   topic: string;
@@ -50,6 +51,27 @@ const CONFLICTS: Array<[RegExp, RegExp]> = [
   [/universit/, /individual students/],
   [/sneaker|not a general social/, /general social/],
 ];
+
+/** Short-lived direction from the latest message. Current intent outranks stored context. */
+export function deriveUserDirection(message: string): UserDirection {
+  const exclusions: string[] = [];
+  const constraints: string[] = [];
+  for (const match of message.matchAll(/don'?t (?:talk|discuss) about ([^.?!]+)/gi)) {
+    exclusions.push(match[1].trim());
+  }
+  for (const match of message.matchAll(/\b(?:only|just) (?:talk|focus) (?:about|on) ([^.?!]+)/gi)) {
+    constraints.push(match[1].trim());
+  }
+  const topic = message.match(
+    /(?:let'?s|i want to) (?:work on|explore|talk about|focus on|understand) (?:the |a )?([^.?!]+)/i,
+  )?.[1]?.trim();
+  return {
+    topic,
+    constraints,
+    exclusions,
+    explicitInstruction: exclusions.length || constraints.length ? message.trim() : undefined,
+  };
+}
 
 export function conflictingMemories(message: string, state: ConversationState) {
   const text = message.toLowerCase();

@@ -2,8 +2,8 @@ import type { Mode } from "@/lib/modes";
 import { WRITE_UP_FORMATS } from "@/lib/write-up";
 import type { MemoryRecord } from "@/server/memory/types";
 import { analyzeIntent } from "./intent-analyzer";
-import { conflictingMemories, deriveConversationState } from "./conversation-state";
-import type { ConversationStrategy, ConversationalMove, IntentSignal, ThinkingStage } from "./conversation-types";
+import { conflictingMemories, deriveConversationState, deriveUserDirection } from "./conversation-state";
+import type { ConversationStrategy, ConversationalMove, IntentSignal, ResponseDepth, ThinkingStage, UncertaintyLevel } from "./conversation-types";
 
 const HISTORY_LIMIT = 8;
 
@@ -11,15 +11,32 @@ function ids(memories: MemoryRecord[]) {
   return memories.slice(0, HISTORY_LIMIT).map((memory) => memory.id);
 }
 
-function strategy(partial: Omit<ConversationStrategy, "relevantMemoryIds" | "shouldUseMemory"> & {
+function strategy(partial: Omit<ConversationStrategy, "relevantMemoryIds" | "shouldUseMemory" | "responseMove" | "uncertaintyLevel" | "questionCount" | "shouldStructure" | "shouldChallenge" | "shouldSynthesize" | "responseDepth" | "exclusions"> & {
   relevantMemoryIds?: string[];
   shouldUseMemory?: boolean;
+  uncertaintyLevel?: UncertaintyLevel;
+  questionCount?: 0 | 1 | 2;
+  shouldStructure?: boolean;
+  shouldChallenge?: boolean;
+  shouldSynthesize?: boolean;
+  responseDepth?: ResponseDepth;
+  exclusions?: string[];
 }): ConversationStrategy {
   const relevantMemoryIds = partial.relevantMemoryIds ?? [];
+  const move = partial.conversationalMove;
+  const structured = ["plan", "draft", "compare", "synthesize", "reflect", "summarize"].includes(move);
   return {
     ...partial,
+    responseMove: move,
     relevantMemoryIds,
     shouldUseMemory: partial.shouldUseMemory ?? relevantMemoryIds.length > 0,
+    uncertaintyLevel: partial.uncertaintyLevel ?? "medium",
+    questionCount: partial.questionCount ?? (partial.shouldAskQuestion ? 1 : 0),
+    shouldStructure: partial.shouldStructure ?? structured,
+    shouldChallenge: partial.shouldChallenge ?? move === "challenge",
+    shouldSynthesize: partial.shouldSynthesize ?? (move === "synthesize" || move === "compare"),
+    responseDepth: partial.responseDepth ?? (move === "answer" ? "short" : move === "draft" || move === "plan" ? "deep" : "normal"),
+    exclusions: partial.exclusions ?? [],
   };
 }
 
@@ -32,6 +49,59 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         conversationalMove: "synthesize",
         shouldAskQuestion: false,
         reasoningFocus: "They are circling or lost. Name what is already settled and the tradeoff underneath. Do not ask another question.",
+      });
+    case "fed_up":
+      return strategy({
+        intent: "reflection",
+        thinkingStage: "reflect",
+        conversationalMove: "synthesize",
+        shouldAskQuestion: true,
+        questionCount: 1,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "They are done with this idea. Say so in a sentence and stop forcing it. One question about what bothered them. Do not comfort them or evaluate the idea.",
+      });
+    case "excited":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "ask",
+        shouldAskQuestion: true,
+        questionCount: 1,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "They are excited. React in a few words, then ask what they figured out. Do not document the insight or list implications.",
+      });
+    case "joke":
+      return strategy({
+        intent: "casual",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Get the joke in one line, then the useful point underneath if there is one. Do not answer like a consultant.",
+      });
+    case "pushback":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "ask",
+        shouldAskQuestion: true,
+        questionCount: 1,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Fair. Ask what you are missing. Do not open with a hedged defense.",
+      });
+    case "insight":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "develop",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "normal",
+        reasoningFocus: "Engage the distinction they just made. Do not turn it into a product specification.",
       });
     case "draft":
       return strategy({
@@ -56,7 +126,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
       });
     case "compare":
       return strategy({
-        intent: "problem_solving",
+        intent: "comparison",
         thinkingStage: "decide",
         conversationalMove: "compare",
         shouldAskQuestion: false,
@@ -89,7 +159,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
       });
     case "switch_topic":
       return strategy({
-        intent: "exploration",
+        intent: "direction_change",
         thinkingStage: "explore",
         conversationalMove: "explore",
         shouldAskQuestion: true,
@@ -158,7 +228,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
       });
     case "challenge":
       return strategy({
-        intent: "problem_solving",
+        intent: "challenge",
         thinkingStage: "challenge",
         conversationalMove: "challenge",
         shouldAskQuestion: false,
@@ -170,7 +240,15 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "explore",
         conversationalMove: "explore",
         shouldAskQuestion: false,
-        reasoningFocus: "Offer a few directions they can react to. Do not pick one.",
+        reasoningFocus: "They seem stuck on direction. Offer a few possibilities in prose, not a numbered framework or checklist. Do not pick one.",
+      });
+    case "stuck":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        reasoningFocus: "They seem stuck. Offer a few possibilities conversationally. No numbered categories or checklist unless they asked for structure.",
       });
     case "weighing":
       return strategy({
@@ -187,7 +265,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         conversationalMove: "explore",
         shouldAskQuestion: false,
         reasoningFocus:
-          "Create space. They may not have a concrete idea yet. Offer a few directions they can enter. Do not force problem, persona, or MVP. No feature list.",
+          "Create space. They may not know the idea yet. Stay conversational; permission to explore without identifying a problem. No categories, checklist, or target-user drill.",
       });
     case "clarify":
       return strategy({
@@ -212,17 +290,34 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "discover",
         conversationalMove: "explore",
         shouldAskQuestion: false,
+        uncertaintyLevel: "high",
+        shouldStructure: false,
+        shouldChallenge: false,
+        responseDepth: "short",
         reasoningFocus:
-          "Stay broad. They may not have a problem or product yet. Offer a few angles or create space. Do not force problem, persona, market, or MVP.",
+          "Uncertainty is fine. A short okay is enough. Do not break their uncertainty into a process. Do not rush problem, customer, MVP, or numbered exploration menus.",
       });
     case "discover":
       return strategy({
         intent: "exploration",
         thinkingStage: "discover",
         conversationalMove: "explore",
-        shouldAskQuestion: false,
+        shouldAskQuestion: true,
+        uncertaintyLevel: "high",
+        questionCount: 1,
+        shouldStructure: false,
+        shouldChallenge: false,
+        responseDepth: "short",
         reasoningFocus:
-          "Early interest in a space, not necessarily a problem yet. Create space and offer a few directions they can enter. Do not interview them into a startup workshop.",
+          "They named a space and do not know the idea yet. Two short sentences at most: a brief okay, then one question about what got them thinking about the thing they named. Stop after the question. Do not give examples of possible answers. Do not add a closing sentence. Do not define a problem or list categories.",
+      });
+    case "develop":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "develop",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        reasoningFocus: "Respond to the concrete thought. Contribute a distinction. Do not jump to a business plan or interrogation.",
       });
     case "brainstorm":
       return strategy({
@@ -230,7 +325,9 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "explore",
         conversationalMove: "explore",
         shouldAskQuestion: false,
-        reasoningFocus: "Offer a few directions they can react to. Do not pick one.",
+        shouldStructure: true,
+        responseDepth: "deep",
+        reasoningFocus: "They asked for ideas. Offer several directions they can react to. Do not pick one.",
       });
     case "disagree":
       return strategy({
@@ -240,11 +337,11 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         shouldUseMemory: historyIds.length > 0,
         relevantMemoryIds: historyIds,
         shouldAskQuestion: false,
-        reasoningFocus: "Drop the previous view and build on theirs. Do not defend it.",
+        reasoningFocus: "Drop the previous view and build on theirs. Separate concerns if that keeps both true. Do not defend or repeat the same challenge.",
       });
     case "reset":
       return strategy({
-        intent: "exploration",
+        intent: "direction_change",
         thinkingStage: "discover",
         conversationalMove: "ask",
         shouldUseMemory: false,
@@ -258,7 +355,19 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         thinkingStage: "clarify",
         conversationalMove: "answer",
         shouldAskQuestion: false,
-        reasoningFocus: "Answer the question. Do not turn it into a broader conversation.",
+        responseDepth: "short",
+        shouldStructure: false,
+        reasoningFocus: "Answer the question directly. Do not turn it into a broader conversation or an interview.",
+      });
+    case "ambiguous":
+      return strategy({
+        intent: "unclear",
+        thinkingStage: "clarify",
+        conversationalMove: "ask",
+        shouldAskQuestion: true,
+        questionCount: 1,
+        shouldStructure: false,
+        reasoningFocus: "The referent is ambiguous. Ask one concise clarification. Do not guess which belief they dropped.",
       });
     case "plan":
       return strategy({
@@ -314,6 +423,12 @@ function modeMove(mode: Mode): { move: ConversationalMove; stage: ThinkingStage;
 
 const DRAFT_OFFER = `They are wrapping up and the current thinking has substance. In two or three sentences, say where the thinking landed, using the context brief. Then ask once whether they would like a written draft of it, naming the two or three formats from this list that fit the work best: ${WRITE_UP_FORMATS.map((format) => format.label).join(", ")}. Keep the offer to one short sentence.`;
 
+const HIGH_UNCERTAINTY: IntentSignal[] = ["blank", "discover", "uncertain", "vague", "weighing", "stuck"];
+
+function highUncertainty(signal: IntentSignal) {
+  return HIGH_UNCERTAINTY.includes(signal);
+}
+
 export function chooseConversationStrategy(input: {
   mode: Mode;
   userMessage: string;
@@ -332,6 +447,7 @@ export function chooseConversationStrategy(input: {
     preferences,
   });
   const analysis = analyzeIntent(input.userMessage);
+  const direction = deriveUserDirection(input.userMessage);
   const historyIds = ids([...state.decisions, ...state.ideaChanges, ...state.rejections]);
   let chosen = fromSignal(analysis.explicit ? analysis.signal : "unclear", historyIds);
 
@@ -377,5 +493,10 @@ export function chooseConversationStrategy(input: {
     }
   }
 
-  return chosen;
+  return {
+    ...chosen,
+    uncertaintyLevel: highUncertainty(analysis.signal) ? "high" : chosen.uncertaintyLevel,
+    userDirection: direction.topic ?? chosen.userDirection,
+    exclusions: direction.exclusions,
+  };
 }

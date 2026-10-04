@@ -84,6 +84,11 @@ export function buildFrimzContext(input: ContextInput) {
   lines.push("");
   lines.push("LATEST USER MESSAGE");
   lines.push(input.userMessage);
+  if (input.strategy?.exclusions.length) {
+    lines.push("");
+    lines.push("ACTIVE CONSTRAINT");
+    lines.push(`Do not discuss: ${input.strategy.exclusions.join("; ")}. Follow this over the brief.`);
+  }
   if (input.strategy) {
     lines.push("");
     lines.push(renderConversationStrategy(input.strategy));

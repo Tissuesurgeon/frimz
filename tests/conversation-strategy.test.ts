@@ -49,7 +49,7 @@ describe("conversation strategy", () => {
   it("explores a vague idea instead of judging it", () => {
     const result = turn("I have an idea but I'm not sure if it's good.");
     expect(result.conversationalMove).toBe("explore");
-    expect(result.reasoningFocus).toMatch(/Create space|Do not force problem/i);
+    expect(result.reasoningFocus).toMatch(/Create space|category menu|workshop/i);
   });
 
   it("helps when the direction is unknown", () => {
@@ -226,8 +226,8 @@ describe("conversation strategy", () => {
     const result = turn("I don't really know. I just feel like there should be something there.");
     expect(result.conversationalMove).toBe("explore");
     expect(result.shouldAskQuestion).toBe(false);
-    expect(result.reasoningFocus).toMatch(/Stay broad/i);
-    expect(result.reasoningFocus).toMatch(/Do not force problem/i);
+    expect(result.reasoningFocus).toMatch(/Uncertainty is fine|Stay in the space/i);
+    expect(result.reasoningFocus).toMatch(/Do not rush problem/i);
   });
 
   it("synthesizes when they weigh options aloud", () => {
@@ -240,7 +240,20 @@ describe("conversation strategy", () => {
   it("does not workshop an early interest in a space", () => {
     const result = turn("I've been thinking about building something for university students, but I don't really know what yet.");
     expect(result.conversationalMove).toBe("explore");
-    expect(result.reasoningFocus).toMatch(/startup workshop/i);
+    expect(result.reasoningFocus).toMatch(/Stop after the question/i);
+    expect(result.responseDepth).toBe("short");
+  });
+
+  it("develops a concrete observation without a business plan", () => {
+    const result = turn("Most students get money at the beginning of the month and somehow run out before the next one.");
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.reasoningFocus).toMatch(/Do not jump to a business plan/i);
+  });
+
+  it("offers possibilities in prose when they are stuck", () => {
+    const result = turn("I'm stuck. I'm not sure where to take this.");
+    expect(result.conversationalMove).toBe("explore");
+    expect(result.reasoningFocus).toMatch(/numbered categories|checklist/i);
   });
 
   it("switches topic without dragging the old one back", () => {

@@ -4,6 +4,7 @@ import { ideas, memoryIndex } from "@/db/schema";
 import { logEvent } from "@/lib/logger";
 import { getLLMProvider } from "@/server/llm/cursor-provider";
 import { FRIMZ_SYSTEM_PROMPT } from "@/server/agent/prompts/frimz-system";
+import { HUMAN_CONVERSATION_POLICY } from "@/server/agent/prompts/human-conversation";
 import { MEMORY_EXTRACTION_PROMPT } from "@/server/agent/prompts/memory-extraction";
 import { buildFrimzContext, type ContextBriefInput } from "@/server/agent/context-builder";
 import { buildBehaviorAddendum } from "@/server/agent/response-strategy";
@@ -86,7 +87,7 @@ export function contextForTurn(input: {
   return {
     strategy,
     messages: [
-      { role: "system" as const, content: `${FRIMZ_SYSTEM_PROMPT}\n\n${behavior}\n\n${renderConversationStrategy(strategy)}` },
+      { role: "system" as const, content: `${FRIMZ_SYSTEM_PROMPT}\n\n${HUMAN_CONVERSATION_POLICY}\n\n${behavior}\n\n${renderConversationStrategy(strategy)}` },
       { role: "user" as const, content: context },
     ],
   };

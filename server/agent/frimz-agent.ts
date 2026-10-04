@@ -129,6 +129,20 @@ export async function* runChatTurn(input: {
         userMessage: userText,
       });
 
+  if (process.env.NODE_ENV !== "production" && prompt) {
+    const plan = prompt.strategy;
+    logEvent("orchestration", {
+      intent: plan.intent,
+      thinkingStage: plan.thinkingStage,
+      move: plan.conversationalMove,
+      uncertainty: plan.uncertaintyLevel,
+      questions: plan.questionCount,
+      structure: plan.shouldStructure,
+      challenge: plan.shouldChallenge,
+      memoryUsed: plan.relevantMemoryIds.length,
+    });
+  }
+
   const started = Date.now();
   let assistant = "";
   let failed = false;
