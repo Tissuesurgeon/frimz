@@ -137,6 +137,174 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         reasoningFocus:
           "Yeah. One contrast with the obvious version of the product. One sentence naming the journey they just described. No question.",
       });
+    case "aside":
+      return strategy({
+        intent: "direction_change",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Sure. That is the whole reply. Follow the new thread on the next turn. Do not cling to the one they paused.",
+      });
+    case "stocktake":
+      return strategy({
+        intent: "reflection",
+        thinkingStage: "reflect",
+        conversationalMove: "synthesize",
+        shouldUseMemory: historyIds.length > 0,
+        relevantMemoryIds: historyIds,
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "normal",
+        reasoningFocus:
+          "Tell how the thinking evolved: how it started, what was set aside and why, what was chosen and why, what changed since, and what is still open. A few short paragraphs. The old choice is history if they have moved on. Do not announce memory. Do not dump section labels.",
+      });
+    case "pause":
+      return strategy({
+        intent: "reflection",
+        thinkingStage: "reflect",
+        conversationalMove: "summarize",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Sounds good. Stop there. Do not recap and do not offer a draft.",
+      });
+    case "open_plan":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: true,
+        questionCount: 1,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus:
+          "Yeah, that's fine. One sentence that you can figure it out as you go. Then one question: what kind of thing are they imagining? Stop after the question. Do not list options.",
+      });
+    case "want_shape":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "So, one contrast with the version they do not want. A short liking is enough. No question. Do not recite it back as a saved preference.",
+      });
+    case "add_on":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Fold the added want into the picture in one line. Do not announce that you are storing it. No question.",
+      });
+    case "float_option":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus:
+          "If it fits what they already want, one sentence that it fits. If it changes the shape, say what still holds and what is new. Do not say they previously said it. No question.",
+      });
+    case "tentative":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "ask",
+        shouldAskQuestion: true,
+        questionCount: 1,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "The option could work. One question about the real tension in how it should feel. Do not interview them or list alternatives.",
+      });
+    case "loose_contrast":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Yeah, then one contrast: the lighter version rather than the rigid one. No question.",
+      });
+    case "set_aside":
+      return strategy({
+        intent: "decision",
+        thinkingStage: "decide",
+        conversationalMove: "confirm",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Sure. Drop that option for now, in one sentence. Do not defend it. The reason they gave is what gets kept.",
+      });
+    case "reason_shift":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "develop",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus:
+          "The reason changed. Say how that changes the earlier choice. The old choice is history, not an instruction. No question.",
+      });
+    case "sketch":
+      return strategy({
+        intent: "planning",
+        thinkingStage: "plan",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "That lines up with what they wanted at the start. Say so in one or two sentences. Do not turn it into a checklist. No question.",
+      });
+    case "spend_light":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Keep the practical parts simple and spend on the parts they actually care about. One or two sentences. No question.",
+      });
+    case "budget_first":
+      return strategy({
+        intent: "planning",
+        thinkingStage: "plan",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "Yeah, that makes sense before locking anything in. One sentence. Follow this thread. No question.",
+      });
+    case "tally":
+      return strategy({
+        intent: "planning",
+        thinkingStage: "plan",
+        conversationalMove: "synthesize",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "The simple total, in one sentence. No advice yet. No question.",
+      });
+    case "agree":
+      return strategy({
+        intent: "exploration",
+        thinkingStage: "explore",
+        conversationalMove: "explore",
+        shouldAskQuestion: false,
+        shouldStructure: false,
+        responseDepth: "short",
+        reasoningFocus: "They agreed. One next step that uses what you now understand. No question. Do not recap.",
+      });
     case "draft":
       return strategy({
         intent: "writing",
@@ -174,10 +342,11 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         conversationalMove: "reflect",
         shouldUseMemory: historyIds.length > 0,
         relevantMemoryIds: historyIds,
-        shouldAskQuestion: false,
+        shouldAskQuestion: true,
+        questionCount: 1,
         reasoningFocus:
           historyIds.length > 0
-            ? "Recall the last direction, a rejection or decision that mattered, and the open question. Do not assume they still agree. Offer to continue or rethink."
+            ? "Recall the picture in a few sentences: where things were leaning, the qualities that still hold, and a number or rough shape if the history has one. Then ask where they want to pick it back up. Do not assume they still agree. Do not explain how you remember."
             : "The history needed is not in context. Say so and ask what to pick up.",
       });
     case "connect_familiar":
@@ -216,7 +385,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         relevantMemoryIds: historyIds,
         shouldAskQuestion: true,
         reasoningFocus:
-          "Accept the new direction. Recall the previous decision and its reason as history. Ask one question about what changed their assessment. Do not reject the new choice.",
+          "Fair enough. What changed? Accept the new direction. The previous decision stays history. Do not reject the new choice.",
       });
     case "reject_boundary":
       return strategy({
@@ -250,7 +419,7 @@ function fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStr
         shouldUseMemory: historyIds.length > 0,
         relevantMemoryIds: historyIds,
         shouldAskQuestion: false,
-        reasoningFocus: "The new direction is current. Keep the earlier direction as history.",
+        reasoningFocus: "Yeah. One sentence on why the new choice fits. The new direction is current. Keep the earlier direction as history. Do not reopen it.",
       });
     case "confirm":
       return strategy({
@@ -449,7 +618,7 @@ function modeMove(mode: Mode): { move: ConversationalMove; stage: ThinkingStage;
     return {
       move: "explore",
       stage: "explore",
-      focus: "Create space or offer directions they can enter. Do not run a startup workshop. Do not explain it back.",
+      focus: "Stay with what they just said. One useful step, then stop. Do not run a startup workshop. Do not explain it back.",
     };
   }
   return null;
@@ -503,7 +672,7 @@ export function chooseConversationStrategy(input: {
         intent: input.mode === "plan" ? "planning" : input.mode === "challenge" ? "problem_solving" : "exploration",
         thinkingStage: bias.stage,
         conversationalMove: bias.move,
-        shouldAskQuestion: bias.move === "explore",
+        shouldAskQuestion: false,
         reasoningFocus: bias.focus,
       });
     }

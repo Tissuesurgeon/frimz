@@ -1,0 +1,1 @@
+An AI thinking partner that remembers how an idea evolved and turns that context into something the user can keep building on.

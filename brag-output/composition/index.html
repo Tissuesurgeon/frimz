@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920, height=1080">
+  
+  <script src="assets/gsap.min.js"></script>
+  <title>Frimz</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background: #1e3a34;
+      color: #f3f6f4;
+      font-family: system-ui, sans-serif, Inter, sans-serif;
+    }
+    #root {
+      --bg: #1e3a34;
+      --bg-raise: #1e3a34;
+      --surface: color-mix(in srgb, #f3f6f4 8%, #1e3a34);
+      --line: color-mix(in srgb, #f3f6f4 22%, transparent);
+      --ink: #f3f6f4;
+      --muted: #c5d6ce;
+      --primary: #f3f6f4;
+      --primary-ink: #1e3a34;
+      --accent: #9fbfb3;
+      --display: Georgia, serif, Georgia, serif;
+      --font: system-ui, sans-serif, Inter, sans-serif;
+      width: 1920px; height: 1080px; position: relative;
+      background-color: #1e3a34;
+      background-image:
+        radial-gradient(44rem 30rem at 18% -6%, color-mix(in oklch, #f3f6f4 35%, transparent), transparent 64%),
+        linear-gradient(180deg, #1e3a34, #1e3a34 62%);
+    }
+    .bar {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 4;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 72px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 650; letter-spacing: -0.02em; font-size: 28px; }
+    .mark, .mark-dot { width: 36px; height: 36px; color: var(--primary); }
+    .mark-dot { display: block; border: 2px solid var(--primary); border-radius: 50%; box-shadow: inset 0 0 0 10px transparent, inset 0 0 0 14px var(--primary); }
+    .landing-nav { display: flex; align-items: center; gap: 28px; color: var(--muted); font-size: 22px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: 0 18px; border: 0; border-radius: 8px;
+      font: inherit; font-weight: 650; cursor: default;
+    }
+    .btn-primary { background: var(--primary); color: var(--primary-ink); }
+    .hero {
+      position: absolute; inset: 96px 72px 48px;
+      display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: center;
+    }
+    .mast h1 {
+      font-family: var(--display); font-size: 72px; font-weight: 600;
+      letter-spacing: -0.03em; line-height: 1.08;
+    }
+    .sub { margin-top: 18px; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+    .lede { margin-top: 16px; max-width: 38ch; font-size: 22px; line-height: 1.45; color: var(--ink); opacity: 0.92; }
+    .window {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+      box-shadow: 0 16px 40px color-mix(in oklch, #1e3a34 70%, black);
+      overflow: hidden;
+    }
+    .window-head {
+      display: flex; align-items: center; gap: 14px; min-height: 72px;
+      padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--bg-raise);
+    }
+    .bot-face {
+      width: 36px; height: 36px; border-radius: 8px; background: var(--accent); position: relative; flex: 0 0 36px;
+    }
+    .bot-face::after {
+      content: ""; position: absolute; left: 8px; right: 8px; top: 14px; height: 6px;
+      background:
+        radial-gradient(circle at 6px 3px, var(--bg-raise) 2px, transparent 2.2px),
+        radial-gradient(circle at calc(100% - 6px) 3px, var(--bg-raise) 2px, transparent 2.2px);
+    }
+    .window-name { font-weight: 650; letter-spacing: -0.02em; font-size: 22px; }
+    .window-presence { margin-top: 2px; font-size: 16px; color: var(--muted); }
+    .preview { display: grid; gap: 22px; padding: 28px 24px; min-height: 210px; }
+    .turn h2 { margin: 0 0 8px; font-size: 16px; font-weight: 650; color: var(--muted); letter-spacing: -0.01em; }
+    .asked { margin: 0; font-size: 22px; line-height: 1.45; max-width: 46ch; }
+    #bar, #mast, #window, #asked, #assumed, #steps, #outro, #jobs { opacity: 0; }
+    .composer { padding: 18px 24px 24px; border-top: 1px solid var(--line); background: var(--surface); }
+    .composer-shell {
+      display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end;
+      background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 10px 10px 18px;
+    }
+    textarea {
+      width: 100%; min-height: 72px; resize: none; background: transparent; border: 0;
+      color: var(--ink); font: inherit; font-size: 20px; line-height: 1.4; outline: none;
+    }
+    .jobs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .job-line {
+      padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px;
+      background: transparent; color: inherit; font: inherit;
+    }
+    .job-line.is-on { border-color: var(--primary); color: var(--primary); }
+    .quiet { margin-top: 12px; color: var(--muted); font-size: 15px; }
+    .steps {
+      position: absolute; left: 72px; right: 72px; bottom: 36px; z-index: 3;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+    .step {
+      padding: 16px 18px; border: 1px solid var(--line); border-radius: 8px;
+      background: color-mix(in oklch, var(--bg-raise) 88%, black);
+    }
+    .step dt { font-weight: 650; margin-bottom: 6px; font-size: 18px; }
+    .step dd { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.35; }
+    .outro {
+      position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; padding: 80px;
+      background: color-mix(in oklch, #1e3a34 82%, black);
+    }
+    .outro h1 { font-family: var(--display); font-size: 84px; letter-spacing: -0.04em; }
+    .outro p { margin-top: 18px; font-size: 32px; font-weight: 600; }
+    .caret { display: inline-block; width: 2px; height: 1.1em; background: var(--primary); margin-left: 2px; vertical-align: text-bottom; }
+  </style>
+</head>
+<body>
+  <div id="root" class="clip" data-composition-id="brag" data-start="0" data-duration="90" data-width="1920" data-height="1080">
+    <header class="bar" id="bar">
+      <div class="brand"><span class="mark-dot" aria-hidden="true"></span><span>Frimz</span></div>
+      <nav class="landing-nav"><span class="btn btn-primary">Start thinking</span></nav>
+    </header>
+    <section class="hero" id="hero">
+      <div class="mast" id="mast">
+        <h1>The AI thinking partner that remembers.</h1>
+        <p class="sub">Frimz doesn&#x27;t decide for you. It thinks with you.</p>
+        <p class="lede">Think through ideas with an AI that remembers where you&#x27;ve been and helps turn your thinking into something you can build on.</p>
+      </div>
+      <div class="window" id="window">
+        <div class="window-head">
+          <span class="bot-face" data-face="1"></span>
+          <div>
+            <p class="window-name">An idea changing</p>
+            <p class="window-presence" id="presence">Illustration</p>
+          </div>
+        </div>
+        <div class="preview" id="preview">
+          <article class="turn" id="asked">
+            <h2>Started</h2>
+            <p class="asked">An AI education platform</p>
+          </article>
+          <article class="turn" id="assumed">
+            <h2>Now</h2>
+            <p class="asked">A study partner that remembers the last session</p>
+          </article>
+        </div>
+        <form class="composer" id="composer">
+          <div class="composer-shell">
+            <textarea id="intent" rows="3" placeholder="An AI education platform" readonly></textarea>
+            <button class="btn btn-primary" type="button">Start thinking</button>
+          </div>
+          <div class="jobs" id="jobs"><button class="job-line" type="button"><strong>Think</strong></button><button class="job-line" type="button"><strong>Remember</strong></button><button class="job-line" type="button"><strong>Evolve</strong></button><button class="job-line" type="button"><strong>Build</strong></button></div>
+          <p class="quiet"></p>
+        </form>
+      </div>
+    </section>
+    <dl class="steps" id="steps"><div class='step'><dt>Decisions</dt><dd>What you chose, kept settled until you decide to reopen it.</dd></div><div class='step'><dt>Directions set aside</dt><dd>What you ruled out, and the reason you gave.</dd></div><div class='step'><dt>Insights</dt><dd>What you realised along the way, in your own framing.</dd></div><div class='step'><dt>Open questions</dt><dd>What is still unresolved, waiting for you when you return.</dd></div></dl>
+    <div class="outro" id="outro">
+      <h1>Frimz</h1>
+      <p>Start with an idea. See where it goes.</p>
+    </div>
+    <audio id="music-bed" data-start="0" data-duration="90" data-track-index="10" data-volume="0.32" src="assets/music/happy-beats-business-moves-vol-1-by-ende-dot-app.mp3"></audio>
+    <audio id="sfx-reveal" data-start="6.8" data-duration="0.18" data-track-index="11" data-volume="0.42" src="assets/sfx/drop_002.ogg"></audio>
+    <audio id="sfx-key" data-start="11.9" data-duration="0.08" data-track-index="12" data-volume="0.28" src="assets/sfx/keypress-001.wav"></audio>
+    <audio id="sfx-click" data-start="37.4" data-duration="0.06" data-track-index="13" data-volume="0.34" src="assets/sfx/click_003.ogg"></audio>
+    <audio id="sfx-success" data-start="59.5" data-duration="0.16" data-track-index="14" data-volume="0.36" src="assets/sfx/bong_001.ogg"></audio>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    (function () {
+      const data = {"job": "An AI education platform", "jobs": [{"title": "Think", "body": "Explore an idea, challenge your assumptions, and compare the alternatives. Pick the kind of help you want.", "reply": "Explore an idea, challenge your assumptions, and compare the alternatives. Pick the kind of help you want."}, {"title": "Remember", "body": "Frimz keeps the meaningful parts of a conversation, along with how you like to work. The rest stays in the transcript.", "reply": "Frimz keeps the meaningful parts of a conversation, along with how you like to work. The rest stays in the transcript."}, {"title": "Evolve", "body": "Frimz tracks how an idea changes over time, so you can see where it started and why it moved.", "reply": "Frimz tracks how an idea changes over time, so you can see where it started and why it moved."}, {"title": "Build", "body": "Frimz keeps a structured picture of where each idea stands, which you can read and correct. When you wrap up, it can write a project brief, a proposal, or a summary from it.", "reply": "Frimz keeps a structured picture of where each idea stands, which you can read and correct. When you wrap up, it can write a project brief, a proposal, or a summary from it."}], "duration": 90, "t": {"bar": 0.85, "mast": 2.55, "window": 6.8, "typeStart": 11.9, "asked": 23.8, "assumed": 28.9, "jobs": 35.7, "chip0": 37.4, "chipGap": 0.4, "jobCycle": 42.5, "jobCycleSpan": 15.3, "steps": 59.5, "stepGap": 4.0, "outro": 85.0}};
+      const t = data.t;
+      const field = document.getElementById("intent");
+      const askedLine = document.querySelector("#asked .asked");
+      const assumedLine = document.querySelector("#assumed .asked");
+      const chips = Array.from(document.querySelectorAll(".job-line"));
+      const tl = gsap.timeline({ paused: true });
+      gsap.set("#window", { y: 36, scale: 0.98 });
+      gsap.set("#mast", { y: 24 });
+      function typeJob(text, at, seconds) {
+        const typer = { n: 0 };
+        tl.to(typer, {
+          n: (text || "").length,
+          duration: seconds,
+          ease: "none",
+          onUpdate: function () {
+            if (field) field.value = (text || "").slice(0, Math.round(typer.n));
+          }
+        }, at);
+      }
+      tl.fromTo("#bar", { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.5 }, t.bar);
+      tl.to("#mast", { opacity: 1, y: 0, duration: 0.7 }, t.mast);
+      // beat-locked: window reveal
+      tl.to("#window", { opacity: 1, y: 0, scale: 1, duration: 0.8 }, t.window);
+      const job = data.job || "";
+      const room = Math.max(2.4, t.asked - t.typeStart - 0.5);
+      const typeSeconds = room > 8 ? Math.min(room, Math.max(6, job.length / 8)) : Math.min(room, Math.max(2.8, job.length / 14));
+      typeJob(job, t.typeStart, typeSeconds);
+      tl.to("#asked", { opacity: 1, duration: 0.45 }, t.asked);
+      tl.to("#assumed", { opacity: 1, duration: 0.45 }, t.assumed);
+      tl.to("#jobs", { opacity: 1, duration: 0.3 }, t.jobs);
+      chips.forEach(function (chip, index) {
+        // beat-grid: job chips
+        const at = t.chip0 + index * t.chipGap;
+        tl.to(chip, { opacity: 1, duration: 0.18 }, at);
+        tl.call(function () {
+          chips.forEach(function (item) { item.classList.remove("is-on"); });
+          chip.classList.add("is-on");
+        }, null, at);
+      });
+      const extras = (data.jobs || []).slice(1);
+      if (extras.length && t.jobCycleSpan > 1) {
+        const each = t.jobCycleSpan / extras.length;
+        extras.forEach(function (item, index) {
+          const at = t.jobCycle + index * each;
+          tl.call(function () {
+            chips.forEach(function (chip, chipIndex) {
+              chip.classList.toggle("is-on", chipIndex === index + 1);
+            });
+            if (askedLine) askedLine.textContent = item.body;
+            if (assumedLine && item.reply) assumedLine.textContent = item.reply;
+            if (field) field.value = "";
+          }, null, at);
+          typeJob(item.body, at + 0.2, Math.max(1.6, each * 0.65));
+        });
+      }
+      if (document.querySelectorAll("#steps .step").length) {
+        tl.to("#steps", { opacity: 1, duration: 0.4 }, t.steps);
+        document.querySelectorAll("#steps .step").forEach(function (step, index) {
+          tl.fromTo(step, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.28 }, t.steps + 0.15 + index * t.stepGap);
+        });
+      }
+      tl.to(["#hero", "#bar", "#steps"], { opacity: 0, duration: 0.35 }, Math.max(0, t.outro - 0.35));
+      tl.set(["#hero", "#bar", "#steps"], { visibility: "hidden" }, t.outro);
+      tl.to("#outro", { opacity: 1, duration: 0.55 }, t.outro);
+      tl.set("#root", { opacity: 1 }, data.duration);
+      window.__timelines["brag"] = tl;
+      tl.seek(0);
+    })();
+  </script>
+</body>
+</html>

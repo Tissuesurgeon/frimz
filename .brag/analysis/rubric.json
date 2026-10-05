@@ -1,0 +1,22 @@
+{
+  "1_what_is_the_app": "An AI thinking partner that remembers how an idea evolved and turns that context into something the user can keep building on.",
+  "2_funniest_or_most_impressive_claim": "Positioned as a thinking partner that does not decide for the user, keeps the durable path of an idea, and makes later work continuable.",
+  "3_visual_hook": "",
+  "4_ui_to_show": "",
+  "5_shortest_satisfying_video": "25 seconds",
+  "6_tone": {
+    "preset": "default",
+    "direction": "Positioned as a thinking partner that does not decide for the user, keeps the durable path of an idea, and makes later work continuable."
+  },
+  "7_audio_feel": "Warm bed; SFX matched to UI motion unless disabled",
+  "8_share_caption": "An AI thinking partner that remembers how an idea evolved and turns that context into something the user can keep building on.",
+  "9_user_flow": "Authenticate \u2192 POST /api/chat with message and optional mode \u2192 Create or load a conversation \u2192 Persist the user message unless retrying \u2192 Resolve or attach the current idea \u2192 Recall memories and preferences \u2192 Load the idea brief if one exists \u2192 Choose a conversation strategy and stream tokens \u2192 Emit done with optional indicators and draft metadata",
+  "visual": {
+    "background": "",
+    "accent": "",
+    "text": "",
+    "display_font": "",
+    "body_font": ""
+  },
+  "name": "Frimz"
+}

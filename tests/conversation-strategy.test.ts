@@ -322,4 +322,35 @@ describe("conversation strategy", () => {
     expect(context).not.toContain(decision.content);
     expect(context).toContain("None identified yet.");
   });
+
+  it("follows a plan as the user changes it", () => {
+    expect(turn("A few friends and I want to take a trip somewhere, but we haven't really decided where.").reasoningFocus).toMatch(/figure it out as you go/i);
+    expect(turn("Honestly, I just want somewhere we can relax. We don't want to spend the whole weekend running around seeing things.").shouldAskQuestion).toBe(false);
+    expect(turn("Maybe somewhere near the beach.").reasoningFocus).toMatch(/If it fits/i);
+    expect(turn("I was thinking Cape Coast, but I'm not sure.").reasoningFocus).toMatch(/real tension/i);
+    expect(turn("A few things would be good. I just don't want us planning every hour.").reasoningFocus).toMatch(/lighter version/i);
+    expect(turn("Actually, Cape Coast might be too predictable. Let's look at somewhere else.").reasoningFocus).toMatch(/Drop that option/i);
+    expect(turn("Maybe somewhere with more of a nightlife.").reasoningFocus).toMatch(/what still holds/i);
+    const chosen = turn("I think let's do Accra instead.", [decision]);
+    expect(chosen.conversationalMove).toBe("confirm");
+    expect(chosen.reasoningFocus).toMatch(/earlier direction/i);
+    expect(turn("Wait, forget the trip for a second.").reasoningFocus).toMatch(/^Sure\./);
+    expect(turn("I actually want to figure out the budget first.").reasoningFocus).toMatch(/before locking anything in/i);
+    expect(turn("Exactly. Somewhere with good food too.").reasoningFocus).toMatch(/Fold the added want/i);
+    expect(turn("We could get an Airbnb somewhere nice, go out for dinner Friday, spend Saturday at the beach, then go somewhere at night.").reasoningFocus).toMatch(/lines up with what they wanted/i);
+    expect(turn("Yeah. I don't want us spending too much either.").reasoningFocus).toMatch(/parts they actually care about/i);
+    expect(turn("Yeah.").reasoningFocus).toMatch(/One next step/i);
+    const back = turn("I'm back. Let's continue planning the trip.", [decision]);
+    expect(back.shouldUseMemory).toBe(true);
+    expect(back.questionCount).toBe(1);
+    expect(back.reasoningFocus).toMatch(/Do not assume they still agree/i);
+    const changed = turn("Actually, I've been thinking about it. I don't think Accra is what we want anymore.", [decision]);
+    expect(changed.reasoningFocus).toMatch(/What changed/i);
+    expect(changed.reasoningFocus).toMatch(/Do not reject the new choice/i);
+    expect(turn("We realized we mostly want to get away from the city.").reasoningFocus).toMatch(/history, not an instruction/i);
+    expect(turn("What have we actually figured out so far?").reasoningFocus).toMatch(/how the thinking evolved/i);
+    const later = turn("Okay, I'll think about it and come back later.");
+    expect(later.reasoningFocus).toMatch(/Sounds good/i);
+    expect(later.offersDraft).toBeUndefined();
+  });
 });

@@ -29,6 +29,18 @@ Interviewer (question stacks), therapist (empty validation), project manager (ta
 | User move | Signal (approx.) | Move |
 |-----------|------------------|------|
 | Vague / early idea | discover, vague | clarify / explore |
+| Open plan, not chosen yet | open_plan | explore, one question |
+| A want, in their words | want_shape, add_on | contrast, then stop |
+| Option that fits or shifts | float_option | one sentence |
+| Unsure about an option | tentative | one tension question |
+| Lighter rather than rigid | loose_contrast | one contrast |
+| Set an option aside | set_aside | drop it |
+| Reason changed | reason_shift | old choice is history |
+| Decide / reverse | confirm, reversal | why it fits |
+| Pause the thread | aside, pause | one word, no recap |
+| A number | tally, budget_first, spend_light | total, then one step |
+| Come back | return_idea | picture, then where to pick up |
+| What have we figured out | stocktake | evolution, no labels |
 | Blank start | blank | ask |
 | Uncertain | uncertain | clarify |
 | Problem on table | (default explore) | explore distinction |

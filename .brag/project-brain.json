@@ -1,0 +1,2342 @@
+{
+  "schema_version": "1",
+  "path": "/home/richy/Desktop/frimz",
+  "identity": {
+    "name": {
+      "id": "identity-name",
+      "text": "Frimz",
+      "status": "verified",
+      "confidence": 0.99,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": null,
+          "collected_at": "2026-10-04T20:07:00.136617Z",
+          "excerpt": ""
+        },
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": null,
+          "collected_at": "2026-10-04T20:07:00.136643Z",
+          "excerpt": ""
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    "one_liner": {
+      "id": "identity-oneliner",
+      "text": "An AI thinking partner that remembers how an idea evolved and turns that context into something the user can keep building on.",
+      "status": "inferred",
+      "confidence": 0.72,
+      "evidence": [
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": null,
+          "collected_at": "2026-10-04T20:07:00.136670Z",
+          "excerpt": ""
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    "description": {
+      "id": "identity-description",
+      "text": "A Next.js thinking-partner app that keeps conversations, ideas, a versioned context brief, and durable memories so later turns can continue from where the thinking stands.",
+      "status": "verified",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "id": "ev-server-agent-frimz-agent.ts",
+          "kind": "source_code",
+          "path": "server/agent/frimz-agent.ts",
+          "uri": null,
+          "locator": null,
+          "hash": null,
+          "collected_at": "2026-10-04T20:07:00.136688Z",
+          "excerpt": ""
+        },
+        {
+          "id": "ev-server-memory-memory-orchestrator.ts",
+          "kind": "source_code",
+          "path": "server/memory/memory-orchestrator.ts",
+          "uri": null,
+          "locator": null,
+          "hash": null,
+          "collected_at": "2026-10-04T20:07:00.136696Z",
+          "excerpt": ""
+        },
+        {
+          "id": "ev-app-api-chat-route.ts",
+          "kind": "source_code",
+          "path": "app/api/chat/route.ts",
+          "uri": null,
+          "locator": null,
+          "hash": null,
+          "collected_at": "2026-10-04T20:07:00.136715Z",
+          "excerpt": ""
+        },
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+          "collected_at": "2026-10-04T20:04:04.850531Z",
+          "excerpt": "Frimz helps people develop ideas over time"
+        },
+        {
+          "id": "ev-db-schema.ts",
+          "kind": "source_code",
+          "path": "db/schema.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+          "collected_at": "2026-10-04T20:04:04.784385Z",
+          "excerpt": "ideas, conversations, messages, memoryIndex"
+        },
+        {
+          "id": "ev-git-log",
+          "kind": "git",
+          "path": ".git",
+          "uri": null,
+          "locator": null,
+          "hash": null,
+          "collected_at": "2026-10-04T20:04:04.859679Z",
+          "excerpt": "Add Frimz, a thinking partner that remembers how ideas evolve."
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    }
+  },
+  "problem": {
+    "id": "problem",
+    "text": "Useful thinking appears in a conversation, then the chat ends and the path \u2014 decisions, rejections, open questions \u2014 is hard to reuse, so the user has to re-explain the idea.",
+    "status": "inferred",
+    "confidence": 0.7,
+    "evidence": [
+      {
+        "id": "ev-README.md",
+        "kind": "docs",
+        "path": "README.md",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.137058Z",
+        "excerpt": ""
+      }
+    ],
+    "conflicts": [],
+    "demote": false
+  },
+  "solution": {
+    "id": "solution",
+    "text": "Each turn resolves an idea, recalls durable memories, loads a living context brief, chooses a conversation strategy, streams a reply, and can later extract memories or draft a write-up from that picture.",
+    "status": "verified",
+    "confidence": 0.92,
+    "evidence": [
+      {
+        "id": "ev-README.md",
+        "kind": "docs",
+        "path": "README.md",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.137092Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-lib-context-brief.ts",
+        "kind": "source_code",
+        "path": "lib/context-brief.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.137221Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-server-memory-memory-orchestrator.ts",
+        "kind": "source_code",
+        "path": "server/memory/memory-orchestrator.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.137239Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-server-agent-frimz-agent.ts",
+        "kind": "source_code",
+        "path": "server/agent/frimz-agent.ts",
+        "uri": null,
+        "locator": null,
+        "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+        "collected_at": "2026-10-04T20:04:04.796982Z",
+        "excerpt": "resolveIdea; recallForTurn; briefForIdea; planWriteUp"
+      }
+    ],
+    "conflicts": [],
+    "demote": false
+  },
+  "users": {
+    "id": "users",
+    "text": "Founders, developers, marketers, researchers, students, and anyone developing a project that does not fit in one chat.",
+    "status": "inferred",
+    "confidence": 0.55,
+    "evidence": [
+      {
+        "id": "ev-README.md",
+        "kind": "docs",
+        "path": "README.md",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.137268Z",
+        "excerpt": ""
+      }
+    ],
+    "conflicts": [],
+    "demote": false
+  },
+  "features": [
+    {
+      "name": "Intent-aware thinking conversation",
+      "description": {
+        "id": "feat-strategy-desc",
+        "text": "Each user message is classified into an intent, thinking stage, and conversational move so the agent explores, challenges, confirms, drafts, or answers instead of treating every turn the same.",
+        "status": "verified",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "id": "ev-server-agent-conversation-types.ts",
+            "kind": "source_code",
+            "path": "server/agent/conversation-types.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "63359a318b552a7b81045bd7ed4c7d55b28d761d5afa248bd156c0e27e5bffb5",
+            "collected_at": "2026-10-04T20:04:04.803179Z",
+            "excerpt": "ConversationalIntent; ThinkingStage; ConversationalMove"
+          },
+          {
+            "id": "ev-server-agent-conversational-strategy.ts",
+            "kind": "source_code",
+            "path": "server/agent/conversational-strategy.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "56a8c81e68e0602bf4ec410075a8c72501c649a314ce8367b2797b1a46c2fb85",
+            "collected_at": "2026-10-04T20:04:04.814876Z",
+            "excerpt": "chooseConversationStrategy; fromSignal"
+          },
+          {
+            "id": "ev-server-agent-intent-analyzer.ts",
+            "kind": "source_code",
+            "path": "server/agent/intent-analyzer.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "37c8ed8bbb3352dc19db0dd199cb631dbe5e24af2c825d4e59684db9b14d6b1f",
+            "collected_at": "2026-10-04T20:04:04.819768Z",
+            "excerpt": "RULES regex signals"
+          },
+          {
+            "id": "ev-tests-conversation-strategy.test.ts",
+            "kind": "test",
+            "path": "tests/conversation-strategy.test.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "a5f3b84641e24813ea3b033a350c0d306e8e402aaa5ddcbd437aad681414d5c9",
+            "collected_at": "2026-10-04T20:04:04.834956Z",
+            "excerpt": "recognizes a decision; creates space when the idea is not on the table"
+          },
+          {
+            "id": "ev-tests-orchestration.test.ts",
+            "kind": "test",
+            "path": "tests/orchestration.test.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "3bbc241293b838b1afe5501011e94f7a17a94a269360c01308733fd287435a1e",
+            "collected_at": "2026-10-04T20:04:04.838585Z",
+            "excerpt": "high-uncertainty exploration; drafts a readme without questions"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      },
+      "implemented": {
+        "id": "feat-strategy-impl",
+        "text": "Implemented in chooseConversationStrategy and analyzeIntent; wired into contextForTurn and covered by Vitest suites.",
+        "status": "verified",
+        "confidence": 0.96,
+        "evidence": [
+          {
+            "id": "ev-server-memory-memory-orchestrator.ts",
+            "kind": "source_code",
+            "path": "server/memory/memory-orchestrator.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+            "collected_at": "2026-10-04T20:04:04.823774Z",
+            "excerpt": "chooseConversationStrategy; renderConversationStrategy"
+          },
+          {
+            "id": "ev-tests-conversation-strategy.test.ts",
+            "kind": "test",
+            "path": "tests/conversation-strategy.test.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "a5f3b84641e24813ea3b033a350c0d306e8e402aaa5ddcbd437aad681414d5c9",
+            "collected_at": "2026-10-04T20:04:04.834956Z",
+            "excerpt": "mode: \"think\""
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Persistent thinking memory",
+      "description": {
+        "id": "feat-memory-desc",
+        "text": "Durable facts are indexed in Postgres and recalled from a Walrus-backed store when configured, then merged into the next turn.",
+        "status": "verified",
+        "confidence": 0.93,
+        "evidence": [
+          {
+            "id": "ev-server-memory-memory-orchestrator.ts",
+            "kind": "source_code",
+            "path": "server/memory/memory-orchestrator.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+            "collected_at": "2026-10-04T20:04:04.823774Z",
+            "excerpt": "store.search; mergePreferences; PostgresMemoryIndex"
+          },
+          {
+            "id": "ev-db-schema.ts",
+            "kind": "source_code",
+            "path": "db/schema.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+            "collected_at": "2026-10-04T20:04:04.784385Z",
+            "excerpt": "memoryIndex blobId namespace type status content"
+          },
+          {
+            "id": "ev-package.json",
+            "kind": "config",
+            "path": "package.json",
+            "uri": null,
+            "locator": null,
+            "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+            "collected_at": "2026-10-04T20:04:04.764166Z",
+            "excerpt": "@mysten-incubation/memwal"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      },
+      "implemented": {
+        "id": "feat-memory-impl",
+        "text": "recallForTurn searches Walrus when a store exists, always keeps active user_preference rows, and falls back to preferences if Walrus is missing or fails.",
+        "status": "verified",
+        "confidence": 0.94,
+        "evidence": [
+          {
+            "id": "ev-server-memory-memory-orchestrator.ts",
+            "kind": "source_code",
+            "path": "server/memory/memory-orchestrator.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+            "collected_at": "2026-10-04T20:04:04.823774Z",
+            "excerpt": "if (!store) return preferences; walrus not_configured"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Living context brief",
+      "description": {
+        "id": "feat-brief-desc",
+        "text": "Each idea has a structured, versioned Current thinking brief that the agent loads on a turn.",
+        "status": "verified",
+        "confidence": 0.91,
+        "evidence": [
+          {
+            "id": "ev-lib-context-brief.ts",
+            "kind": "source_code",
+            "path": "lib/context-brief.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "e464aac43721aa59aaac1446ecc9e744c13a722aeb8c9d7356645421f7fb8cc9",
+            "collected_at": "2026-10-04T20:04:04.827165Z",
+            "excerpt": "BRIEF_SECTIONS Where it stands Problem Goal Decisions"
+          },
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "briefForIdea; updateThinkingAfterTurn"
+          },
+          {
+            "id": "ev-git-log",
+            "kind": "git",
+            "path": ".git",
+            "uri": null,
+            "locator": null,
+            "hash": null,
+            "collected_at": "2026-10-04T20:04:04.859679Z",
+            "excerpt": "versioned current-thinking briefs in Postgres"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      },
+      "implemented": {
+        "id": "feat-brief-impl",
+        "text": "Brief types, cleaning, and per-idea load/update are present; the UI for reading and editing the brief is README-only in this pack.",
+        "status": "verified",
+        "confidence": 0.86,
+        "evidence": [
+          {
+            "id": "ev-lib-context-brief.ts",
+            "kind": "source_code",
+            "path": "lib/context-brief.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "e464aac43721aa59aaac1446ecc9e744c13a722aeb8c9d7356645421f7fb8cc9",
+            "collected_at": "2026-10-04T20:04:04.827165Z",
+            "excerpt": "BriefSnapshot; cleanBriefText"
+          },
+          {
+            "id": "ev-README.md",
+            "kind": "docs",
+            "path": "README.md",
+            "uri": null,
+            "locator": null,
+            "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+            "collected_at": "2026-10-04T20:04:04.850531Z",
+            "excerpt": "shown in the app as Current thinking"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Idea-linked conversations",
+      "description": {
+        "id": "feat-ideas-desc",
+        "text": "Signed-in users own ideas and conversations; a conversation can point at a current idea resolved from the latest message.",
+        "status": "verified",
+        "confidence": 0.93,
+        "evidence": [
+          {
+            "id": "ev-db-schema.ts",
+            "kind": "source_code",
+            "path": "db/schema.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+            "collected_at": "2026-10-04T20:04:04.784385Z",
+            "excerpt": "ideas; conversations.currentIdeaId"
+          },
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "createConversation; resolveIdea; touchConversation"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      },
+      "implemented": {
+        "id": "feat-ideas-impl",
+        "text": "Schema and chat-turn orchestration create conversations, attach ideas, and persist messages.",
+        "status": "verified",
+        "confidence": 0.93,
+        "evidence": [
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "addMessage(conversationId, \"user\", userText)"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Memory-use indicators",
+      "description": {
+        "id": "feat-indicators-desc",
+        "text": "Replies can mark remembered or connected memories and stream indicator labels with the done event.",
+        "status": "verified",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "id": "ev-db-schema.ts",
+            "kind": "source_code",
+            "path": "db/schema.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+            "collected_at": "2026-10-04T20:04:04.784385Z",
+            "excerpt": "IndicatorType remembered | connected"
+          },
+          {
+            "id": "ev-app-api-chat-route.ts",
+            "kind": "source_code",
+            "path": "app/api/chat/route.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+            "collected_at": "2026-10-04T20:04:04.829391Z",
+            "excerpt": "indicatorPhrase; kind from memoryIndex.type"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      },
+      "implemented": {
+        "id": "feat-indicators-impl",
+        "text": "Chat SSE done events enrich indicators from memory_index types.",
+        "status": "verified",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "id": "ev-app-api-chat-route.ts",
+            "kind": "source_code",
+            "path": "app/api/chat/route.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+            "collected_at": "2026-10-04T20:04:04.829391Z",
+            "excerpt": "indicators mapped with kind and label"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Write-ups and draft offers",
+      "description": {
+        "id": "feat-writeup-desc",
+        "text": "The agent can plan and generate a write-up from the brief and may end a turn by offering a written draft.",
+        "status": "verified",
+        "confidence": 0.84,
+        "evidence": [
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "LLMWriteUpGenerator, planWriteUp"
+          },
+          {
+            "id": "ev-db-schema.ts",
+            "kind": "source_code",
+            "path": "db/schema.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+            "collected_at": "2026-10-04T20:04:04.784385Z",
+            "excerpt": "draftOffer; writeUp format briefVersion"
+          },
+          {
+            "id": "ev-tests-orchestration.test.ts",
+            "kind": "test",
+            "path": "tests/orchestration.test.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "3bbc241293b838b1afe5501011e94f7a17a94a269360c01308733fd287435a1e",
+            "collected_at": "2026-10-04T20:04:04.838585Z",
+            "excerpt": "Write the README now \u2192 draft"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      },
+      "implemented": {
+        "id": "feat-writeup-impl",
+        "text": "Write-up planning is imported into the chat turn; message metadata stores draft and write-up versions. End-to-end UI for consuming drafts is not in this pack.",
+        "status": "verified",
+        "confidence": 0.8,
+        "evidence": [
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "isDraftable; planWriteUp"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Think / Plan / Write / Challenge modes",
+      "description": {
+        "id": "feat-modes-desc",
+        "text": "One agent accepts a mode that changes behavior for the turn.",
+        "status": "inferred",
+        "confidence": 0.68,
+        "evidence": [
+          {
+            "id": "ev-README.md",
+            "kind": "docs",
+            "path": "README.md",
+            "uri": null,
+            "locator": null,
+            "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+            "collected_at": "2026-10-04T20:04:04.850531Z",
+            "excerpt": "Think, Plan, Write, and Challenge modes on one agent"
+          },
+          {
+            "id": "ev-app-api-chat-route.ts",
+            "kind": "source_code",
+            "path": "app/api/chat/route.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+            "collected_at": "2026-10-04T20:04:04.829391Z",
+            "excerpt": "modeSchema; parseMode"
+          },
+          {
+            "id": "ev-tests-conversation-strategy.test.ts",
+            "kind": "test",
+            "path": "tests/conversation-strategy.test.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "a5f3b84641e24813ea3b033a350c0d306e8e402aaa5ddcbd437aad681414d5c9",
+            "collected_at": "2026-10-04T20:04:04.834956Z",
+            "excerpt": "mode: \"think\""
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      },
+      "implemented": {
+        "id": "feat-modes-impl",
+        "text": "A Mode value is parsed on POST /api/chat and passed into runChatTurn. The four named modes are documented; only think is exercised in the provided tests.",
+        "status": "inferred",
+        "confidence": 0.7,
+        "evidence": [
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "mode: Mode"
+          },
+          {
+            "id": "ev-README.md",
+            "kind": "docs",
+            "path": "README.md",
+            "uri": null,
+            "locator": null,
+            "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+            "collected_at": "2026-10-04T20:04:04.850531Z",
+            "excerpt": "Think, Plan, Write, and Challenge modes"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Memory inspection, editing, and forgetting",
+      "description": {
+        "id": "feat-forget-desc",
+        "text": "README claims users can inspect, edit, and forget memories; edit writes a new Walrus blob and supersedes the index row.",
+        "status": "inferred",
+        "confidence": 0.48,
+        "evidence": [
+          {
+            "id": "ev-README.md",
+            "kind": "docs",
+            "path": "README.md",
+            "uri": null,
+            "locator": null,
+            "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+            "collected_at": "2026-10-04T20:04:04.850531Z",
+            "excerpt": "Memory inspection, editing, and forgetting"
+          },
+          {
+            "id": "ev-db-schema.ts",
+            "kind": "source_code",
+            "path": "db/schema.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+            "collected_at": "2026-10-04T20:04:04.784385Z",
+            "excerpt": "status default active; supersedesId"
+          }
+        ],
+        "conflicts": [],
+        "demote": true
+      },
+      "implemented": {
+        "id": "feat-forget-impl",
+        "text": "Index columns for status and supersedesId exist; no edit/forget API or UI source is in this evidence pack.",
+        "status": "inferred",
+        "confidence": 0.4,
+        "evidence": [
+          {
+            "id": "ev-db-schema.ts",
+            "kind": "source_code",
+            "path": "db/schema.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+            "collected_at": "2026-10-04T20:04:04.784385Z",
+            "excerpt": "supersedesId; status"
+          },
+          {
+            "id": "ev-README.md",
+            "kind": "docs",
+            "path": "README.md",
+            "uri": null,
+            "locator": null,
+            "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+            "collected_at": "2026-10-04T20:04:04.850531Z",
+            "excerpt": "Forgetting marks the row forgotten"
+          }
+        ],
+        "conflicts": [],
+        "demote": true
+      }
+    }
+  ],
+  "journeys": [
+    {
+      "name": "Signed-in chat turn",
+      "beats": [
+        "Authenticate",
+        "POST /api/chat with message and optional mode",
+        "Create or load a conversation",
+        "Persist the user message unless retrying",
+        "Resolve or attach the current idea",
+        "Recall memories and preferences",
+        "Load the idea brief if one exists",
+        "Choose a conversation strategy and stream tokens",
+        "Emit done with optional indicators and draft metadata"
+      ],
+      "claim": {
+        "id": "journey-chat",
+        "text": "The primary product loop is an authenticated SSE chat turn that binds an idea, memory, and brief before streaming a strategy-guided reply.",
+        "status": "verified",
+        "confidence": 0.94,
+        "evidence": [
+          {
+            "id": "ev-app-api-chat-route.ts",
+            "kind": "source_code",
+            "path": "app/api/chat/route.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+            "collected_at": "2026-10-04T20:04:04.829391Z",
+            "excerpt": "requireUser; rateLimit; runChatTurn; text/event-stream"
+          },
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "createConversation; resolveIdea; recallForTurn; briefForIdea"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Retry last reply",
+      "beats": [
+        "Client sends retry:true with a conversationId",
+        "Delete the last assistant message if present",
+        "Reuse the previous user message",
+        "Run the same chat-turn pipeline"
+      ],
+      "claim": {
+        "id": "journey-retry",
+        "text": "A conversation can regenerate the last assistant reply from the previous user message.",
+        "status": "verified",
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "if (input.retry) deleteMessage; previousUser.content"
+          },
+          {
+            "id": "ev-app-api-chat-route.ts",
+            "kind": "source_code",
+            "path": "app/api/chat/route.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+            "collected_at": "2026-10-04T20:04:04.829391Z",
+            "excerpt": "retry === true"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Return and continue an idea",
+      "beats": [
+        "Keep durable memories and a living brief",
+        "Come back in a later conversation",
+        "Recall relevant memories",
+        "Continue from the current-thinking picture",
+        "Optionally turn the brief into a written draft"
+      ],
+      "claim": {
+        "id": "journey-return",
+        "text": "The documented long-loop is remember, return, continue, and build from stored thinking rather than a full transcript.",
+        "status": "inferred",
+        "confidence": 0.66,
+        "evidence": [
+          {
+            "id": "ev-README.md",
+            "kind": "docs",
+            "path": "README.md",
+            "uri": null,
+            "locator": null,
+            "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+            "collected_at": "2026-10-04T20:04:04.850531Z",
+            "excerpt": "Remember. Return. Continue. Build."
+          },
+          {
+            "id": "ev-git-log",
+            "kind": "git",
+            "path": ".git",
+            "uri": null,
+            "locator": null,
+            "hash": null,
+            "collected_at": "2026-10-04T20:04:04.859679Z",
+            "excerpt": "later conversation can continue from where the thinking stands"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    }
+  ],
+  "screens": [],
+  "architecture": {
+    "id": "architecture",
+    "text": "Next.js 15 App Router Node server. POST /api/chat authenticates, rate-limits, and streams runChatTurn. The agent resolves an idea, recalls memories via PostgresMemoryIndex plus optional Walrus, loads a context brief, builds prompts with a conversation strategy, and calls getLLMProvider. Durable app state lives in Postgres; semantic memory blobs are intended for Walrus and catalogued in memory_index. Production is a standalone Node image.",
+    "status": "verified",
+    "confidence": 0.93,
+    "evidence": [
+      {
+        "id": "ev-next.config.ts",
+        "kind": "source_code",
+        "path": "next.config.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.142386Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-server-agent-frimz-agent.ts",
+        "kind": "source_code",
+        "path": "server/agent/frimz-agent.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.142409Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-db-schema.ts",
+        "kind": "source_code",
+        "path": "db/schema.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.142422Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-Dockerfile",
+        "kind": "config",
+        "path": "Dockerfile",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.142440Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-app-api-chat-route.ts",
+        "kind": "source_code",
+        "path": "app/api/chat/route.ts",
+        "uri": null,
+        "locator": null,
+        "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+        "collected_at": "2026-10-04T20:04:04.829391Z",
+        "excerpt": "runtime nodejs; ReadableStream SSE"
+      },
+      {
+        "id": "ev-server-memory-memory-orchestrator.ts",
+        "kind": "source_code",
+        "path": "server/memory/memory-orchestrator.ts",
+        "uri": null,
+        "locator": null,
+        "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+        "collected_at": "2026-10-04T20:04:04.823774Z",
+        "excerpt": "getMemoryStore; PostgresMemoryIndex"
+      }
+    ],
+    "conflicts": [],
+    "demote": false
+  },
+  "stack": [
+    {
+      "id": "stack-next",
+      "text": "Next.js 15.5.4 App Router with React 19.1.1 and TypeScript 5.9",
+      "status": "verified",
+      "confidence": 0.98,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "next 15.5.4; react 19.1.1; typescript ^5.9.2"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "stack-node",
+      "text": "Node.js >= 22.13",
+      "status": "verified",
+      "confidence": 0.97,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "\"node\": \">=22.13\""
+        },
+        {
+          "id": "ev-Dockerfile",
+          "kind": "config",
+          "path": "Dockerfile",
+          "uri": null,
+          "locator": null,
+          "hash": "f1c018278165e4385227e8ca0d76d14253d7ee8ec541f221649a6ee211730319",
+          "collected_at": "2026-10-04T20:04:04.852615Z",
+          "excerpt": "FROM node:22-bookworm-slim"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "stack-db",
+      "text": "PostgreSQL accessed through Drizzle ORM and the postgres.js client",
+      "status": "verified",
+      "confidence": 0.96,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "drizzle-orm; postgres"
+        },
+        {
+          "id": "ev-docker-compose.yml",
+          "kind": "config",
+          "path": "docker-compose.yml",
+          "uri": null,
+          "locator": null,
+          "hash": "5197521685c924bace016804c32b4d327cdc44fc1ec7d49a81cc87834d968bbe",
+          "collected_at": "2026-10-04T20:04:04.853183Z",
+          "excerpt": "postgres:16-alpine"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "stack-ui",
+      "text": "Tailwind CSS 4 with Radix UI primitives, lucide-react, next-themes, and sonner",
+      "status": "verified",
+      "confidence": 0.88,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "tailwindcss ^4.1.13; @radix-ui/react-dialog; next-themes; sonner"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "stack-test",
+      "text": "Vitest for unit tests; ESLint via eslint-config-next",
+      "status": "verified",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "\"test\": \"vitest run\""
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "dep-cursor-sdk",
+      "text": "@cursor/sdk ^1.0.34 is a runtime LLM/provider dependency, marked external for the standalone server.",
+      "status": "verified",
+      "confidence": 0.94,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "@cursor/sdk ^1.0.34"
+        },
+        {
+          "id": "ev-next.config.ts",
+          "kind": "source_code",
+          "path": "next.config.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "06d1e8382f1ade06d53da964bd1336ff8931b0a88cccedd2d58faa807a84ab14",
+          "collected_at": "2026-10-04T20:04:04.840475Z",
+          "excerpt": "serverExternalPackages @cursor/sdk"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "dep-memwal",
+      "text": "@mysten-incubation/memwal ^0.1.8 is the Walrus memory client used for semantic recall.",
+      "status": "verified",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "@mysten-incubation/memwal ^0.1.8"
+        },
+        {
+          "id": "ev-server-memory-memory-orchestrator.ts",
+          "kind": "source_code",
+          "path": "server/memory/memory-orchestrator.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+          "collected_at": "2026-10-04T20:04:04.823774Z",
+          "excerpt": "getMemoryStore(); walrus_recall_failed"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "dep-sui-seal",
+      "text": "@mysten/sui ^2.33.2 and @mysten/seal ^1.4.17 are bundled into the standalone trace.",
+      "status": "verified",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "@mysten/seal; @mysten/sui"
+        },
+        {
+          "id": "ev-next.config.ts",
+          "kind": "source_code",
+          "path": "next.config.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "06d1e8382f1ade06d53da964bd1336ff8931b0a88cccedd2d58faa807a84ab14",
+          "collected_at": "2026-10-04T20:04:04.840475Z",
+          "excerpt": "outputFileTracingIncludes mysten seal and sui"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "dep-next-auth",
+      "text": "next-auth ^5.0.0-beta.29 plus bcryptjs for credential-style user records.",
+      "status": "verified",
+      "confidence": 0.88,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "next-auth; bcryptjs"
+        },
+        {
+          "id": "ev-db-schema.ts",
+          "kind": "source_code",
+          "path": "db/schema.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+          "collected_at": "2026-10-04T20:04:04.784385Z",
+          "excerpt": "users.email; passwordHash; sessions"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "dep-zod-markdown",
+      "text": "zod for request validation; react-markdown, remark-gfm, and rehype-sanitize for rendered markdown.",
+      "status": "verified",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "zod; react-markdown; rehype-sanitize"
+        },
+        {
+          "id": "ev-app-api-chat-route.ts",
+          "kind": "source_code",
+          "path": "app/api/chat/route.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+          "collected_at": "2026-10-04T20:04:04.829391Z",
+          "excerpt": "chatMessageSchema; modeSchema"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    }
+  ],
+  "integrations": [
+    {
+      "name": "Cursor LLM provider",
+      "claim": {
+        "id": "int-cursor",
+        "text": "Chat and extraction go through getLLMProvider from the Cursor provider.",
+        "status": "verified",
+        "confidence": 0.88,
+        "evidence": [
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "getLLMProvider from cursor-provider"
+          },
+          {
+            "id": "ev-package.json",
+            "kind": "config",
+            "path": "package.json",
+            "uri": null,
+            "locator": null,
+            "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+            "collected_at": "2026-10-04T20:04:04.764166Z",
+            "excerpt": "@cursor/sdk"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Walrus / memwal",
+      "claim": {
+        "id": "int-walrus",
+        "text": "Semantic memory search is delegated to getMemoryStore(); failures are logged as walrus_recall_failed and the turn continues with preference rows only.",
+        "status": "verified",
+        "confidence": 0.91,
+        "evidence": [
+          {
+            "id": "ev-server-memory-memory-orchestrator.ts",
+            "kind": "source_code",
+            "path": "server/memory/memory-orchestrator.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+            "collected_at": "2026-10-04T20:04:04.823774Z",
+            "excerpt": "walrus not_configured; walrus_recall_failed"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "Mysten Sui and Seal",
+      "claim": {
+        "id": "int-sui",
+        "text": "Sui and Seal packages are production dependencies and included in standalone file tracing; no on-chain call sites appear in this evidence pack.",
+        "status": "inferred",
+        "confidence": 0.55,
+        "evidence": [
+          {
+            "id": "ev-package.json",
+            "kind": "config",
+            "path": "package.json",
+            "uri": null,
+            "locator": null,
+            "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+            "collected_at": "2026-10-04T20:04:04.764166Z",
+            "excerpt": "@mysten/seal; @mysten/sui"
+          },
+          {
+            "id": "ev-next.config.ts",
+            "kind": "source_code",
+            "path": "next.config.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "06d1e8382f1ade06d53da964bd1336ff8931b0a88cccedd2d58faa807a84ab14",
+            "collected_at": "2026-10-04T20:04:04.840475Z",
+            "excerpt": "outputFileTracingIncludes @mysten/seal and @mysten/sui"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "NextAuth sessions",
+      "claim": {
+        "id": "int-auth",
+        "text": "Chat requires a current user; users and sessions tables plus next-auth/bcryptjs indicate password-backed account sessions.",
+        "status": "verified",
+        "confidence": 0.86,
+        "evidence": [
+          {
+            "id": "ev-app-api-chat-route.ts",
+            "kind": "source_code",
+            "path": "app/api/chat/route.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+            "collected_at": "2026-10-04T20:04:04.829391Z",
+            "excerpt": "requireUser(); 401 Sign in to continue."
+          },
+          {
+            "id": "ev-db-schema.ts",
+            "kind": "source_code",
+            "path": "db/schema.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+            "collected_at": "2026-10-04T20:04:04.784385Z",
+            "excerpt": "users; sessions"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "name": "PostgreSQL",
+      "claim": {
+        "id": "int-postgres",
+        "text": "Local compose runs Postgres 16 as database frimz on host port 5436.",
+        "status": "verified",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "id": "ev-docker-compose.yml",
+            "kind": "config",
+            "path": "docker-compose.yml",
+            "uri": null,
+            "locator": null,
+            "hash": "5197521685c924bace016804c32b4d327cdc44fc1ec7d49a81cc87834d968bbe",
+            "collected_at": "2026-10-04T20:04:04.853183Z",
+            "excerpt": "postgres:16-alpine; 5436:5432; POSTGRES_DB frimz"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    }
+  ],
+  "apis": [
+    {
+      "method": "POST",
+      "path": "/api/chat",
+      "claim": {
+        "id": "api-chat",
+        "text": "Authenticated JSON POST that streams SSE events (conversation, token, done, error). Accepts conversationId, message, mode, and retry. Rejects anonymous users (401), invalid/empty messages (400), and rate-limited users (429). Node runtime, force-dynamic, maxDuration 300.",
+        "status": "verified",
+        "confidence": 0.97,
+        "evidence": [
+          {
+            "id": "ev-app-api-chat-route.ts",
+            "kind": "source_code",
+            "path": "app/api/chat/route.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+            "collected_at": "2026-10-04T20:04:04.829391Z",
+            "excerpt": "POST; text/event-stream; maxDuration = 300"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    }
+  ],
+  "database": {
+    "id": "database",
+    "text": "Drizzle Postgres schema includes users, sessions, ideas, conversations, messages, user_settings, and memory_index. Context briefs are typed against ContextBriefData and loaded per idea; the brief table itself is truncated in this pack.",
+    "status": "verified",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "id": "ev-db-schema.ts",
+        "kind": "source_code",
+        "path": "db/schema.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143011Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-docker-compose.yml",
+        "kind": "config",
+        "path": "docker-compose.yml",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143018Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-package.json",
+        "kind": "config",
+        "path": "package.json",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143024Z",
+        "excerpt": ""
+      }
+    ],
+    "conflicts": [],
+    "demote": false
+  },
+  "auth": {
+    "id": "auth",
+    "text": "Chat requires a signed-in user via requireUser. Accounts store unique email and a password hash; sessions have a token and expiry. Git notes Edge auth middleware was removed so Vercel signup would not crash loading middleware.js as CommonJS.",
+    "status": "verified",
+    "confidence": 0.87,
+    "evidence": [
+      {
+        "id": "ev-app-api-chat-route.ts",
+        "kind": "source_code",
+        "path": "app/api/chat/route.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143048Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-db-schema.ts",
+        "kind": "source_code",
+        "path": "db/schema.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143055Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-package.json",
+        "kind": "config",
+        "path": "package.json",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143061Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-git-log",
+        "kind": "git",
+        "path": ".git",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:04:04.859679Z",
+        "excerpt": "Drop the Edge auth middleware so Vercel signup no longer crashes"
+      }
+    ],
+    "conflicts": [],
+    "demote": false
+  },
+  "deployment": {
+    "id": "deployment",
+    "text": "Production image is a multi-stage Node 22 standalone Next server (node server.js, HOSTNAME 0.0.0.0, EXPOSE 3000). Vercel is documented as deploying Dockerfile.vercel and keeping a long-running Node process. Local Postgres is compose-managed. Security headers apply to all paths.",
+    "status": "verified",
+    "confidence": 0.92,
+    "evidence": [
+      {
+        "id": "ev-Dockerfile",
+        "kind": "config",
+        "path": "Dockerfile",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143087Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-docker-compose.yml",
+        "kind": "config",
+        "path": "docker-compose.yml",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143094Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-next.config.ts",
+        "kind": "source_code",
+        "path": "next.config.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143100Z",
+        "excerpt": ""
+      }
+    ],
+    "conflicts": [],
+    "demote": false
+  },
+  "git_activity": {
+    "head": "81cfde4519b700c2e5cbcb375f9d3363476bc112",
+    "branch": "main",
+    "recent_commits": [
+      "81cfde45 fix: how frimz response to users",
+      "4bd62f96 fix: how frimz response to users",
+      "e34f5ffd fix: how frimz response to users",
+      "080cbc68 fix: how frimz response to users",
+      "d3ac7cd4 Brainstorm with the user instead of explaining their point back, and treat comments and feedback as different jobs. Drop the Edge auth middleware so Vercel signup no longer crashes while loading middleware.js as CommonJS.",
+      "86072eda Keep a living picture of each idea so a later conversation can continue from where the thinking stands and turn it into a draft. Store versioned current-thinking briefs in Postgres beside Walrus memories, and reshape the landing and workspace around that loop.",
+      "947be76e Add Frimz, a thinking partner that remembers how ideas evolve. Keep conversations, ideas, and memory in the app, and store semantic memory on Walrus."
+    ],
+    "dirty": true
+  },
+  "implemented_functionality": [
+    {
+      "id": "impl-chat-stream",
+      "text": "Streaming chat turn with conversation create/load, empty-message errors, idea resolution, memory recall, brief load, and token/done/error events.",
+      "status": "verified",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "id": "ev-server-agent-frimz-agent.ts",
+          "kind": "source_code",
+          "path": "server/agent/frimz-agent.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+          "collected_at": "2026-10-04T20:04:04.796982Z",
+          "excerpt": "runChatTurn; ChatEvent conversation | token | done | error"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "impl-intent-rules",
+      "text": "Regex intent analyzer maps phrases to signals such as reset, return_idea, switch_topic, mind_change, fed_up, excited, and others.",
+      "status": "verified",
+      "confidence": 0.94,
+      "evidence": [
+        {
+          "id": "ev-server-agent-intent-analyzer.ts",
+          "kind": "source_code",
+          "path": "server/agent/intent-analyzer.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "37c8ed8bbb3352dc19db0dd199cb631dbe5e24af2c825d4e59684db9b14d6b1f",
+          "collected_at": "2026-10-04T20:04:04.819768Z",
+          "excerpt": "RULES signal intent pattern"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "impl-strategy-behaviors",
+      "text": "Strategy tests lock behaviors: create space for unformed ideas, confirm decisions, reconstruct history only from stored memories, honor exclusions, answer definitions shortly, synthesize when lost, and draft without extra questions.",
+      "status": "verified",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "id": "ev-tests-conversation-strategy.test.ts",
+          "kind": "test",
+          "path": "tests/conversation-strategy.test.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "a5f3b84641e24813ea3b033a350c0d306e8e402aaa5ddcbd437aad681414d5c9",
+          "collected_at": "2026-10-04T20:04:04.834956Z",
+          "excerpt": "Let's go with X \u2192 confirm"
+        },
+        {
+          "id": "ev-tests-orchestration.test.ts",
+          "kind": "test",
+          "path": "tests/orchestration.test.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "3bbc241293b838b1afe5501011e94f7a17a94a269360c01308733fd287435a1e",
+          "collected_at": "2026-10-04T20:04:04.838585Z",
+          "excerpt": "What does MVP mean? \u2192 answer"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "impl-rate-limit",
+      "text": "Per-user chat rate limiting returns 429 with a pause message.",
+      "status": "verified",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "id": "ev-app-api-chat-route.ts",
+          "kind": "source_code",
+          "path": "app/api/chat/route.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+          "collected_at": "2026-10-04T20:04:04.829391Z",
+          "excerpt": "rateLimit chat:user.id; status 429"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "impl-brief-cleaning",
+      "text": "Brief text/list/reasoned fields are cleaned, de-duplicated, length-capped, and placeholder values are dropped.",
+      "status": "verified",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "id": "ev-lib-context-brief.ts",
+          "kind": "source_code",
+          "path": "lib/context-brief.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "e464aac43721aa59aaac1446ecc9e744c13a722aeb8c9d7356645421f7fb8cc9",
+          "collected_at": "2026-10-04T20:04:04.827165Z",
+          "excerpt": "PLACEHOLDER; cleanBriefText; cleanList"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "impl-extraction-pipeline",
+      "text": "The orchestrator is set up to extract memories with MEMORY_EXTRACTION_PROMPT, validate them, optionally create idea events, and plan memory writes.",
+      "status": "inferred",
+      "confidence": 0.72,
+      "evidence": [
+        {
+          "id": "ev-server-memory-memory-orchestrator.ts",
+          "kind": "source_code",
+          "path": "server/memory/memory-orchestrator.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+          "collected_at": "2026-10-04T20:04:04.823774Z",
+          "excerpt": "parseExtraction; validateMemories; planMemoryWrite"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "impl-security-headers",
+      "text": "All routes send framing denial, nosniff, strict-origin referrer, and disabled camera/microphone/geolocation permissions. Header names are redacted in the pack.",
+      "status": "verified",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "id": "ev-next.config.ts",
+          "kind": "source_code",
+          "path": "next.config.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "06d1e8382f1ade06d53da964bd1336ff8931b0a88cccedd2d58faa807a84ab14",
+          "collected_at": "2026-10-04T20:04:04.840475Z",
+          "excerpt": "DENY; nosniff; camera=(), microphone=(), geolocation=()"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "impl-user-settings",
+      "text": "Per-user display name and theme (default system) are stored in user_settings.",
+      "status": "verified",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "id": "ev-db-schema.ts",
+          "kind": "source_code",
+          "path": "db/schema.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+          "collected_at": "2026-10-04T20:04:04.784385Z",
+          "excerpt": "userSettings displayName theme default system"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    }
+  ],
+  "runtime": {
+    "id": "runtime",
+    "text": "Node.js >= 22.13 in development and Node 22 bookworm-slim in Docker; chat route is nodejs, force-dynamic, maxDuration 300. No live process was observed in this pack.",
+    "status": "verified",
+    "confidence": 0.7,
+    "evidence": [
+      {
+        "id": "ev-package.json",
+        "kind": "config",
+        "path": "package.json",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143254Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-app-api-chat-route.ts",
+        "kind": "source_code",
+        "path": "app/api/chat/route.ts",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143261Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-Dockerfile",
+        "kind": "config",
+        "path": "Dockerfile",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143267Z",
+        "excerpt": ""
+      },
+      {
+        "id": "ev-server-memory-memory-orchestrator.ts",
+        "kind": "source_code",
+        "path": "server/memory/memory-orchestrator.ts",
+        "uri": null,
+        "locator": null,
+        "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+        "collected_at": "2026-10-04T20:04:04.823774Z",
+        "excerpt": "if (!store) walrus not_configured"
+      }
+    ],
+    "conflicts": [
+      "kept verified text; incoming inferred differed"
+    ],
+    "demote": false
+  },
+  "screenshots": [],
+  "demo_opportunities": [
+    {
+      "id": "demo-unformed-idea",
+      "text": "Start a think-mode chat with a vague idea and show the agent creating space instead of judging or planning.",
+      "status": "inferred",
+      "confidence": 0.78,
+      "evidence": [
+        {
+          "id": "ev-tests-conversation-strategy.test.ts",
+          "kind": "test",
+          "path": "tests/conversation-strategy.test.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "a5f3b84641e24813ea3b033a350c0d306e8e402aaa5ddcbd437aad681414d5c9",
+          "collected_at": "2026-10-04T20:04:04.834956Z",
+          "excerpt": "I don't have the idea yet."
+        },
+        {
+          "id": "ev-tests-orchestration.test.ts",
+          "kind": "test",
+          "path": "tests/orchestration.test.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "3bbc241293b838b1afe5501011e94f7a17a94a269360c01308733fd287435a1e",
+          "collected_at": "2026-10-04T20:04:04.838585Z",
+          "excerpt": "university students, but I don't really know what yet"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "demo-memory-return",
+      "text": "Make a decision, then ask why it was chosen and show recall indicators plus strategy that refuses to invent missing history.",
+      "status": "inferred",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "id": "ev-tests-conversation-strategy.test.ts",
+          "kind": "test",
+          "path": "tests/conversation-strategy.test.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "a5f3b84641e24813ea3b033a350c0d306e8e402aaa5ddcbd437aad681414d5c9",
+          "collected_at": "2026-10-04T20:04:04.834956Z",
+          "excerpt": "Why did we originally choose X?; Do not invent"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "demo-brief-draft",
+      "text": "Show a filled Current thinking brief and ask the agent to write a README from that accumulated context.",
+      "status": "inferred",
+      "confidence": 0.74,
+      "evidence": [
+        {
+          "id": "ev-tests-orchestration.test.ts",
+          "kind": "test",
+          "path": "tests/orchestration.test.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "3bbc241293b838b1afe5501011e94f7a17a94a269360c01308733fd287435a1e",
+          "collected_at": "2026-10-04T20:04:04.838585Z",
+          "excerpt": "Write the README now."
+        },
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+          "collected_at": "2026-10-04T20:04:04.850531Z",
+          "excerpt": "Write-ups drafted from the accumulated context"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    }
+  ],
+  "marketing": {
+    "id": "marketing",
+    "text": "Positioned as a thinking partner that does not decide for the user, keeps the durable path of an idea, and makes later work continuable.",
+    "status": "inferred",
+    "confidence": 0.62,
+    "evidence": [
+      {
+        "id": "ev-README.md",
+        "kind": "docs",
+        "path": "README.md",
+        "uri": null,
+        "locator": null,
+        "hash": null,
+        "collected_at": "2026-10-04T20:07:00.143340Z",
+        "excerpt": ""
+      }
+    ],
+    "conflicts": [],
+    "demote": false
+  },
+  "hackathon": null,
+  "web3": [
+    {
+      "id": "web3-walrus",
+      "text": "Semantic memories are designed to live as Walrus blobs, catalogued in memory_index, with immutable blobs and logical forget via status/supersede.",
+      "status": "inferred",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+          "collected_at": "2026-10-04T20:04:04.850531Z",
+          "excerpt": "Walrus blobs are immutable; forgetting does not claim a physical delete"
+        },
+        {
+          "id": "ev-db-schema.ts",
+          "kind": "source_code",
+          "path": "db/schema.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+          "collected_at": "2026-10-04T20:04:04.784385Z",
+          "excerpt": "blobId; supersedesId"
+        },
+        {
+          "id": "ev-server-memory-memory-orchestrator.ts",
+          "kind": "source_code",
+          "path": "server/memory/memory-orchestrator.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+          "collected_at": "2026-10-04T20:04:04.823774Z",
+          "excerpt": "getMemoryStore; walrus_recall_failed"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "web3-sui-seal",
+      "text": "@mysten/sui and @mysten/seal are installed and traced into the standalone image; this pack has no source showing on-chain reads, writes, or Seal encryption calls.",
+      "status": "inferred",
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "id": "ev-package.json",
+          "kind": "config",
+          "path": "package.json",
+          "uri": null,
+          "locator": null,
+          "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+          "collected_at": "2026-10-04T20:04:04.764166Z",
+          "excerpt": "@mysten/sui ^2.33.2; @mysten/seal ^1.4.17"
+        },
+        {
+          "id": "ev-next.config.ts",
+          "kind": "source_code",
+          "path": "next.config.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "06d1e8382f1ade06d53da964bd1336ff8931b0a88cccedd2d58faa807a84ab14",
+          "collected_at": "2026-10-04T20:04:04.840475Z",
+          "excerpt": "outputFileTracingIncludes @mysten/seal @mysten/sui"
+        }
+      ],
+      "conflicts": [],
+      "demote": true
+    }
+  ],
+  "limitations": [
+    {
+      "text": "Walrus recall is optional; without a configured store the turn uses only Postgres preference rows.",
+      "claim": {
+        "id": "lim-walrus",
+        "text": "getMemoryStore() can be unset; recall then logs walrus not_configured and returns preferences only.",
+        "status": "verified",
+        "confidence": 0.93,
+        "evidence": [
+          {
+            "id": "ev-server-memory-memory-orchestrator.ts",
+            "kind": "source_code",
+            "path": "server/memory/memory-orchestrator.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+            "collected_at": "2026-10-04T20:04:04.823774Z",
+            "excerpt": "if (!store) { failure: not_configured; return preferences }"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "text": "No UI routes or screen source appear in this evidence pack.",
+      "claim": {
+        "id": "lim-screens",
+        "text": "Screens cannot be verified from the provided files; README describes landing and workspace but no app/ page source was collected.",
+        "status": "inferred",
+        "confidence": 0.75,
+        "evidence": [
+          {
+            "id": "ev-README.md",
+            "kind": "docs",
+            "path": "README.md",
+            "uri": null,
+            "locator": null,
+            "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+            "collected_at": "2026-10-04T20:04:04.850531Z",
+            "excerpt": "reshape the landing and workspace around that loop"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "text": "Working tree is dirty with conversation-strategy and prompt edits not yet committed.",
+      "claim": {
+        "id": "lim-dirty",
+        "text": "HEAD 81cfde45 on main is dirty: conversation-types, conversational-strategy, intent-analyzer, prompts, tests, plus untracked .brag/ and logo.png.",
+        "status": "verified",
+        "confidence": 0.95,
+        "evidence": [
+          {
+            "id": "ev-git-log",
+            "kind": "git",
+            "path": ".git",
+            "uri": null,
+            "locator": null,
+            "hash": null,
+            "collected_at": "2026-10-04T20:04:04.859679Z",
+            "excerpt": "dirty true; M server/agent/conversational-strategy.ts; ?? .brag/ ?? logo.png"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    },
+    {
+      "text": "Chat depends on a Cursor LLM connection; failures surface as a model-unavailable error.",
+      "claim": {
+        "id": "lim-llm",
+        "text": "The SSE route catches provider failures and sends Frimz couldn't connect to its AI model right now.",
+        "status": "verified",
+        "confidence": 0.88,
+        "evidence": [
+          {
+            "id": "ev-app-api-chat-route.ts",
+            "kind": "source_code",
+            "path": "app/api/chat/route.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+            "collected_at": "2026-10-04T20:04:04.829391Z",
+            "excerpt": "Frimz couldn't connect to its AI model right now"
+          },
+          {
+            "id": "ev-server-agent-frimz-agent.ts",
+            "kind": "source_code",
+            "path": "server/agent/frimz-agent.ts",
+            "uri": null,
+            "locator": null,
+            "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+            "collected_at": "2026-10-04T20:04:04.796982Z",
+            "excerpt": "CURSOR_UNAVAILABLE"
+          }
+        ],
+        "conflicts": [],
+        "demote": false
+      }
+    }
+  ],
+  "unverified_claims": [
+    {
+      "id": "uv-modes-four",
+      "text": "Think, Plan, Write, and Challenge modes on one agent.",
+      "status": "inferred",
+      "confidence": 0.6,
+      "evidence": [
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+          "collected_at": "2026-10-04T20:04:04.850531Z",
+          "excerpt": "Think, Plan, Write, and Challenge modes on one agent"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "uv-memory-edit-ui",
+      "text": "Memory inspection, editing, and forgetting as a user-facing feature.",
+      "status": "inferred",
+      "confidence": 0.45,
+      "evidence": [
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+          "collected_at": "2026-10-04T20:04:04.850531Z",
+          "excerpt": "Memory inspection, editing, and forgetting"
+        }
+      ],
+      "conflicts": [],
+      "demote": true
+    },
+    {
+      "id": "uv-cross-device",
+      "text": "Conversations continue across sessions and devices for the same account.",
+      "status": "inferred",
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+          "collected_at": "2026-10-04T20:04:04.850531Z",
+          "excerpt": "Conversations that continue across sessions and devices for the same account"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "uv-working-style",
+      "text": "Working-style adaptation from stored preferences.",
+      "status": "inferred",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+          "collected_at": "2026-10-04T20:04:04.850531Z",
+          "excerpt": "Working-style adaptation from stored preferences"
+        },
+        {
+          "id": "ev-server-memory-memory-orchestrator.ts",
+          "kind": "source_code",
+          "path": "server/memory/memory-orchestrator.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+          "collected_at": "2026-10-04T20:04:04.823774Z",
+          "excerpt": "buildBehaviorAddendum(input.mode, input.preferences)"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    },
+    {
+      "id": "uv-idea-events-ui",
+      "text": "Idea evolution from real idea events as a user-visible history.",
+      "status": "inferred",
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "id": "ev-README.md",
+          "kind": "docs",
+          "path": "README.md",
+          "uri": null,
+          "locator": null,
+          "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+          "collected_at": "2026-10-04T20:04:04.850531Z",
+          "excerpt": "Idea evolution from real idea events"
+        },
+        {
+          "id": "ev-server-memory-memory-orchestrator.ts",
+          "kind": "source_code",
+          "path": "server/memory/memory-orchestrator.ts",
+          "uri": null,
+          "locator": null,
+          "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+          "collected_at": "2026-10-04T20:04:04.823774Z",
+          "excerpt": "shouldCreateIdeaEvent; addIdeaEvent"
+        }
+      ],
+      "conflicts": [],
+      "demote": false
+    }
+  ],
+  "visual": {
+    "background": null,
+    "accent": null,
+    "text_color": null,
+    "display_font": null,
+    "body_font": null,
+    "strongest_visual": null
+  },
+  "evidence_index": {
+    "ev-package.json": {
+      "id": "ev-package.json",
+      "kind": "config",
+      "path": "package.json",
+      "uri": null,
+      "locator": null,
+      "hash": "9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26",
+      "collected_at": "2026-10-04T20:04:04.764166Z",
+      "excerpt": "@mysten/sui ^2.33.2; @mysten/seal ^1.4.17"
+    },
+    "ev-README.md": {
+      "id": "ev-README.md",
+      "kind": "docs",
+      "path": "README.md",
+      "uri": null,
+      "locator": null,
+      "hash": "9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2",
+      "collected_at": "2026-10-04T20:04:04.850531Z",
+      "excerpt": "Idea evolution from real idea events"
+    },
+    "ev-server-agent-frimz-agent.ts": {
+      "id": "ev-server-agent-frimz-agent.ts",
+      "kind": "source_code",
+      "path": "server/agent/frimz-agent.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9",
+      "collected_at": "2026-10-04T20:04:04.796982Z",
+      "excerpt": "CURSOR_UNAVAILABLE"
+    },
+    "ev-server-memory-memory-orchestrator.ts": {
+      "id": "ev-server-memory-memory-orchestrator.ts",
+      "kind": "source_code",
+      "path": "server/memory/memory-orchestrator.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135",
+      "collected_at": "2026-10-04T20:04:04.823774Z",
+      "excerpt": "shouldCreateIdeaEvent; addIdeaEvent"
+    },
+    "ev-app-api-chat-route.ts": {
+      "id": "ev-app-api-chat-route.ts",
+      "kind": "source_code",
+      "path": "app/api/chat/route.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828",
+      "collected_at": "2026-10-04T20:04:04.829391Z",
+      "excerpt": "Frimz couldn't connect to its AI model right now"
+    },
+    "ev-lib-context-brief.ts": {
+      "id": "ev-lib-context-brief.ts",
+      "kind": "source_code",
+      "path": "lib/context-brief.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "e464aac43721aa59aaac1446ecc9e744c13a722aeb8c9d7356645421f7fb8cc9",
+      "collected_at": "2026-10-04T20:04:04.827165Z",
+      "excerpt": "PLACEHOLDER; cleanBriefText; cleanList"
+    },
+    "ev-next.config.ts": {
+      "id": "ev-next.config.ts",
+      "kind": "source_code",
+      "path": "next.config.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "06d1e8382f1ade06d53da964bd1336ff8931b0a88cccedd2d58faa807a84ab14",
+      "collected_at": "2026-10-04T20:04:04.840475Z",
+      "excerpt": "outputFileTracingIncludes @mysten/seal @mysten/sui"
+    },
+    "ev-db-schema.ts": {
+      "id": "ev-db-schema.ts",
+      "kind": "source_code",
+      "path": "db/schema.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143",
+      "collected_at": "2026-10-04T20:04:04.784385Z",
+      "excerpt": "blobId; supersedesId"
+    },
+    "ev-Dockerfile": {
+      "id": "ev-Dockerfile",
+      "kind": "config",
+      "path": "Dockerfile",
+      "uri": null,
+      "locator": null,
+      "hash": "f1c018278165e4385227e8ca0d76d14253d7ee8ec541f221649a6ee211730319",
+      "collected_at": "2026-10-04T20:04:04.852615Z",
+      "excerpt": "FROM node:22-bookworm-slim"
+    },
+    "ev-docker-compose.yml": {
+      "id": "ev-docker-compose.yml",
+      "kind": "config",
+      "path": "docker-compose.yml",
+      "uri": null,
+      "locator": null,
+      "hash": "5197521685c924bace016804c32b4d327cdc44fc1ec7d49a81cc87834d968bbe",
+      "collected_at": "2026-10-04T20:04:04.853183Z",
+      "excerpt": "postgres:16-alpine; 5436:5432; POSTGRES_DB frimz"
+    },
+    "ev-server-agent-conversation-types.ts": {
+      "id": "ev-server-agent-conversation-types.ts",
+      "kind": "source_code",
+      "path": "server/agent/conversation-types.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "63359a318b552a7b81045bd7ed4c7d55b28d761d5afa248bd156c0e27e5bffb5",
+      "collected_at": "2026-10-04T20:04:04.803179Z",
+      "excerpt": "ConversationalIntent; ThinkingStage; ConversationalMove"
+    },
+    "ev-server-agent-conversational-strategy.ts": {
+      "id": "ev-server-agent-conversational-strategy.ts",
+      "kind": "source_code",
+      "path": "server/agent/conversational-strategy.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "56a8c81e68e0602bf4ec410075a8c72501c649a314ce8367b2797b1a46c2fb85",
+      "collected_at": "2026-10-04T20:04:04.814876Z",
+      "excerpt": "chooseConversationStrategy; fromSignal"
+    },
+    "ev-tests-conversation-strategy.test.ts": {
+      "id": "ev-tests-conversation-strategy.test.ts",
+      "kind": "test",
+      "path": "tests/conversation-strategy.test.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "a5f3b84641e24813ea3b033a350c0d306e8e402aaa5ddcbd437aad681414d5c9",
+      "collected_at": "2026-10-04T20:04:04.834956Z",
+      "excerpt": "Why did we originally choose X?; Do not invent"
+    },
+    "ev-server-agent-intent-analyzer.ts": {
+      "id": "ev-server-agent-intent-analyzer.ts",
+      "kind": "source_code",
+      "path": "server/agent/intent-analyzer.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "37c8ed8bbb3352dc19db0dd199cb631dbe5e24af2c825d4e59684db9b14d6b1f",
+      "collected_at": "2026-10-04T20:04:04.819768Z",
+      "excerpt": "RULES signal intent pattern"
+    },
+    "ev-tests-orchestration.test.ts": {
+      "id": "ev-tests-orchestration.test.ts",
+      "kind": "test",
+      "path": "tests/orchestration.test.ts",
+      "uri": null,
+      "locator": null,
+      "hash": "3bbc241293b838b1afe5501011e94f7a17a94a269360c01308733fd287435a1e",
+      "collected_at": "2026-10-04T20:04:04.838585Z",
+      "excerpt": "Write the README now."
+    },
+    "ev-git-log": {
+      "id": "ev-git-log",
+      "kind": "git",
+      "path": ".git",
+      "uri": null,
+      "locator": null,
+      "hash": null,
+      "collected_at": "2026-10-04T20:04:04.859679Z",
+      "excerpt": "dirty true; M server/agent/conversational-strategy.ts; ?? .brag/ ?? logo.png"
+    }
+  },
+  "cache": {
+    "git_head": "81cfde4519b700c2e5cbcb375f9d3363476bc112",
+    "dirty_tree_hash": "fc124eb3764b235482abc2bee6f0bb939a206d4f36177af62c48725678f6a4b7",
+    "collector_version": "1",
+    "analyzed_at": "2026-10-04T20:04:04.870022Z"
+  },
+  "updated_at": "2026-10-04T20:10:51.335195Z"
+}

@@ -1,0 +1,753 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "Interpret evidence into ProjectBrainUpdate JSON. Every claim needs evidence ids. README-only claims are inferred, never verified. Do not invent features that lack evidence."
+    },
+    {
+      "role": "user",
+      "content": "Evidence pack:\n{\"root\": \"/home/richy/Desktop/frimz\", \"files\": {\"package.json\": \"{\\n  \\\"name\\\": \\\"frimz\\\",\\n  \\\"version\\\": \\\"0.1.0\\\",\\n  \\\"private\\\": true,\\n  \\\"engines\\\": {\\n    \\\"node\\\": \\\">=22.13\\\"\\n  },\\n  \\\"scripts\\\": {\\n    \\\"dev\\\": \\\"next dev\\\",\\n    \\\"build\\\": \\\"next build\\\",\\n    \\\"start\\\": \\\"next start\\\",\\n    \\\"lint\\\": \\\"next lint\\\",\\n    \\\"typecheck\\\": \\\"tsc --noEmit\\\",\\n    \\\"test\\\": \\\"vitest run\\\",\\n    \\\"db:migrate\\\": \\\"tsx db/migrate.ts\\\"\\n  },\\n  \\\"dependencies\\\": {\\n    \\\"@cursor/sdk\\\": \\\"^1.0.34\\\",\\n    \\\"@mysten-incubation/memwal\\\": \\\"^0.1.8\\\",\\n    \\\"@mysten/seal\\\": \\\"^1.4.17\\\",\\n    \\\"@mysten/sui\\\": \\\"^2.33.2\\\",\\n    \\\"@radix-ui/react-dialog\\\": \\\"^1.1.15\\\",\\n    \\\"@radix-ui/react-dropdown-menu\\\": \\\"^2.1.16\\\",\\n    \\\"@radix-ui/react-slot\\\": \\\"^1.2.3\\\",\\n    \\\"@radix-ui/react-tooltip\\\": \\\"^1.2.8\\\",\\n    \\\"bcryptjs\\\": \\\"^2.4.3\\\",\\n    \\\"class-variance-authority\\\": \\\"^0.7.1\\\",\\n    \\\"clsx\\\": \\\"^2.1.1\\\",\\n    \\\"drizzle-orm\\\": \\\"^0.44.6\\\",\\n    \\\"lucide-react\\\": \\\"^0.544.0\\\",\\n    \\\"next\\\": \\\"15.5.4\\\",\\n    \\\"next-auth\\\": \\\"^5.0.0-beta.29\\\",\\n    \\\"next-themes\\\": \\\"^0.4.6\\\",\\n    \\\"postgres\\\": \\\"^3.4.7\\\",\\n    \\\"react\\\": \\\"19.1.1\\\",\\n    \\\"react-dom\\\": \\\"19.1.1\\\",\\n    \\\"react-markdown\\\": \\\"^10.1.0\\\",\\n    \\\"rehype-sanitize\\\": \\\"^6.0.0\\\",\\n    \\\"remark-gfm\\\": \\\"^4.0.1\\\",\\n    \\\"sonner\\\": \\\"^2.0.7\\\",\\n    \\\"tailwind-merge\\\": \\\"^3.3.1\\\",\\n    \\\"zod\\\": \\\"^3.25.76\\\"\\n  },\\n  \\\"devDependencies\\\": {\\n    \\\"@eslint/eslintrc\\\": \\\"^3.3.1\\\",\\n    \\\"@tailwindcss/postcss\\\": \\\"^4.1.13\\\",\\n    \\\"@types/bcryptjs\\\": \\\"^2.4.6\\\",\\n    \\\"@types/node\\\": \\\"^22.18.6\\\",\\n    \\\"@types/react\\\": \\\"^19.1.13\\\",\\n    \\\"@types/react-dom\\\": \\\"^19.1.9\\\",\\n    \\\"eslint\\\": \\\"^9.36.0\\\",\\n    \\\"eslint-config-next\\\": \\\"15.5.4\\\",\\n    \\\"tailwindcss\\\": \\\"^4.1.13\\\",\\n    \\\"tsx\\\": \\\"^4.20.5\\\",\\n    \\\"typescript\\\": \\\"^5.9.2\\\",\\n    \\\"vitest\\\": \\\"^3.2.4\\\"\\n  }\\n}\\n\", \"db/schema.ts\": \"import {\\n  index,\\n  integer,\\n  jsonb,\\n  pgTable,\\n  real,\\n  text,\\n  timestamp,\\n  uniqueIndex,\\n  uuid,\\n} from \\\"drizzle-orm/pg-core\\\";\\nimport type { BriefField, ContextBriefData } from \\\"@/lib/context-brief\\\";\\n\\nexport type IndicatorType = \\\"remembered\\\" | \\\"connected\\\";\\n\\nexport type MessageMetadata = {\\n  memoryUsed?: boolean;\\n  indicators?: { type: IndicatorType; memoryId: string }[];\\n  error?: boolean;\\n  draftOffer?: { briefVersion: number };\\n  writeUp?: { format: string; briefVersion: number };\\n};\\n\\nexport const users = pgTable(\\\"users\\\", {\\n  id: uuid(\\\"id\\\").primaryKey().defaultRandom(),\\n  email: text(\\\"email\\\").notNull().unique(),\\n  name: text(\\\"name\\\").notNull(),\\n  passwordHash=<redacted>\\n  createdAt: timestamp(\\\"created_at\\\", { withTimezone: true }).notNull().defaultNow(),\\n});\\n\\nexport const sessions = pgTable(\\\"sessions\\\", {\\n  id: uuid(\\\"id\\\").primaryKey().defaultRandom(),\\n  userId: uuid(\\\"user_id\\\")\\n    .notNull()\\n    .references(() => users.id, { onDelete: \\\"cascade\\\" }),\\n  sessionToken=<redacted>\\n  expires: timestamp(\\\"expires\\\", { withTimezone: true }).notNull(),\\n  createdAt: timestamp(\\\"created_at\\\", { withTimezone: true }).notNull().defaultNow(),\\n});\\n\\nexport const ideas = pgTable(\\n  \\\"ideas\\\",\\n  {\\n    id: uuid(\\\"id\\\").primaryKey().defaultRandom(),\\n    userId: uuid(\\\"user_id\\\")\\n      .notNull()\\n      .references(() => users.id, { onDelete: \\\"cascade\\\" }),\\n    title: text(\\\"title\\\").notNull(),\\n    description: text(\\\"description\\\").notNull().default(\\\"\\\"),\\n    status: text(\\\"status\\\").notNull().default(\\\"exploring\\\"),\\n    createdAt: timestamp(\\\"created_at\\\", { withTimezone: true }).notNull().defaultNow(),\\n    updatedAt: timestamp(\\\"updated_at\\\", { withTimezone: true }).notNull().defaultNow(),\\n  },\\n  (table) => [index(\\\"ideas_user_idx\\\").on(table.userId)],\\n);\\n\\nexport const conversations = pgTable(\\n  \\\"conversations\\\",\\n  {\\n    id: uuid(\\\"id\\\").primaryKey().defaultRandom(),\\n    userId: uuid(\\\"user_id\\\")\\n      .notNull()\\n      .references(() => users.id, { onDelete: \\\"cascade\\\" }),\\n    title: text(\\\"title\\\").notNull().default(\\\"New conversation\\\"),\\n    currentIdeaId: uuid(\\\"current_idea_id\\\").references(() => ideas.id, { onDelete: \\\"set null\\\" }),\\n    contextCheckedMessageId: uuid(\\\"context_checked_message_id\\\"),\\n    createdAt: timestamp(\\\"created_at\\\", { withTimezone: true }).notNull().defaultNow(),\\n    updatedAt: timestamp(\\\"updated_at\\\", { withTimezone: true }).notNull().defaultNow(),\\n  },\\n  (table) => [index(\\\"conversations_user_idx\\\").on(table.userId)],\\n);\\n\\nexport const messages = pgTable(\\n  \\\"messages\\\",\\n  {\\n    id: uuid(\\\"id\\\").primaryKey().defaultRandom(),\\n    conversationId: uuid(\\\"conversation_id\\\")\\n      .notNull()\\n      .references(() => conversations.id, { onDelete: \\\"cascade\\\" }),\\n    role: text(\\\"role\\\").notNull(),\\n    content: text(\\\"content\\\").notNull(),\\n    metadata: jsonb(\\\"metadata\\\").$type<MessageMetadata>(),\\n    createdAt: timestamp(\\\"created_at\\\", { withTimezone: true }).notNull().defaultNow(),\\n  },\\n  (table) => [index(\\\"messages_conversation_idx\\\").on(table.conversationId)],\\n);\\n\\nexport const userSettings = pgTable(\\\"user_settings\\\", {\\n  userId: uuid(\\\"user_id\\\")\\n    .primaryKey()\\n    .references(() => users.id, { onDelete: \\\"cascade\\\" }),\\n  displayName: text(\\\"display_name\\\").notNull(),\\n  theme: text(\\\"theme\\\").notNull().default(\\\"system\\\"),\\n});\\n\\nexport const memoryIndex = pgTable(\\n  \\\"memory_index\\\",\\n  {\\n    id: uuid(\\\"id\\\").primaryKey().defaultRandom(),\\n    userId: uuid(\\\"user_id\\\")\\n      .notNull()\\n      .references(() => users.id, { onDelete: \\\"cascade\\\" }),\\n    blobId: text(\\\"blob_id\\\").notNull(),\\n    namespace: text(\\\"namespace\\\").notNull(),\\n    type: text(\\\"type\\\").notNull(),\\n    status: text(\\\"status\\\").notNull().default(\\\"active\\\"),\\n    content: text(\\\"content\\\").notNull(),\\n    reason: text(\\\"reason\\\").notNull().default(\\\"\\\"),\\n    importance: real(\\\"importance\\\").notNull().default(0.5),\\n    ideaId: uuid(\\\"idea_id\\\").references(() => ideas.id, { onDelete: \\\"set null\\\" }),\\n    ideaTitle: text(\\\"idea_title\\\").notNull().default(\\\"\\\"),\\n    supersedesId: uuid(\\\"supersedes_id\\\"),\\n    createdAt: timestamp(\\\"created_at\\\", { withTimezone: tr...\", \"server/agent/frimz-agent.ts\": \"import { after } from \\\"next/server\\\";\\nimport { CURSOR_UNAVAILABLE } from \\\"@/lib/constants\\\";\\nimport type { Mode } from \\\"@/lib/modes\\\";\\nimport { logEvent } from \\\"@/lib/logger\\\";\\nimport { getLLMProvider } from \\\"@/server/llm/cursor-provider\\\";\\nimport {\\n  addMessage,\\n  createConversation,\\n  deleteMessage,\\n  getConversation,\\n  recordActivity,\\n  recordLog,\\n  touchConversation,\\n} from \\\"@/server/conversations/conversation-service\\\";\\nimport { contextForTurn, recallForTurn, resolveIdea } from \\\"@/server/memory/memory-orchestrator\\\";\\nimport { indicatorPhrase } from \\\"@/server/agent/indicator-label\\\";\\nimport { briefForIdea } from \\\"@/server/context/brief-runtime\\\";\\nimport { updateThinkingAfterTurn } from \\\"@/server/context/context-updater\\\";\\nimport { LLMWriteUpGenerator, planWriteUp } from \\\"@/server/context/write-up\\\";\\nimport { PostgresMemoryIndex } from \\\"@/server/memory/memory-index\\\";\\nimport { isDraftable } from \\\"@/lib/context-brief\\\";\\nimport type { IndicatorType, MessageMetadata } from \\\"@/db/schema\\\";\\n\\nexport type ChatEvent =\\n  | { type: \\\"conversation\\\"; conversationId: string; title: string }\\n  | { type: \\\"token\\\"; text: string }\\n  | {\\n      type: \\\"done\\\";\\n      messageId: string;\\n      indicators: { type: IndicatorType; memoryId: string; label: string; kind: string }[];\\n      draft?: { format: string };\\n    }\\n  | { type: \\\"error\\\"; message: string };\\n\\nexport async function* runChatTurn(input: {\\n  userId: string;\\n  conversationId?: string;\\n  message?: string;\\n  mode: Mode;\\n  retry?: boolean;\\n  signal?: AbortSignal;\\n}): AsyncGenerator<ChatEvent> {\\n  const requestId = crypto.randomUUID();\\n  let conversationId = input.conversationId;\\n  let userText = input.message?.trim() ?? \\\"\\\";\\n\\n  if (input.retry) {\\n    if (!conversationId) {\\n      yield { type: \\\"error\\\", message: CURSOR_UNAVAILABLE };\\n      return;\\n    }\\n    const loaded = await getConversation(input.userId, conversationId);\\n    if (!loaded) {\\n      yield { type: \\\"error\\\", message: \\\"That conversation is not available.\\\" };\\n      return;\\n    }\\n    const last = loaded.messages.at(-1);\\n    if (last?.role === \\\"assistant\\\") await deleteMessage(conversationId, last.id);\\n    const refreshed = await getConversation(input.userId, conversationId);\\n    const previousUser = [...(refreshed?.messages ?? [])].reverse().find((message) => message.role === \\\"user\\\");\\n    if (!previousUser) {\\n      yield { type: \\\"error\\\", message: \\\"There is no message to try again.\\\" };\\n      return;\\n    }\\n    userText = previousUser.content;\\n  }\\n\\n  if (!userText) {\\n    yield { type: \\\"error\\\", message: \\\"Write a thought for Frimz to think with.\\\" };\\n    return;\\n  }\\n\\n  if (!conversationId) {\\n    const title = userText.replace(/\\\\s+/g, \\\" \\\").slice(0, 80);\\n    const created = await createConversation(input.userId, title);\\n    conversationId = created.id;\\n    yield { type: \\\"conversation\\\", conversationId, title: created.title };\\n  } else {\\n    const existing = await getConversation(input.userId, conversationId);\\n    if (!existing) {\\n      yield { type: \\\"error\\\", message: \\\"That conversation is not available.\\\" };\\n      return;\\n    }\\n  }\\n\\n  const loaded = await getConversation(input.userId, conversationId);\\n  if (!loaded) {\\n    yield { type: \\\"error\\\", message: \\\"That conversation is not available.\\\" };\\n    return;\\n  }\\n\\n  if (!input.retry) {\\n    await addMessage(conversationId, \\\"user\\\", userText);\\n  }\\n\\n  const idea = await resolveIdea(input.userId, userText, loaded.conversation.currentIdeaId);\\n  if (idea && idea.id !== loaded.conversation.currentIdeaId) {\\n    await touchConversation(input.userId, conversationId, { currentIdeaId: idea.id });\\n  }\\n\\n  const recall = await recallForTurn(input.userId, userText, idea?.title);\\n  const stored = idea ? await briefForIdea(input.userId, idea.id).catch(() => null) : null;\\n  const brief = stored ? { version: stored.version, data: stored.data, userFields: stored.userFields } : null;\\n  const transcript = (await getConversation(input.userId, conversationId))?.messages ?? [];\\n  const prior = transcript.filter((message) => message.role ...\", \"server/agent/conversation-types.ts\": \"export type ConversationalIntent =\\n  | \\\"question\\\"\\n  | \\\"exploration\\\"\\n  | \\\"decision\\\"\\n  | \\\"planning\\\"\\n  | \\\"writing\\\"\\n  | \\\"reflection\\\"\\n  | \\\"problem_solving\\\"\\n  | \\\"challenge\\\"\\n  | \\\"comparison\\\"\\n  | \\\"direction_change\\\"\\n  | \\\"casual\\\"\\n  | \\\"unclear\\\";\\n\\nexport type UncertaintyLevel = \\\"low\\\" | \\\"medium\\\" | \\\"high\\\";\\nexport type ResponseDepth = \\\"short\\\" | \\\"normal\\\" | \\\"deep\\\";\\n\\nexport type UserDirection = {\\n  topic?: string;\\n  constraints: string[];\\n  exclusions: string[];\\n  explicitInstruction?: string;\\n};\\n\\nexport type ThinkingStage =\\n  | \\\"discover\\\"\\n  | \\\"explore\\\"\\n  | \\\"clarify\\\"\\n  | \\\"challenge\\\"\\n  | \\\"decide\\\"\\n  | \\\"develop\\\"\\n  | \\\"plan\\\"\\n  | \\\"reflect\\\";\\n\\nexport type ConversationalMove =\\n  | \\\"answer\\\"\\n  | \\\"ask\\\"\\n  | \\\"clarify\\\"\\n  | \\\"explore\\\"\\n  | \\\"challenge\\\"\\n  | \\\"compare\\\"\\n  | \\\"connect\\\"\\n  | \\\"confirm\\\"\\n  | \\\"synthesize\\\"\\n  | \\\"reflect\\\"\\n  | \\\"plan\\\"\\n  | \\\"draft\\\"\\n  | \\\"summarize\\\";\\n\\nexport type ConversationStrategy = {\\n  intent: ConversationalIntent;\\n  thinkingStage: ThinkingStage;\\n  conversationalMove: ConversationalMove;\\n  /** Same move, named for the orchestration budget. */\\n  responseMove: ConversationalMove;\\n  shouldUseMemory: boolean;\\n  relevantMemoryIds: string[];\\n  shouldAskQuestion: boolean;\\n  uncertaintyLevel: UncertaintyLevel;\\n  questionCount: 0 | 1 | 2;\\n  shouldStructure: boolean;\\n  shouldChallenge: boolean;\\n  shouldSynthesize: boolean;\\n  responseDepth: ResponseDepth;\\n  userDirection?: string;\\n  exclusions: string[];\\n  reasoningFocus?: string;\\n  /** This reply ends by offering a written draft of the current thinking. */\\n  offersDraft?: boolean;\\n  /** A blank start: one question, with no lesson in front of it. */\\n  bareQuestion?: boolean;\\n  /** This turn does not steer from the brief or recalled memories. */\\n  freshStart?: boolean;\\n};\\n\\nexport type IntentSignal =\\n  | \\\"frustrated\\\"\\n  | \\\"draft\\\"\\n  | \\\"reflect\\\"\\n  | \\\"compare\\\"\\n  | \\\"perspective\\\"\\n  | \\\"reversal\\\"\\n  | \\\"confirm\\\"\\n  | \\\"challenge\\\"\\n  | \\\"direction\\\"\\n  | \\\"vague\\\"\\n  | \\\"blank\\\"\\n  | \\\"discover\\\"\\n  | \\\"clarify\\\"\\n  | \\\"factual\\\"\\n  | \\\"plan\\\"\\n  | \\\"brainstorm\\\"\\n  | \\\"disagree\\\"\\n  | \\\"uncertain\\\"\\n  | \\\"weighing\\\"\\n  | \\\"stuck\\\"\\n  | \\\"develop\\\"\\n  | \\\"reset\\\"\\n  | \\\"switch_topic\\\"\\n  | \\\"focus_shift\\\"\\n  | \\\"return_idea\\\"\\n  | \\\"reject_boundary\\\"\\n  | \\\"mind_change\\\"\\n  | \\\"reframe\\\"\\n  | \\\"connect_familiar\\\"\\n  | \\\"ambiguous\\\"\\n  | \\\"excited\\\"\\n  | \\\"fed_up\\\"\\n  | \\\"joke\\\"\\n  | \\\"pushback\\\"\\n  | \\\"insight\\\"\\n  | \\\"noticed\\\"\\n  | \\\"mean_phrase\\\"\\n  | \\\"landed\\\"\\n  | \\\"aside\\\"\\n  | \\\"stocktake\\\"\\n  | \\\"open_plan\\\"\\n  | \\\"tentative\\\"\\n  | \\\"set_aside\\\"\\n  | \\\"reason_shift\\\"\\n  | \\\"float_option\\\"\\n  | \\\"want_shape\\\"\\n  | \\\"add_on\\\"\\n  | \\\"loose_contrast\\\"\\n  | \\\"sketch\\\"\\n  | \\\"tally\\\"\\n  | \\\"budget_first\\\"\\n  | \\\"spend_light\\\"\\n  | \\\"agree\\\"\\n  | \\\"pause\\\"\\n  | \\\"wrap_up\\\"\\n  | \\\"unclear\\\";\\n\", \"server/agent/conversational-strategy.ts\": \"import type { Mode } from \\\"@/lib/modes\\\";\\nimport { WRITE_UP_FORMATS } from \\\"@/lib/write-up\\\";\\nimport type { MemoryRecord } from \\\"@/server/memory/types\\\";\\nimport { analyzeIntent } from \\\"./intent-analyzer\\\";\\nimport { conflictingMemories, deriveConversationState, deriveUserDirection } from \\\"./conversation-state\\\";\\nimport type { ConversationStrategy, ConversationalMove, IntentSignal, ResponseDepth, ThinkingStage, UncertaintyLevel } from \\\"./conversation-types\\\";\\n\\nconst HISTORY_LIMIT = 8;\\n\\nfunction ids(memories: MemoryRecord[]) {\\n  return memories.slice(0, HISTORY_LIMIT).map((memory) => memory.id);\\n}\\n\\nfunction strategy(partial: Omit<ConversationStrategy, \\\"relevantMemoryIds\\\" | \\\"shouldUseMemory\\\" | \\\"responseMove\\\" | \\\"uncertaintyLevel\\\" | \\\"questionCount\\\" | \\\"shouldStructure\\\" | \\\"shouldChallenge\\\" | \\\"shouldSynthesize\\\" | \\\"responseDepth\\\" | \\\"exclusions\\\"> & {\\n  relevantMemoryIds?: string[];\\n  shouldUseMemory?: boolean;\\n  uncertaintyLevel?: UncertaintyLevel;\\n  questionCount?: 0 | 1 | 2;\\n  shouldStructure?: boolean;\\n  shouldChallenge?: boolean;\\n  shouldSynthesize?: boolean;\\n  responseDepth?: ResponseDepth;\\n  exclusions?: string[];\\n}): ConversationStrategy {\\n  const relevantMemoryIds = partial.relevantMemoryIds ?? [];\\n  const move = partial.conversationalMove;\\n  const structured = [\\\"plan\\\", \\\"draft\\\", \\\"compare\\\", \\\"synthesize\\\", \\\"reflect\\\", \\\"summarize\\\"].includes(move);\\n  return {\\n    ...partial,\\n    responseMove: move,\\n    relevantMemoryIds,\\n    shouldUseMemory: partial.shouldUseMemory ?? relevantMemoryIds.length > 0,\\n    uncertaintyLevel: partial.uncertaintyLevel ?? \\\"medium\\\",\\n    questionCount: partial.questionCount ?? (partial.shouldAskQuestion ? 1 : 0),\\n    shouldStructure: partial.shouldStructure ?? structured,\\n    shouldChallenge: partial.shouldChallenge ?? move === \\\"challenge\\\",\\n    shouldSynthesize: partial.shouldSynthesize ?? (move === \\\"synthesize\\\" || move === \\\"compare\\\"),\\n    responseDepth: partial.responseDepth ?? (move === \\\"answer\\\" ? \\\"short\\\" : move === \\\"draft\\\" || move === \\\"plan\\\" ? \\\"deep\\\" : \\\"normal\\\"),\\n    exclusions: partial.exclusions ?? [],\\n  };\\n}\\n\\nfunction fromSignal(signal: IntentSignal, historyIds: string[]): ConversationStrategy {\\n  switch (signal) {\\n    case \\\"frustrated\\\":\\n      return strategy({\\n        intent: \\\"reflection\\\",\\n        thinkingStage: \\\"reflect\\\",\\n        conversationalMove: \\\"synthesize\\\",\\n        shouldAskQuestion: false,\\n        reasoningFocus: \\\"They are circling or lost. Name what is already settled and the tradeoff underneath. Do not ask another question.\\\",\\n      });\\n    case \\\"fed_up\\\":\\n      return strategy({\\n        intent: \\\"reflection\\\",\\n        thinkingStage: \\\"reflect\\\",\\n        conversationalMove: \\\"synthesize\\\",\\n        shouldAskQuestion: true,\\n        questionCount: 1,\\n        shouldStructure: false,\\n        responseDepth: \\\"short\\\",\\n        reasoningFocus: \\\"They are done with this idea. Say so in a sentence and stop forcing it. One question about what bothered them. Do not comfort them or evaluate the idea.\\\",\\n      });\\n    case \\\"excited\\\":\\n      return strategy({\\n        intent: \\\"exploration\\\",\\n        thinkingStage: \\\"explore\\\",\\n        conversationalMove: \\\"ask\\\",\\n        shouldAskQuestion: true,\\n        questionCount: 1,\\n        shouldStructure: false,\\n        responseDepth: \\\"short\\\",\\n        reasoningFocus: \\\"They are excited. React in a few words, then ask what they figured out. Do not document the insight or list implications.\\\",\\n      });\\n    case \\\"joke\\\":\\n      return strategy({\\n        intent: \\\"casual\\\",\\n        thinkingStage: \\\"explore\\\",\\n        conversationalMove: \\\"explore\\\",\\n        shouldAskQuestion: false,\\n        shouldStructure: false,\\n        responseDepth: \\\"short\\\",\\n        reasoningFocus: \\\"Get the joke in one line, then the useful point underneath if there is one. Do not answer like a consultant.\\\",\\n      });\\n    case \\\"pushback\\\":\\n      return strategy({\\n        intent: \\\"exploration\\\",\\n        thinkingStage: \\\"explore\\\",\\n        conversationalMove: \\\"ask\\\",\\n        shouldAskQuestion: true,\\n        questionCount: 1,\\n        shouldSt...\", \"server/agent/intent-analyzer.ts\": \"import type { ConversationalIntent, IntentSignal } from \\\"./conversation-types\\\";\\n\\nexport type IntentAnalysis = {\\n  signal: IntentSignal;\\n  intent: ConversationalIntent;\\n  explicit: boolean;\\n};\\n\\nconst RULES: Array<{ signal: IntentSignal; intent: ConversationalIntent; pattern: RegExp }> = [\\n  { signal: \\\"reset\\\", intent: \\\"direction_change\\\", pattern: /forget everything|start from (zero|scratch)|fresh start/i },\\n  { signal: \\\"aside\\\", intent: \\\"direction_change\\\", pattern: /forget the .{1,48} for a (second|minute|sec|moment)|wait,? forget\\\\b/i },\\n  { signal: \\\"focus_shift\\\", intent: \\\"exploration\\\", pattern: /don'?t talk about|keep .{0,96} as context but|focus (on|specifically on) the/i },\\n  { signal: \\\"return_idea\\\", intent: \\\"reflection\\\", pattern: /go back to (the )?|let'?s go back to|pick (this|it) back up|continue the .{0,48} idea\\\\b|i'?m back\\\\b|let'?s continue (planning|with)\\\\b/i },\\n  { signal: \\\"switch_topic\\\", intent: \\\"direction_change\\\", pattern: /tired of thinking about|let'?s switch|forget the .{0,72}\\\\.\\\\s*i want to work on|work on a .{0,40} idea instead|let'?s work on .{0,48} instead/i },\\n  { signal: \\\"connect_familiar\\\", intent: \\\"exploration\\\", pattern: /feels familiar somehow|connection to something|reminds me of something/i },\\n  { signal: \\\"mind_change\\\", intent: \\\"decision\\\", pattern: /i'?ve changed my mind|changed my mind|don'?t think .{1,80} anymore|isn'?t what (we|i) want anymore|not what (we|i) want anymore/i },\\n  { signal: \\\"reject_boundary\\\", intent: \\\"decision\\\", pattern: /don'?t want (this|it) to become|i don'?t want this to become/i },\\n  { signal: \\\"reframe\\\", intent: \\\"exploration\\\", pattern: /maybe the problem isn'?t|maybe it'?s (that|actually)/i },\\n  { signal: \\\"fed_up\\\", intent: \\\"reflection\\\", pattern: /this (idea )?sucks|i hate this idea|going nowhere|we'?re forcing it/i },\\n  { signal: \\\"excited\\\", intent: \\\"exploration\\\", pattern: /just figured it out|i figured it out/i },\\n  { signal: \\\"joke\\\", intent: \\\"casual\\\", pattern: /would be funny|you know what would be funny|uber for /i },\\n  { signal: \\\"pushback\\\", intent: \\\"exploration\\\", pattern: /i don'?t think that'?s right|that'?s not right|no, i don'?t think/i },\\n  { signal: \\\"disagree\\\", intent: \\\"exploration\\\", pattern: /\\\\bi disagree\\\\b/i },\\n  { signal: \\\"noticed\\\", intent: \\\"exploration\\\", pattern: /i'?ve noticed|i guess i'?ve noticed|use it almost like|using it (almost )?like|like google/i },\\n  { signal: \\\"mean_phrase\\\", intent: \\\"exploration\\\", pattern: /doesn'?t really know|doesn'?t really (understand|remember)|i think the .{1,80} doesn'?t really/i },\\n  { signal: \\\"landed\\\", intent: \\\"exploration\\\", pattern: /already covered|where they'?re struggling|starting from zero|what they'?ve already|instead of starting/i },\\n  { signal: \\\"insight\\\", intent: \\\"exploration\\\", pattern: /the actual problem isn'?t|isn'?t that .{1,80} it'?s that/i },\\n  { signal: \\\"pause\\\", intent: \\\"reflection\\\", pattern: /i'?ll think about it|come back later|i'?ll come back/i },\\n  { signal: \\\"open_plan\\\", intent: \\\"exploration\\\", pattern: /haven'?t (really )?(decided|picked|chosen)\\\\b/i },\\n  { signal: \\\"tentative\\\", intent: \\\"exploration\\\", pattern: /i was thinking .{1,80} but i'?m not sure|i'?m thinking .{1,60},? but i'?m not sure/i },\\n  { signal: \\\"set_aside\\\", intent: \\\"decision\\\", pattern: /too predictable|somewhere else|look at something else/i },\\n  { signal: \\\"reason_shift\\\", intent: \\\"exploration\\\", pattern: /we realized\\\\b|mostly want to\\\\b/i },\\n  { signal: \\\"budget_first\\\", intent: \\\"planning\\\", pattern: /figure out the (budget|cost|money|numbers) first|want to figure out the .{1,40} first/i },\\n  { signal: \\\"spend_light\\\", intent: \\\"exploration\\\", pattern: /don'?t want .{0,24}spend(ing)? too much|not spend too much/i },\\n  { signal: \\\"tally\\\", intent: \\\"planning\\\", pattern: /let'?s say (\\\\d+|one|two|three|four|five|six|seven|eight|nine|ten)\\\\b|\\\\$\\\\d+\\\\s*each|\\\\d+ people/i },\\n  { signal: \\\"sketch\\\", intent: \\\"planning\\\", pattern: /we could .{10,220}\\\\bthen\\\\b/i },\\n  { signal: \\\"loose_contrast\\\", intent: \\\"exploration\\\", pattern: /every hour|planning every|don'?t want .{0,40}(packed|itine...\", \"server/memory/memory-orchestrator.ts\": \"import { and, eq } from \\\"drizzle-orm\\\";\\nimport { getDb } from \\\"@/db\\\";\\nimport { ideas, memoryIndex } from \\\"@/db/schema\\\";\\nimport { logEvent } from \\\"@/lib/logger\\\";\\nimport { getLLMProvider } from \\\"@/server/llm/cursor-provider\\\";\\nimport { FRIMZ_SYSTEM_PROMPT } from \\\"@/server/agent/prompts/frimz-system\\\";\\nimport { HUMAN_CONVERSATION_POLICY } from \\\"@/server/agent/prompts/human-conversation\\\";\\nimport { MEMORY_EXTRACTION_PROMPT } from \\\"@/server/agent/prompts/memory-extraction\\\";\\nimport { buildFrimzContext, type ContextBriefInput } from \\\"@/server/agent/context-builder\\\";\\nimport { buildBehaviorAddendum } from \\\"@/server/agent/response-strategy\\\";\\nimport { chooseConversationStrategy } from \\\"@/server/agent/conversational-strategy\\\";\\nimport { renderConversationStrategy } from \\\"@/server/agent/prompts/conversation-strategy\\\";\\nimport type { Mode } from \\\"@/lib/modes\\\";\\nimport { parseExtraction, validateIdea, validateMemories } from \\\"./memory-validator\\\";\\nimport { indicatorMemories, mergePreferences } from \\\"./memory-retrieval\\\";\\nimport { isMeaningfulProgress, planMemoryWrite } from \\\"./memory-updater\\\";\\nimport { getMemoryStore } from \\\"./memory-runtime\\\";\\nimport { PostgresMemoryIndex } from \\\"./memory-index\\\";\\nimport type { MemoryDraft, MemoryRecord, MemoryType } from \\\"./types\\\";\\nimport { shouldCreateIdeaEvent } from \\\"@/server/ideas/idea-events\\\";\\nimport {\\n  addIdeaEvent,\\n  closestIdea,\\n  findIdeaByTitle,\\n  listIdeas,\\n  matchIdeaTitle,\\n  upsertIdea,\\n} from \\\"@/server/ideas/idea-service\\\";\\nimport { recordActivity, recordLog } from \\\"@/server/conversations/conversation-service\\\";\\n\\nexport async function recallForTurn(userId: string, message: string, ideaTitle?: string) {\\n  const index = new PostgresMemoryIndex();\\n  const preferences = (await index.listActive(userId)).filter((memory) => memory.type === \\\"user_preference\\\");\\n  const store = getMemoryStore();\\n  if (!store) {\\n    await recordLog(\\\"walrus\\\", { failure: \\\"not_configured\\\", phase: \\\"recall\\\" }, userId).catch(() => undefined);\\n    return { memories: preferences, preferences, indicators: [] as ReturnType<typeof indicatorMemories> };\\n  }\\n  try {\\n    const recalled = await store.search({ userId, query: message, limit: 8 });\\n    const memories = mergePreferences(recalled, preferences);\\n    for (const memory of recalled) {\\n      await recordActivity(userId, \\\"retrieved\\\", memory.type, memory.id);\\n    }\\n    return {\\n      memories,\\n      preferences,\\n      indicators: indicatorMemories(recalled, ideaTitle),\\n    };\\n  } catch (error) {\\n    logEvent(\\\"walrus_recall_failed\\\", { userId, message: error instanceof Error ? error.message : \\\"failed\\\" });\\n    await recordLog(\\\"error\\\", { phase: \\\"recall\\\" }, userId).catch(() => undefined);\\n    return { memories: preferences, preferences, indicators: [] as ReturnType<typeof indicatorMemories> };\\n  }\\n}\\n\\nexport function contextForTurn(input: {\\n  mode: Mode;\\n  preferences: MemoryRecord[];\\n  memories: MemoryRecord[];\\n  ideaTitle?: string;\\n  ideaDescription?: string;\\n  brief?: ContextBriefInput | null;\\n  offerDraft?: boolean;\\n  transcript: { role: string; content: string }[];\\n  userMessage: string;\\n}) {\\n  const strategy = chooseConversationStrategy({\\n    mode: input.mode,\\n    userMessage: input.userMessage,\\n    memories: input.memories,\\n    preferences: input.preferences,\\n    ideaTitle: input.ideaTitle,\\n    offerDraft: input.offerDraft,\\n  });\\n  const context = buildFrimzContext({\\n    preferences: input.preferences,\\n    memories: input.memories,\\n    ideaTitle: input.ideaTitle,\\n    ideaDescription: input.ideaDescription,\\n    brief: input.brief,\\n    transcript: input.transcript,\\n    userMessage: input.userMessage,\\n    strategy,\\n  });\\n  const behavior = buildBehaviorAddendum(input.mode, input.preferences);\\n  return {\\n    strategy,\\n    messages: [\\n      { role: \\\"system\\\" as const, content: `${FRIMZ_SYSTEM_PROMPT}\\\\n\\\\n${HUMAN_CONVERSATION_POLICY}\\\\n\\\\n${behavior}\\\\n\\\\n${renderConversationStrategy(strategy)}` },\\n      { role: \\\"user\\\" as const, content: context },\\n    ],\\n  };\\n}\\n\\nexport type ExtractionOutcome = {\\n  ...\", \"lib/context-brief.ts\": \"export type BriefItem = { text: string; reason?: string };\\n\\nexport type ContextBriefData = {\\n  context?: string;\\n  problem?: string;\\n  targetUser?: string;\\n  goal?: string;\\n  currentIdea?: string;\\n  keyInsights?: string[];\\n  decisions?: BriefItem[];\\n  rejectedDirections?: BriefItem[];\\n  assumptions?: string[];\\n  openQuestions?: string[];\\n  currentDirection?: string;\\n  nextAreasToExplore?: string[];\\n  relevantHistory?: string[];\\n};\\n\\nexport type BriefField = keyof ContextBriefData;\\nexport type BriefFieldKind = \\\"text\\\" | \\\"list\\\" | \\\"reasoned\\\";\\nexport type BriefTextField = \\\"context\\\" | \\\"problem\\\" | \\\"targetUser\\\" | \\\"goal\\\" | \\\"currentIdea\\\" | \\\"currentDirection\\\";\\nexport type BriefListField = \\\"keyInsights\\\" | \\\"assumptions\\\" | \\\"openQuestions\\\" | \\\"nextAreasToExplore\\\" | \\\"relevantHistory\\\";\\nexport type BriefReasonedField = \\\"decisions\\\" | \\\"rejectedDirections\\\";\\n\\nexport type BriefSection = {\\n  key=<redacted>\\n  label: string;\\n  kind: BriefFieldKind;\\n  /** Memory kind drawn by MemoryGlyph beside the section. */\\n  glyph?: string;\\n  /** Characters for text sections, items for lists. */\\n  max: number;\\n};\\n\\nexport const BRIEF_SECTIONS: readonly BriefSection[] = [\\n  { key=<redacted> label: \\\"Where it stands\\\", kind: \\\"text\\\", max: 700 },\\n  { key=<redacted> label: \\\"Problem\\\", kind: \\\"text\\\", max: 400 },\\n  { key=<redacted> label: \\\"Target user\\\", kind: \\\"text\\\", max: 300 },\\n  { key=<redacted> label: \\\"Goal\\\", kind: \\\"text\\\", max: 400 },\\n  { key=<redacted> label: \\\"Current idea\\\", kind: \\\"text\\\", glyph: \\\"idea\\\", max: 500 },\\n  { key=<redacted> label: \\\"Key insights\\\", kind: \\\"list\\\", glyph: \\\"insight\\\", max: 8 },\\n  { key=<redacted> label: \\\"Decisions\\\", kind: \\\"reasoned\\\", glyph: \\\"decision\\\", max: 10 },\\n  { key=<redacted> label: \\\"Directions set aside\\\", kind: \\\"reasoned\\\", glyph: \\\"rejection\\\", max: 8 },\\n  { key=<redacted> label: \\\"Assumptions\\\", kind: \\\"list\\\", max: 8 },\\n  { key=<redacted> label: \\\"Open questions\\\", kind: \\\"list\\\", glyph: \\\"open_question\\\", max: 8 },\\n  { key=<redacted> label: \\\"Current direction\\\", kind: \\\"text\\\", glyph: \\\"idea_change\\\", max: 400 },\\n  { key=<redacted> label: \\\"Next to explore\\\", kind: \\\"list\\\", max: 5 },\\n  { key=<redacted> label: \\\"How it got here\\\", kind: \\\"list\\\", max: 8 },\\n];\\n\\nexport const BRIEF_FIELDS = BRIEF_SECTIONS.map((section) => section.key) as [BriefField, ...BriefField[]];\\n\\nexport const BRIEF_ITEM_MAX = 300;\\nexport const BRIEF_REASON_MAX = 300;\\n\\n/** The brief as the client sees it. */\\nexport type BriefSnapshot = {\\n  id: string;\\n  ideaId: string;\\n  title: string;\\n  version: number;\\n  data: ContextBriefData;\\n  userFields: BriefField[];\\n  changeSummary: string;\\n  updatedAt: string;\\n};\\n\\nexport type BriefVersionSnapshot = {\\n  version: number;\\n  source: \\\"synthesis\\\" | \\\"edit\\\" | \\\"regenerate\\\";\\n  changeSummary: string;\\n  data: ContextBriefData;\\n  createdAt: string;\\n};\\n\\nconst PLACEHOLDER =\\n  /^(n\\\\/?a|none( yet)?|nothing( yet)?|unknown|tbd|tbc|null|undefined|-+|\\u2014|not (yet )?(specified|defined|decided|known|discussed|mentioned|stated|provided|clear))\\\\.?$/i;\\n\\nfunction isRecord(value: unknown): value is Record<string, unknown> {\\n  return typeof value === \\\"object\\\" && value !== null && !Array.isArray(value);\\n}\\n\\nexport function cleanBriefText(value: unknown, max: number) {\\n  if (typeof value !== \\\"string\\\") return \\\"\\\";\\n  const text = value.replace(/\\\\s+/g, \\\" \\\").trim();\\n  if (!text || PLACEHOLDER.test(text)) return \\\"\\\";\\n  return text.slice(0, max).trim();\\n}\\n\\nexport function itemKey(text: string) {\\n  return text.toLowerCase().replace(/[^a-z0-9]+/g, \\\" \\\").trim();\\n}\\n\\nfunction cleanList(value: unknown, maxItems: number) {\\n  if (!Array.isArray(value)) return [];\\n  const seen = new Set<string>();\\n  const items: string[] = [];\\n  for (const entry of value) {\\n    const text = cleanBriefText(typeof entry === \\\"string\\\" ? entry : isRecord(entry) ? entry.text : undefined, BRIEF_ITEM_MAX);\\n    const key=<redacted>\\n    if (!key || seen.has(key)) continue;\\n    seen.add(key);\\n    items.push(text);\\n    if (items.length >= maxItems) break;\\n  }\\n  return items;\\n}\\n\\nfunction cleanReasoned(value: unknown, maxItems: number) {\\n...\", \"app/api/chat/route.ts\": \"import { and, eq, inArray } from \\\"drizzle-orm\\\";\\nimport { chatMessageSchema, modeSchema } from \\\"@/lib/validators\\\";\\nimport { rateLimit } from \\\"@/lib/rate-limit\\\";\\nimport { requireUser } from \\\"@/server/auth/current-user\\\";\\nimport { runChatTurn } from \\\"@/server/agent/frimz-agent\\\";\\nimport { parseMode } from \\\"@/lib/modes\\\";\\nimport { getDb } from \\\"@/db\\\";\\nimport { memoryIndex } from \\\"@/db/schema\\\";\\nimport { indicatorPhrase } from \\\"@/server/agent/indicator-label\\\";\\n\\nexport const runtime = \\\"nodejs\\\";\\nexport const dynamic = \\\"force-dynamic\\\";\\nexport const maxDuration = 300;\\n\\nexport async function POST(request: Request) {\\n  const user = await requireUser();\\n  if (!user) return Response.json({ error: \\\"Sign in to continue.\\\" }, { status: 401 });\\n  const limit = rateLimit(`chat:${user.id}`);\\n  if (!limit.ok) {\\n    return Response.json({ error: \\\"Frimz needs a short pause. Try again in a moment.\\\" }, { status: 429 });\\n  }\\n\\n  let body: unknown;\\n  try {\\n    body = await request.json();\\n  } catch {\\n    return Response.json({ error: \\\"That message could not be read.\\\" }, { status: 400 });\\n  }\\n  const record = body as { conversationId?: unknown; message?: unknown; mode?: unknown; retry?: unknown };\\n  const retry = record.retry === true;\\n  const parsedMessage = chatMessageSchema.safeParse(record.message ?? \\\"\\\");\\n  if (!retry && !parsedMessage.success) {\\n    return Response.json({ error: \\\"Write a thought for Frimz to think with.\\\" }, { status: 400 });\\n  }\\n  const mode = modeSchema.safeParse(record.mode).success ? parseMode(record.mode) : parseMode(undefined);\\n  const conversationId = typeof record.conversationId === \\\"string\\\" ? record.conversationId : undefined;\\n\\n  const encoder = new TextEncoder();\\n  const stream = new ReadableStream({\\n    async start(controller) {\\n      const send = (event: string, data: unknown) => {\\n        controller.enqueue(encoder.encode(`event: ${event}\\\\ndata: ${JSON.stringify(data)}\\\\n\\\\n`));\\n      };\\n      try {\\n        for await (const item of runChatTurn({\\n          userId: user.id,\\n          conversationId,\\n          message: parsedMessage.success ? parsedMessage.data : undefined,\\n          mode,\\n          retry,\\n          signal: request.signal,\\n        })) {\\n          if (item.type === \\\"done\\\" && item.indicators && item.indicators.length > 0) {\\n            const ids = item.indicators.map((indicator) => indicator.memoryId);\\n            const labels = await getDb()\\n              .select({ id: memoryIndex.id, type: memoryIndex.type })\\n              .from(memoryIndex)\\n              .where(and(eq(memoryIndex.userId, user.id), inArray(memoryIndex.id, ids)));\\n            const typeById = new Map(labels.map((label) => [label.id, label.type]));\\n            send(item.type, {\\n              ...item,\\n              indicators: item.indicators.map((indicator) => ({\\n                ...indicator,\\n                kind: typeById.get(indicator.memoryId) ?? \\\"\\\",\\n                label: indicatorPhrase(typeById.get(indicator.memoryId) ?? \\\"\\\"),\\n              })),\\n            });\\n          } else {\\n            send(item.type, item);\\n          }\\n        }\\n      } catch {\\n        send(\\\"error\\\", { message: \\\"Frimz couldn't connect to its AI model right now. Please try again.\\\" });\\n      } finally {\\n        controller.close();\\n      }\\n    },\\n  });\\n\\n  return new Response(stream, {\\n    headers: {\\n      \\\"Content-Type\\\": \\\"text/event-stream\\\",\\n      \\\"Cache-Control\\\": \\\"no-cache, no-transform\\\",\\n      Connection: \\\"keep-alive\\\",\\n    },\\n  });\\n}\\n\", \"tests/conversation-strategy.test.ts\": \"import { describe, expect, it } from \\\"vitest\\\";\\nimport { chooseConversationStrategy } from \\\"@/server/agent/conversational-strategy\\\";\\nimport { buildFrimzContext } from \\\"@/server/agent/context-builder\\\";\\nimport { renderConversationStrategy } from \\\"@/server/agent/prompts/conversation-strategy\\\";\\nimport type { MemoryRecord } from \\\"@/server/memory/types\\\";\\n\\nfunction memory(partial: Pick<MemoryRecord, \\\"id\\\" | \\\"type\\\" | \\\"content\\\">): MemoryRecord {\\n  return {\\n    userId: \\\"user\\\",\\n    blobId: partial.id,\\n    namespace: \\\"frimz-user-user\\\",\\n    status: \\\"active\\\",\\n    reason: \\\"\\\",\\n    importance: 0.8,\\n    ideaId: null,\\n    ideaTitle: \\\"Study partner\\\",\\n    supersedesId: null,\\n    createdAt: \\\"2026-01-01T00:00:00.000Z\\\",\\n    updatedAt: \\\"2026-01-01T00:00:00.000Z\\\",\\n    ...partial,\\n  };\\n}\\n\\nconst decision = memory({\\n  id: \\\"dec\\\",\\n  type: \\\"decision\\\",\\n  content: \\\"The first version targets individual students.\\\",\\n});\\n\\nconst preference = memory({\\n  id: \\\"pref\\\",\\n  type: \\\"user_preference\\\",\\n  content: \\\"User prefers simple initial products and fast validation.\\\",\\n});\\n\\nfunction turn(userMessage: string, memories: MemoryRecord[] = []) {\\n  return chooseConversationStrategy({ mode: \\\"think\\\", userMessage, memories, preferences: memories.filter((item) => item.type === \\\"user_preference\\\") });\\n}\\n\\ndescribe(\\\"conversation strategy\\\", () => {\\n  it(\\\"creates space when the idea is not on the table yet\\\", () => {\\n    const result = turn(\\\"Help me explore an idea I'm working on. I don't have the idea yet.\\\");\\n    expect(result.conversationalMove).toBe(\\\"explore\\\");\\n    expect(result.shouldAskQuestion).toBe(false);\\n    expect(result.reasoningFocus).toMatch(/Create space/i);\\n    expect(result.reasoningFocus).toMatch(/exact idea/i);\\n  });\\n\\n  it(\\\"explores a vague idea instead of judging it\\\", () => {\\n    const result = turn(\\\"I have an idea but I'm not sure if it's good.\\\");\\n    expect(result.conversationalMove).toBe(\\\"explore\\\");\\n    expect(result.reasoningFocus).toMatch(/Create space|category menu|workshop/i);\\n  });\\n\\n  it(\\\"helps when the direction is unknown\\\", () => {\\n    const result = turn(\\\"I don't know what direction to take.\\\");\\n    expect([\\\"explore\\\", \\\"compare\\\"]).toContain(result.conversationalMove);\\n    expect(result.reasoningFocus).toMatch(/do not pick/i);\\n  });\\n\\n  it(\\\"examines a proposed direction\\\", () => {\\n    const result = turn(\\\"I think we should do X.\\\");\\n    expect(result.conversationalMove).toBe(\\\"challenge\\\");\\n    expect(result.reasoningFocus).toMatch(/do not decide/i);\\n  });\\n\\n  it(\\\"recognizes a decision\\\", () => {\\n    const result = turn(\\\"Let's go with X.\\\");\\n    expect(result.conversationalMove).toBe(\\\"confirm\\\");\\n    expect(result.shouldAskQuestion).toBe(false);\\n    expect(result.reasoningFocus).toMatch(/do not reopen/i);\\n  });\\n\\n  it(\\\"treats a reversal as the current direction\\\", () => {\\n    const result = turn(\\\"Actually, let's do Y instead.\\\", [decision]);\\n    expect(result.conversationalMove).toBe(\\\"confirm\\\");\\n    expect(result.shouldUseMemory).toBe(true);\\n    expect(result.relevantMemoryIds).toContain(decision.id);\\n    expect(result.reasoningFocus).toMatch(/current/);\\n    expect(result.reasoningFocus).toMatch(/earlier direction/);\\n  });\\n\\n  it(\\\"reconstructs history when asked why\\\", () => {\\n    const result = turn(\\\"Why did we originally choose X?\\\", [decision]);\\n    expect(result.conversationalMove).toBe(\\\"reflect\\\");\\n    expect(result.shouldUseMemory).toBe(true);\\n    expect(result.relevantMemoryIds).toContain(decision.id);\\n    expect(renderConversationStrategy(result)).toMatch(/Do not invent/);\\n  });\\n\\n  it(\\\"says the history is missing when nothing was stored\\\", () => {\\n    const result = turn(\\\"Why did we originally choose X?\\\");\\n    expect(result.conversationalMove).toBe(\\\"reflect\\\");\\n    expect(result.shouldUseMemory).toBe(false);\\n    expect(result.reasoningFocus).toMatch(/do not have it/i);\\n  });\\n\\n  it(\\\"contributes a perspective without deciding\\\", () => {\\n    const result = turn(\\\"What do you think?\\\");\\n    expect(result.conversationalMove).toBe(\\\"explore\\\");\\n    expect(result.shouldAskQuestion).t...\", \"tests/orchestration.test.ts\": \"import { describe, expect, it } from \\\"vitest\\\";\\nimport { chooseConversationStrategy } from \\\"@/server/agent/conversational-strategy\\\";\\nimport { orchestrationViolations } from \\\"@/server/agent/response-check\\\";\\nimport { MEMORY_EXTRACTION_PROMPT } from \\\"@/server/agent/prompts/memory-extraction\\\";\\n\\nfunction turn(userMessage: string) {\\n  return chooseConversationStrategy({ mode: \\\"think\\\", userMessage });\\n}\\n\\ndescribe(\\\"conversation orchestration\\\", () => {\\n  it(\\\"treats a vague student idea as high-uncertainty exploration\\\", () => {\\n    const result = turn(\\\"I've been thinking about building something for university students, but I don't really know what yet.\\\");\\n    expect(result.intent).toBe(\\\"exploration\\\");\\n    expect(result.thinkingStage).toBe(\\\"discover\\\");\\n    expect(result.uncertaintyLevel).toBe(\\\"high\\\");\\n    expect(result.shouldStructure).toBe(false);\\n    expect(result.shouldChallenge).toBe(false);\\n    expect(result.questionCount).toBeLessThanOrEqual(1);\\n  });\\n\\n  it(\\\"keeps an observation in exploration without a plan\\\", () => {\\n    const result = turn(\\\"Students use AI a lot for studying, but every time they start a new conversation they have to explain what they're studying.\\\");\\n    expect(result.conversationalMove).toBe(\\\"explore\\\");\\n    expect(result.shouldStructure).toBe(false);\\n    expect(result.conversationalMove).not.toBe(\\\"plan\\\");\\n  });\\n\\n  it(\\\"challenges when asked, without a question stack\\\", () => {\\n    const result = turn(\\\"Challenge this idea: the AI should remember everything about the student.\\\");\\n    expect(result.intent).toBe(\\\"challenge\\\");\\n    expect(result.shouldChallenge).toBe(true);\\n    expect(result.questionCount).toBe(0);\\n  });\\n\\n  it(\\\"stops arguing when they disagree\\\", () => {\\n    const result = turn(\\\"I disagree. I think remembering everything is important.\\\");\\n    expect(result.reasoningFocus).toMatch(/do not defend/i);\\n    expect(result.shouldAskQuestion).toBe(false);\\n  });\\n\\n  it(\\\"changes direction immediately\\\", () => {\\n    const result = turn(\\\"Actually, I'm tired of thinking about education. Let's work on a crypto idea instead.\\\");\\n    expect(result.intent).toBe(\\\"direction_change\\\");\\n    expect(result.reasoningFocus).toMatch(/Do not force the previous topic/i);\\n  });\\n\\n  it(\\\"honors an explicit exclusion\\\", () => {\\n    const result = turn(\\\"Let's continue the education idea, but don't talk about product features. I want to understand the business opportunity.\\\");\\n    expect(result.exclusions.join(\\\" \\\")).toMatch(/product features/i);\\n    expect(result.userDirection).toMatch(/business opportunity/i);\\n  });\\n\\n  it(\\\"answers a definition without exploring\\\", () => {\\n    const result = turn(\\\"What does MVP mean?\\\");\\n    expect(result.conversationalMove).toBe(\\\"answer\\\");\\n    expect(result.responseDepth).toBe(\\\"short\\\");\\n    expect(result.questionCount).toBe(0);\\n    expect(result.shouldStructure).toBe(false);\\n  });\\n\\n  it(\\\"answers a technical choice directly\\\", () => {\\n    const result = turn(\\\"Should we use PostgreSQL or MongoDB for this?\\\");\\n    expect(result.conversationalMove).toBe(\\\"answer\\\");\\n    expect(result.questionCount).toBe(0);\\n  });\\n\\n  it(\\\"structures a brainstorm without choosing\\\", () => {\\n    const result = turn(\\\"Give me some ideas for what we could build on top of persistent AI memory.\\\");\\n    expect(result.shouldStructure).toBe(true);\\n    expect(result.responseDepth).toBe(\\\"deep\\\");\\n    expect(result.reasoningFocus).toMatch(/do not pick/i);\\n  });\\n\\n  it(\\\"synthesizes when they are lost\\\", () => {\\n    const result = turn(\\\"I'm completely lost. Where are we?\\\");\\n    expect(result.conversationalMove).toBe(\\\"synthesize\\\");\\n    expect(result.shouldSynthesize).toBe(true);\\n    expect(result.questionCount).toBe(0);\\n  });\\n\\n  it(\\\"drafts a readme without questions\\\", () => {\\n    const result = turn(\\\"Write the README now.\\\");\\n    expect(result.conversationalMove).toBe(\\\"draft\\\");\\n    expect(result.questionCount).toBe(0);\\n  });\\n\\n  it(\\\"asks once when the belief they dropped is ambiguous\\\", () => {\\n    const result = turn(\\\"Actually, I don't believe that anymore.\\\");\\n...\", \"next.config.ts\": \"import type { NextConfig } from \\\"next\\\";\\n\\nconst securityHeaders = [\\n  { key=<redacted> value: \\\"DENY\\\" },\\n  { key=<redacted> value: \\\"nosniff\\\" },\\n  { key=<redacted> value: \\\"strict-origin-when-cross-origin\\\" },\\n  { key=<redacted> value: \\\"camera=(), microphone=(), geolocation=()\\\" },\\n];\\n\\nconst nextConfig: NextConfig = {\\n  // The Docker image runs this server. Vercel uses Dockerfile.vercel, not the serverless build.\\n  output: \\\"standalone\\\",\\n  serverExternalPackages: [\\\"@cursor/sdk\\\", \\\"@mysten-incubation/memwal\\\"],\\n  outputFileTracingIncludes: {\\n    \\\"/*\\\": [\\n      \\\"./node_modules/@cursor/sdk/**/*\\\",\\n      \\\"./node_modules/@mysten-incubation/memwal/**/*\\\",\\n      \\\"./node_modules/@mysten/seal/**/*\\\",\\n      \\\"./node_modules/@mysten/sui/**/*\\\",\\n    ],\\n  },\\n  async headers() {\\n    return [{ source: \\\"/:path*\\\", headers: securityHeaders }];\\n  },\\n};\\n\\nexport default nextConfig;\\n\", \"README.md\": \"# Frimz\\n\\nFrimz is an AI thinking partner that remembers the evolution of your thinking and turns that accumulated context into something you can keep building on.\\n\\n```text\\nThink.\\nExplore.\\nDevelop.\\nRemember.\\nReturn.\\nContinue.\\nBuild.\\n```\\n\\n## What is Frimz?\\n\\nFrimz helps people develop ideas over time: founders, developers, marketers, researchers, students, and anyone working on a project that does not fit in one chat.\\n\\nOrdinary chats forget the path that led to the current idea. Frimz keeps the durable parts of that path \\u2014 preferences, decisions, rejected directions, insights, open questions, and changes of direction \\u2014 and uses them when they are relevant later.\\n\\nFrimz does not make decisions for the user. It helps the user think through decisions.\\n\\n## The problem\\n\\n```text\\nConversation happens\\n        \\u2193\\nUseful context appears\\n        \\u2193\\nConversation ends\\n        \\u2193\\nContext becomes difficult to reuse\\n        \\u2193\\nUser has to explain everything again\\n```\\n\\nThat cost grows when an idea develops over days. The useful part is rarely the full transcript. It is the decision, the rejection, and the question that was left open.\\n\\n## The solution\\n\\n```text\\nTHINK\\n  \\u2193\\nDISCUSS\\n  \\u2193\\nEXPLORE\\n  \\u2193\\nDEVELOP\\n  \\u2193\\nCAPTURE\\n  \\u2193\\nREMEMBER\\n  \\u2193\\nSTRUCTURE\\n  \\u2193\\nRETURN\\n  \\u2193\\nCONTINUE\\n  \\u2193\\nBUILD\\n```\\n\\nA later conversation can continue the idea, explain a rejection, and reconstruct how the idea arrived, using memories that came from earlier real messages. Each idea also keeps a living picture of where the thinking stands, which the user can read, correct, and turn into a written draft.\\n\\n## Key features\\n\\n- Persistent memory of thinking, not a copy of every message\\n- Conversations that continue across sessions and devices for the same account\\n- Living context: a versioned, editable \\\"Current thinking\\\" brief for each idea\\n- Idea evolution from real idea events\\n- Working-style adaptation from stored preferences\\n- Memory inspection, editing, and forgetting\\n- Write-ups drafted from the accumulated context, offered when a conversation wraps up\\n- Think, Plan, Write, and Challenge modes on one agent\\n\\n## Why memory matters\\n\\nFrimz does not store every message as a permanent memory. After a reply is streamed, extraction looks for durable information:\\n\\n```text\\nPreferences\\nIdeas\\nDecisions\\nRejected directions\\nInsights\\nOpen questions\\nIdea changes\\n```\\n\\nLifecycle:\\n\\n```text\\nDiscover\\n \\u2193\\nExtract\\n \\u2193\\nValidate\\n \\u2193\\nStore\\n \\u2193\\nRecall\\n \\u2193\\nUse\\n \\u2193\\nUpdate\\n \\u2193\\nSupersede / Forget\\n```\\n\\nA memory is kept when it would help a future conversation. Editing writes a new Walrus blob and marks the previous index row superseded. Forgetting marks the row forgotten so retrieval skips it. Walrus blobs are immutable; forgetting does not claim a physical delete.\\n\\n## Living Context\\n\\nEvery idea has one **context brief**, shown in the app as \\\"Current thinking\\\". It is Frimz's working understanding of what the user is working on: a structured, versioned picture of where the thinking stands.\\n\\n```text\\nWhere it stands      a short paragraph\\nProblem              Target user          Goal\\nCurrent idea         Current direction\\nKey insights         Decisions (with reasons)\\nDirections set aside (with reasons)       Assumptions\\nOpen questions       Next to explore      How it got here\\n```\\n\\nOnly filled sections are shown. A section is never padded with a guess.\\n\\n### Why it exists\\n\\nMemories are atomic. \\\"Start with individual students\\\" and \\\"universities have a slow sales cycle\\\" are separate facts, recalled one at a time by meaning. That suits recall. A returning conversation also needs the whole picture at once: which decisions hold, which directions are closed, and what is still open. The brief is that picture, kept current so Frimz starts each turn from it and so the user can read it, correct it, and take it elsewhere.\\n\\n### How it differs from memory\\n\\n| | Walrus memories | Context brief |\\n| --- | --- | --- |\\n| Shape | One durable fact per memory | One structured document per idea |\\n| Store | Walrus Memory, catalogued in `memory_index` | P...\", \"Dockerfile\": \"# Production image for Frimz.\\n# Vercel deploys Dockerfile.vercel, which points at this file, and routes\\n# traffic to $PORT (80 unless the project sets PORT). The process stays a\\n# normal Node server for the length of the request.\\n# Local run: docker build -t frimz . && docker run --rm -p 3000:3000 --env-file .env frimz\\n\\nFROM node:22-bookworm-slim AS deps\\nWORKDIR /app\\nCOPY package.json package-lock.json .npmrc ./\\nRUN npm ci\\n\\nFROM node:22-bookworm-slim AS builder\\nWORKDIR /app\\nENV NEXT_TELEMETRY_DISABLED=1\\nCOPY --from=deps /app/node_modules ./node_modules\\nCOPY . .\\nRUN npm run build\\n\\nFROM node:22-bookworm-slim AS runner\\nWORKDIR /app\\nENV NODE_ENV=production\\nENV NEXT_TELEMETRY_DISABLED=1\\nENV HOSTNAME=0.0.0.0\\nRUN apt-get update \\\\\\n  && apt-get install -y --no-install-recommends ca-certificates \\\\\\n  && rm -rf /var/lib/apt/lists/* \\\\\\n  && mkdir -p public .frimz-sandbox\\nCOPY --from=builder /app/.next/standalone ./\\nCOPY --from=builder /app/.next/static ./.next/static\\nEXPOSE 3000\\nCMD [\\\"node\\\", \\\"server.js\\\"]\\n\", \"docker-compose.yml\": \"services:\\n  db:\\n    image: postgres:16-alpine\\n    environment:\\n      POSTGRES_USER: frimz\\n      POSTGRES_PASSWORD=<redacted>\\n      POSTGRES_DB: frimz\\n    ports:\\n      - \\\"5436:5432\\\"\\n    volumes:\\n      - frimz_pg:/var/lib/postgresql/data\\n    healthcheck:\\n      test: [\\\"CMD-SHELL\\\", \\\"pg_isready -U frimz -d frimz\\\"]\\n      interval: 5s\\n      timeout: 5s\\n      retries: 10\\n\\nvolumes:\\n  frimz_pg:\\n\"}, \"refs\": [{\"id\": \"ev-package.json\", \"kind\": \"config\", \"path\": \"package.json\", \"uri\": null, \"locator\": null, \"hash\": \"9d51461d8838fba2c34f41f21cf63ed9d121000b750e9490ee1fd17415df2a26\", \"collected_at\": \"2026-10-04T20:04:04.764166Z\", \"excerpt\": \"{\\n  \\\"name\\\": \\\"frimz\\\",\\n  \\\"version\\\": \\\"0.1.0\\\",\\n  \\\"private\\\": true,\\n  \\\"engines\\\": {\\n    \\\"node\\\": \\\">=22.13\\\"\\n  },\\n  \\\"scripts\\\": {\\n    \\\"dev\\\": \\\"next dev\\\",\\n    \\\"build\\\": \\\"next build\\\",\\n    \\\"start\\\": \\\"next start\\\",\\n    \\\"lint\\\": \\\"next lint\\\",\\n    \\\"typecheck\\\": \\\"tsc --noEmit\\\",\\n    \\\"test\\\": \\\"vitest run\\\",\\n    \\\"db:migrate\\\": \\\"tsx db/migrate.ts\\\"\\n  },\\n  \\\"dependencies\\\": {\\n    \\\"@cursor/sdk\\\": \\\"^1.0.34\\\",\\n    \\\"@mysten-incubation/memwal\\\": \\\"^0.1.8\\\",\\n    \\\"@mysten/seal\\\": \\\"^1.4.17\\\",\\n    \\\"@mysten/sui\\\": \\\"^2.33.2\\\",\\n    \\\"@radix-ui/react-dialog\\\": \\\"^1.1.15\\\",\\n    \\\"@radix-ui/react-dropdown-menu\\\": \\\"^2.1.16\\\",\\n    \\\"@radix-ui/react-slot\\\": \\\"^1.2.3\\\",\\n    \\\"@radix-ui/react-tooltip\\\": \\\"^1.2.8\\\",\\n    \\\"bcryptjs\\\": \\\"^2.4.3\\\",\\n    \\\"class-variance-authority\\\": \\\"^0.7.1\\\",\\n    \\\"clsx\\\": \\\"^2.1.1\\\",\\n    \\\"drizzle-orm\\\": \\\"^0.44.6\\\",\\n    \\\"lucide-react\\\": \\\"^0.544.0\\\",\\n...\"}, {\"id\": \"ev-db-schema.ts\", \"kind\": \"source_code\", \"path\": \"db/schema.ts\", \"uri\": null, \"locator\": null, \"hash\": \"d75573c005fd621e7003f5343122cc6a101427c57bca3709e46b149a1f709143\", \"collected_at\": \"2026-10-04T20:04:04.784385Z\", \"excerpt\": \"import {\\n  index,\\n  integer,\\n  jsonb,\\n  pgTable,\\n  real,\\n  text,\\n  timestamp,\\n  uniqueIndex,\\n  uuid,\\n} from \\\"drizzle-orm/pg-core\\\";\\nimport type { BriefField, ContextBriefData } from \\\"@/lib/context-brief\\\";\\n\\nexport type IndicatorType = \\\"remembered\\\" | \\\"connected\\\";\\n\\nexport type MessageMetadata = {\\n  memoryUsed?: boolean;\\n  indicators?: { type: IndicatorType; memoryId: string }[];\\n  error?: boolean;\\n  draftOffer?: { briefVersion: number };\\n  writeUp?: { format: string; briefVersion: number };\\n};\\n\\nexport const users = pgTable(\\\"users\\\", {\\n  id: uuid(\\\"id\\\").primaryKey().defaultRandom(),\\n  email: text(\\\"email\\\").notNull().unique(),\\n  name: text(\\\"name\\\").notNull(),\\n  passwordHash=<redacted>\\n  createdAt: timestamp(\\\"created_at\\\", { withTimezone: true }).notNull().defaultNow(),\\n});\\n\\nexport const sessions =...\"}, {\"id\": \"ev-server-agent-frimz-agent.ts\", \"kind\": \"source_code\", \"path\": \"server/agent/frimz-agent.ts\", \"uri\": null, \"locator\": null, \"hash\": \"c79059bcb159191bf293d33a364196dbf3ea90c1dd3e0b134ec0707643e28ed9\", \"collected_at\": \"2026-10-04T20:04:04.796982Z\", \"excerpt\": \"import { after } from \\\"next/server\\\";\\nimport { CURSOR_UNAVAILABLE } from \\\"@/lib/constants\\\";\\nimport type { Mode } from \\\"@/lib/modes\\\";\\nimport { logEvent } from \\\"@/lib/logger\\\";\\nimport { getLLMProvider } from \\\"@/server/llm/cursor-provider\\\";\\nimport {\\n  addMessage,\\n  createConversation,\\n  deleteMessage,\\n  getConversation,\\n  recordActivity,\\n  recordLog,\\n  touchConversation,\\n} from \\\"@/server/conversations/conversation-service\\\";\\nimport { contextForTurn, recallForTurn, resolveIdea } from \\\"@/server/memory/memory-orchestrator\\\";\\nimport { indicatorPhrase } from \\\"@/server/agent/indicator-label\\\";\\nimport { briefForIdea } from \\\"@/server/context/brief-runtime\\\";\\nimport { updateThinkingAfterTurn } from \\\"@/server/context/context-updater\\\";\\nimport { LLMWriteUpGenerator, planWriteUp } from \\\"@/server/context/writ...\"}, {\"id\": \"ev-server-agent-conversation-types.ts\", \"kind\": \"source_code\", \"path\": \"server/agent/conversation-types.ts\", \"uri\": null, \"locator\": null, \"hash\": \"63359a318b552a7b81045bd7ed4c7d55b28d761d5afa248bd156c0e27e5bffb5\", \"collected_at\": \"2026-10-04T20:04:04.803179Z\", \"excerpt\": \"export type ConversationalIntent =\\n  | \\\"question\\\"\\n  | \\\"exploration\\\"\\n  | \\\"decision\\\"\\n  | \\\"planning\\\"\\n  | \\\"writing\\\"\\n  | \\\"reflection\\\"\\n  | \\\"problem_solving\\\"\\n  | \\\"challenge\\\"\\n  | \\\"comparison\\\"\\n  | \\\"direction_change\\\"\\n  | \\\"casual\\\"\\n  | \\\"unclear\\\";\\n\\nexport type UncertaintyLevel = \\\"low\\\" | \\\"medium\\\" | \\\"high\\\";\\nexport type ResponseDepth = \\\"short\\\" | \\\"normal\\\" | \\\"deep\\\";\\n\\nexport type UserDirection = {\\n  topic?: string;\\n  constraints: string[];\\n  exclusions: string[];\\n  explicitInstruction?: string;\\n};\\n\\nexport type ThinkingStage =\\n  | \\\"discover\\\"\\n  | \\\"explore\\\"\\n  | \\\"clarify\\\"\\n  | \\\"challenge\\\"\\n  | \\\"decide\\\"\\n  | \\\"develop\\\"\\n  | \\\"plan\\\"\\n  | \\\"reflect\\\";\\n\\nexport type ConversationalMove =\\n  | \\\"answer\\\"\\n  | \\\"ask\\\"\\n  | \\\"clarify\\\"\\n  | \\\"explore\\\"\\n  | \\\"challenge\\\"\\n  | \\\"compare\\\"\\n  | \\\"connect\\\"\\n  | \\\"confirm\\\"\\n  | \\\"synthesize\\\"\\n  | \\\"reflect...\"}, {\"id\": \"ev-server-agent-conversational-strategy.ts\", \"kind\": \"source_code\", \"path\": \"server/agent/conversational-strategy.ts\", \"uri\": null, \"locator\": null, \"hash\": \"56a8c81e68e0602bf4ec410075a8c72501c649a314ce8367b2797b1a46c2fb85\", \"collected_at\": \"2026-10-04T20:04:04.814876Z\", \"excerpt\": \"import type { Mode } from \\\"@/lib/modes\\\";\\nimport { WRITE_UP_FORMATS } from \\\"@/lib/write-up\\\";\\nimport type { MemoryRecord } from \\\"@/server/memory/types\\\";\\nimport { analyzeIntent } from \\\"./intent-analyzer\\\";\\nimport { conflictingMemories, deriveConversationState, deriveUserDirection } from \\\"./conversation-state\\\";\\nimport type { ConversationStrategy, ConversationalMove, IntentSignal, ResponseDepth, ThinkingStage, UncertaintyLevel } from \\\"./conversation-types\\\";\\n\\nconst HISTORY_LIMIT = 8;\\n\\nfunction ids(memories: MemoryRecord[]) {\\n  return memories.slice(0, HISTORY_LIMIT).map((memory) => memory.id);\\n}\\n\\nfunction strategy(partial: Omit<ConversationStrategy, \\\"relevantMemoryIds\\\" | \\\"shouldUseMemory\\\" | \\\"responseMove\\\" | \\\"uncertaintyLevel\\\" | \\\"questionCount\\\" | \\\"shouldStructure\\\" | \\\"shouldChallenge\\\" | \\\"shouldS...\"}, {\"id\": \"ev-server-agent-intent-analyzer.ts\", \"kind\": \"source_code\", \"path\": \"server/agent/intent-analyzer.ts\", \"uri\": null, \"locator\": null, \"hash\": \"37c8ed8bbb3352dc19db0dd199cb631dbe5e24af2c825d4e59684db9b14d6b1f\", \"collected_at\": \"2026-10-04T20:04:04.819768Z\", \"excerpt\": \"import type { ConversationalIntent, IntentSignal } from \\\"./conversation-types\\\";\\n\\nexport type IntentAnalysis = {\\n  signal: IntentSignal;\\n  intent: ConversationalIntent;\\n  explicit: boolean;\\n};\\n\\nconst RULES: Array<{ signal: IntentSignal; intent: ConversationalIntent; pattern: RegExp }> = [\\n  { signal: \\\"reset\\\", intent: \\\"direction_change\\\", pattern: /forget everything|start from (zero|scratch)|fresh start/i },\\n  { signal: \\\"aside\\\", intent: \\\"direction_change\\\", pattern: /forget the .{1,48} for a (second|minute|sec|moment)|wait,? forget\\\\b/i },\\n  { signal: \\\"focus_shift\\\", intent: \\\"exploration\\\", pattern: /don'?t talk about|keep .{0,96} as context but|focus (on|specifically on) the/i },\\n  { signal: \\\"return_idea\\\", intent: \\\"reflection\\\", pattern: /go back to (the )?|let'?s go back to|pick (this|it) bac...\"}, {\"id\": \"ev-server-memory-memory-orchestrator.ts\", \"kind\": \"source_code\", \"path\": \"server/memory/memory-orchestrator.ts\", \"uri\": null, \"locator\": null, \"hash\": \"9487a47371026d4aa9885a70710a70fc9a33e3ba4e355d22d0bd8f5cc9f50135\", \"collected_at\": \"2026-10-04T20:04:04.823774Z\", \"excerpt\": \"import { and, eq } from \\\"drizzle-orm\\\";\\nimport { getDb } from \\\"@/db\\\";\\nimport { ideas, memoryIndex } from \\\"@/db/schema\\\";\\nimport { logEvent } from \\\"@/lib/logger\\\";\\nimport { getLLMProvider } from \\\"@/server/llm/cursor-provider\\\";\\nimport { FRIMZ_SYSTEM_PROMPT } from \\\"@/server/agent/prompts/frimz-system\\\";\\nimport { HUMAN_CONVERSATION_POLICY } from \\\"@/server/agent/prompts/human-conversation\\\";\\nimport { MEMORY_EXTRACTION_PROMPT } from \\\"@/server/agent/prompts/memory-extraction\\\";\\nimport { buildFrimzContext, type ContextBriefInput } from \\\"@/server/agent/context-builder\\\";\\nimport { buildBehaviorAddendum } from \\\"@/server/agent/response-strategy\\\";\\nimport { chooseConversationStrategy } from \\\"@/server/agent/conversational-strategy\\\";\\nimport { renderConversationStrategy } from \\\"@/server/agent/prompts/conversat...\"}, {\"id\": \"ev-lib-context-brief.ts\", \"kind\": \"source_code\", \"path\": \"lib/context-brief.ts\", \"uri\": null, \"locator\": null, \"hash\": \"e464aac43721aa59aaac1446ecc9e744c13a722aeb8c9d7356645421f7fb8cc9\", \"collected_at\": \"2026-10-04T20:04:04.827165Z\", \"excerpt\": \"export type BriefItem = { text: string; reason?: string };\\n\\nexport type ContextBriefData = {\\n  context?: string;\\n  problem?: string;\\n  targetUser?: string;\\n  goal?: string;\\n  currentIdea?: string;\\n  keyInsights?: string[];\\n  decisions?: BriefItem[];\\n  rejectedDirections?: BriefItem[];\\n  assumptions?: string[];\\n  openQuestions?: string[];\\n  currentDirection?: string;\\n  nextAreasToExplore?: string[];\\n  relevantHistory?: string[];\\n};\\n\\nexport type BriefField = keyof ContextBriefData;\\nexport type BriefFieldKind = \\\"text\\\" | \\\"list\\\" | \\\"reasoned\\\";\\nexport type BriefTextField = \\\"context\\\" | \\\"problem\\\" | \\\"targetUser\\\" | \\\"goal\\\" | \\\"currentIdea\\\" | \\\"currentDirection\\\";\\nexport type BriefListField = \\\"keyInsights\\\" | \\\"assumptions\\\" | \\\"openQuestions\\\" | \\\"nextAreasToExplore\\\" | \\\"relevantHistory\\\";\\nexport type BriefRe...\"}, {\"id\": \"ev-app-api-chat-route.ts\", \"kind\": \"source_code\", \"path\": \"app/api/chat/route.ts\", \"uri\": null, \"locator\": null, \"hash\": \"77319459d15292d9d0e4d67064cdde2eda6ab18ed28a9edea0c58d180057b828\", \"collected_at\": \"2026-10-04T20:04:04.829391Z\", \"excerpt\": \"import { and, eq, inArray } from \\\"drizzle-orm\\\";\\nimport { chatMessageSchema, modeSchema } from \\\"@/lib/validators\\\";\\nimport { rateLimit } from \\\"@/lib/rate-limit\\\";\\nimport { requireUser } from \\\"@/server/auth/current-user\\\";\\nimport { runChatTurn } from \\\"@/server/agent/frimz-agent\\\";\\nimport { parseMode } from \\\"@/lib/modes\\\";\\nimport { getDb } from \\\"@/db\\\";\\nimport { memoryIndex } from \\\"@/db/schema\\\";\\nimport { indicatorPhrase } from \\\"@/server/agent/indicator-label\\\";\\n\\nexport const runtime = \\\"nodejs\\\";\\nexport const dynamic = \\\"force-dynamic\\\";\\nexport const maxDuration = 300;\\n\\nexport async function POST(request: Request) {\\n  const user = await requireUser();\\n  if (!user) return Response.json({ error: \\\"Sign in to continue.\\\" }, { status: 401 });\\n  const limit = rateLimit(`chat:${user.id}`);\\n  if (!limit.ok) {...\"}, {\"id\": \"ev-tests-conversation-strategy.test.ts\", \"kind\": \"test\", \"path\": \"tests/conversation-strategy.test.ts\", \"uri\": null, \"locator\": null, \"hash\": \"a5f3b84641e24813ea3b033a350c0d306e8e402aaa5ddcbd437aad681414d5c9\", \"collected_at\": \"2026-10-04T20:04:04.834956Z\", \"excerpt\": \"import { describe, expect, it } from \\\"vitest\\\";\\nimport { chooseConversationStrategy } from \\\"@/server/agent/conversational-strategy\\\";\\nimport { buildFrimzContext } from \\\"@/server/agent/context-builder\\\";\\nimport { renderConversationStrategy } from \\\"@/server/agent/prompts/conversation-strategy\\\";\\nimport type { MemoryRecord } from \\\"@/server/memory/types\\\";\\n\\nfunction memory(partial: Pick<MemoryRecord, \\\"id\\\" | \\\"type\\\" | \\\"content\\\">): MemoryRecord {\\n  return {\\n    userId: \\\"user\\\",\\n    blobId: partial.id,\\n    namespace: \\\"frimz-user-user\\\",\\n    status: \\\"active\\\",\\n    reason: \\\"\\\",\\n    importance: 0.8,\\n    ideaId: null,\\n    ideaTitle: \\\"Study partner\\\",\\n    supersedesId: null,\\n    createdAt: \\\"2026-01-01T00:00:00.000Z\\\",\\n    updatedAt: \\\"2026-01-01T00:00:00.000Z\\\",\\n    ...partial,\\n  };\\n}\\n\\nconst decision = memory({\\n...\"}, {\"id\": \"ev-tests-orchestration.test.ts\", \"kind\": \"test\", \"path\": \"tests/orchestration.test.ts\", \"uri\": null, \"locator\": null, \"hash\": \"3bbc241293b838b1afe5501011e94f7a17a94a269360c01308733fd287435a1e\", \"collected_at\": \"2026-10-04T20:04:04.838585Z\", \"excerpt\": \"import { describe, expect, it } from \\\"vitest\\\";\\nimport { chooseConversationStrategy } from \\\"@/server/agent/conversational-strategy\\\";\\nimport { orchestrationViolations } from \\\"@/server/agent/response-check\\\";\\nimport { MEMORY_EXTRACTION_PROMPT } from \\\"@/server/agent/prompts/memory-extraction\\\";\\n\\nfunction turn(userMessage: string) {\\n  return chooseConversationStrategy({ mode: \\\"think\\\", userMessage });\\n}\\n\\ndescribe(\\\"conversation orchestration\\\", () => {\\n  it(\\\"treats a vague student idea as high-uncertainty exploration\\\", () => {\\n    const result = turn(\\\"I've been thinking about building something for university students, but I don't really know what yet.\\\");\\n    expect(result.intent).toBe(\\\"exploration\\\");\\n    expect(result.thinkingStage).toBe(\\\"discover\\\");\\n    expect(result.uncertaintyLevel).toBe(\\\"hig...\"}, {\"id\": \"ev-next.config.ts\", \"kind\": \"source_code\", \"path\": \"next.config.ts\", \"uri\": null, \"locator\": null, \"hash\": \"06d1e8382f1ade06d53da964bd1336ff8931b0a88cccedd2d58faa807a84ab14\", \"collected_at\": \"2026-10-04T20:04:04.840475Z\", \"excerpt\": \"import type { NextConfig } from \\\"next\\\";\\n\\nconst securityHeaders = [\\n  { key=<redacted> value: \\\"DENY\\\" },\\n  { key=<redacted> value: \\\"nosniff\\\" },\\n  { key=<redacted> value: \\\"strict-origin-when-cross-origin\\\" },\\n  { key=<redacted> value: \\\"camera=(), microphone=(), geolocation=()\\\" },\\n];\\n\\nconst nextConfig: NextConfig = {\\n  // The Docker image runs this server. Vercel uses Dockerfile.vercel, not the serverless build.\\n  output: \\\"standalone\\\",\\n  serverExternalPackages: [\\\"@cursor/sdk\\\", \\\"@mysten-incubation/memwal\\\"],\\n  outputFileTracingIncludes: {\\n    \\\"/*\\\": [\\n      \\\"./node_modules/@cursor/sdk/**/*\\\",\\n      \\\"./node_modules/@mysten-incubation/memwal/**/*\\\",\\n      \\\"./node_modules/@mysten/seal/**/*\\\",\\n      \\\"./node_modules/@mysten/sui/**/*\\\",\\n    ],\\n  },\\n  async headers() {\\n    return [{ source: \\\"/:path*\\\", hea...\"}, {\"id\": \"ev-README.md\", \"kind\": \"docs\", \"path\": \"README.md\", \"uri\": null, \"locator\": null, \"hash\": \"9b0460a95f6029e351591840c8e39e685c6cf73230f1b21bd88b753cfb15c4c2\", \"collected_at\": \"2026-10-04T20:04:04.850531Z\", \"excerpt\": \"# Frimz\\n\\nFrimz is an AI thinking partner that remembers the evolution of your thinking and turns that accumulated context into something you can keep building on.\\n\\n```text\\nThink.\\nExplore.\\nDevelop.\\nRemember.\\nReturn.\\nContinue.\\nBuild.\\n```\\n\\n## What is Frimz?\\n\\nFrimz helps people develop ideas over time: founders, developers, marketers, researchers, students, and anyone working on a project that does not fit in one chat.\\n\\nOrdinary chats forget the path that led to the current idea. Frimz keeps the durable parts of that path \\u2014 preferences, decisions, rejected directions, insights, open questions, and changes of direction \\u2014 and uses them when they are relevant later.\\n\\nFrimz does not make decisions for the user. It helps the user think through decisions.\\n\\n## The problem\\n\\n```text\\nConversation hap...\"}, {\"id\": \"ev-Dockerfile\", \"kind\": \"config\", \"path\": \"Dockerfile\", \"uri\": null, \"locator\": null, \"hash\": \"f1c018278165e4385227e8ca0d76d14253d7ee8ec541f221649a6ee211730319\", \"collected_at\": \"2026-10-04T20:04:04.852615Z\", \"excerpt\": \"# Production image for Frimz.\\n# Vercel deploys Dockerfile.vercel, which points at this file, and routes\\n# traffic to $PORT (80 unless the project sets PORT). The process stays a\\n# normal Node server for the length of the request.\\n# Local run: docker build -t frimz . && docker run --rm -p 3000:3000 --env-file .env frimz\\n\\nFROM node:22-bookworm-slim AS deps\\nWORKDIR /app\\nCOPY package.json package-lock.json .npmrc ./\\nRUN npm ci\\n\\nFROM node:22-bookworm-slim AS builder\\nWORKDIR /app\\nENV NEXT_TELEMETRY_DISABLED=1\\nCOPY --from=deps /app/node_modules ./node_modules\\nCOPY . .\\nRUN npm run build\\n\\nFROM node:22-bookworm-slim AS runner\\nWORKDIR /app\\nENV NODE_ENV=production\\nENV NEXT_TELEMETRY_DISABLED=1\\nENV HOSTNAME=0.0.0.0\\nRUN apt-get update \\\\\\n  && apt-get install -y --no-install-recommends ca-certificates ...\"}, {\"id\": \"ev-docker-compose.yml\", \"kind\": \"config\", \"path\": \"docker-compose.yml\", \"uri\": null, \"locator\": null, \"hash\": \"5197521685c924bace016804c32b4d327cdc44fc1ec7d49a81cc87834d968bbe\", \"collected_at\": \"2026-10-04T20:04:04.853183Z\", \"excerpt\": \"services:\\n  db:\\n    image: postgres:16-alpine\\n    environment:\\n      POSTGRES_USER: frimz\\n      POSTGRES_PASSWORD=<redacted>\\n      POSTGRES_DB: frimz\\n    ports:\\n      - \\\"5436:5432\\\"\\n    volumes:\\n      - frimz_pg:/var/lib/postgresql/data\\n    healthcheck:\\n      test: [\\\"CMD-SHELL\\\", \\\"pg_isready -U frimz -d frimz\\\"]\\n      interval: 5s\\n      timeout: 5s\\n      retries: 10\\n\\nvolumes:\\n  frimz_pg:\\n\"}, {\"id\": \"ev-git-log\", \"kind\": \"git\", \"path\": \".git\", \"uri\": null, \"locator\": null, \"hash\": null, \"collected_at\": \"2026-10-04T20:04:04.859679Z\", \"excerpt\": \"[{\\\"hash\\\": \\\"81cfde4519b700c2e5cbcb375f9d3363476bc112\\\", \\\"subject\\\": \\\"fix: how frimz response to users\\\", \\\"author\\\": \\\"Richard Frimpong Karikari\\\", \\\"date\\\": \\\"2026-10-04\\\"}, {\\\"hash\\\": \\\"4bd62f96437daab2a7b2d8524802a19925dab168\\\", \\\"subject\\\": \\\"fix: how frimz response to users\\\", \\\"author\\\": \\\"Richard Frimpong Karikari\\\", \\\"date\\\": \\\"2026-10-04\\\"}, {\\\"hash\\\": \\\"e34f5ffd5e890ea83a2b0f35b80ef0928bbd6929\\\", \\\"subject\\\": \\\"fix: how frimz response to users\\\", \\\"author\\\": \\\"Richard Frimpong Karikari\\\", \\\"date\\\": \\\"2026-10-03\\\"}, {\\\"hash\\\": \\\"080cbc68b7f57d690e47f472233c69649c23a2ba\\\", \\\"subject\\\": \\\"fix: how frimz response to users\\\", \\\"author\\\": \\\"Richard Frimpong Karikari\\\", \\\"date\\\": \\\"2026-10-03\\\"}, {\\\"hash\\\": \\\"d3ac7cd4c07da64046c2fd97517c68a0e3c40cb0\\\", \\\"subject\\\": \\\"Brainstorm with the user instead of explaining their point back, and treat comments and feedback as different jobs. Drop the Edge auth middleware so Vercel signup no longer crashes while loading middleware.js as CommonJS.\\\", \\\"author\\\": \\\"Richard Frimpong Karikari\\\", \\\"date\\\": \\\"2026-10-03\\\"}]\"}], \"git\": {\"head\": \"81cfde4519b700c2e5cbcb375f9d3363476bc112\", \"branch\": \"main\", \"dirty\": true, \"porcelain\": \" M .cursor/skills/thinking-partner/SKILL.md\\n M .cursor/skills/thinking-partner/examples.md\\n M .cursor/skills/thinking-partner/reference.md\\n M server/agent/conversation-types.ts\\n M server/agent/conversational-strategy.ts\\n M server/agent/intent-analyzer.ts\\n M server/agent/prompts/context-synthesis.ts\\n M server/agent/prompts/human-conversation.ts\\n M server/agent/prompts/memory-extraction.ts\\n M tests/conversation-strategy.test.ts\\n?? .brag/\\n?? logo.png\\n\", \"status\": \"## main...origin/main\\n M .cursor/skills/thinking-partner/SKILL.md\\n M .cursor/skills/thinking-partner/examples.md\\n M .cursor/skills/thinking-partner/reference.md\\n M server/agent/conversation-types.ts\\n M server/agent/conversational-strategy.ts\\n M server/agent/intent-analyzer.ts\\n M server/agent/prompts/context-synthesis.ts\\n M server/agent/prompts/human-conversation.ts\\n M server/agent/prompts/memory-extraction.ts\\n M tests/conversation-strategy.test.ts\\n?? .brag/\\n?? logo.png\\n\", \"commits\": [{\"hash\": \"81cfde4519b700c2e5cbcb375f9d3363476bc112\", \"subject\": \"fix: how frimz response to users\", \"author\": \"Richard Frimpong Karikari\", \"date\": \"2026-10-04\"}, {\"hash\": \"4bd62f96437daab2a7b2d8524802a19925dab168\", \"subject\": \"fix: how frimz response to users\", \"author\": \"Richard Frimpong Karikari\", \"date\": \"2026-10-04\"}, {\"hash\": \"e34f5ffd5e890ea83a2b0f35b80ef0928bbd6929\", \"subject\": \"fix: how frimz response to users\", \"author\": \"Richard Frimpong Karikari\", \"date\": \"2026-10-03\"}, {\"hash\": \"080cbc68b7f57d690e47f472233c69649c23a2ba\", \"subject\": \"fix: how frimz response to users\", \"author\": \"Richard Frimpong Karikari\", \"date\": \"2026-10-03\"}, {\"hash\": \"d3ac7cd4c07da64046c2fd97517c68a0e3c40cb0\", \"subject\": \"Brainstorm with the user instead of explaining their point back, and treat comments and feedback as different jobs. Drop the Edge auth middleware so Vercel signup no longer crashes while loading middleware.js as CommonJS.\", \"author\": \"Richard Frimpong Karikari\", \"date\": \"2026-10-03\"}, {\"hash\": \"86072eda7265f7ae197a0b6beb9325327257fe78\", \"subject\": \"Keep a living picture of each idea so a later conversation can continue from where the thinking stands and turn it into a draft. Store versioned current-thinking briefs in Postgres beside Walrus memories, and reshape the landing and workspace around that loop.\", \"author\": \"Richard Frimpong Karikari\", \"date\": \"2026-10-03\"}, {\"hash\": \"947be76e9dbdf788d61e9ece9968bb09a3f1fdbb\", \"subject\": \"Add Frimz, a thinking partner that remembers how ideas evolve. Keep conversations, ideas, and memory in the app, and store semantic memory on Walrus.\", \"author\": \"Richard Frimpong Karikari\", \"date\": \"2026-10-02\"}]}, \"tests\": [\"tests/conversation-strategy.test.ts\", \"tests/orchestration.test.ts\"]}"
+    }
+  ],
+  "schema": {
+    "$defs": {
+      "ApiEndpoint": {
+        "properties": {
+          "method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Method"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "claim": {
+            "$ref": "#/$defs/Claim"
+          }
+        },
+        "required": [
+          "path",
+          "claim"
+        ],
+        "title": "ApiEndpoint",
+        "type": "object"
+      },
+      "Claim": {
+        "properties": {
+          "id": {
+            "default": "",
+            "title": "Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/$defs/ClaimStatus",
+            "default": "unverified"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Confidence"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/$defs/EvidenceRef"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "conflicts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Conflicts",
+            "type": "array"
+          },
+          "demote": {
+            "default": false,
+            "title": "Demote",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "Claim",
+        "type": "object"
+      },
+      "ClaimStatus": {
+        "enum": [
+          "verified",
+          "inferred",
+          "unverified"
+        ],
+        "title": "ClaimStatus",
+        "type": "string"
+      },
+      "EvidenceKind": {
+        "enum": [
+          "source_code",
+          "config",
+          "test",
+          "git",
+          "runtime",
+          "browser",
+          "api",
+          "docs",
+          "onchain",
+          "user"
+        ],
+        "title": "EvidenceKind",
+        "type": "string"
+      },
+      "EvidenceRef": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/$defs/EvidenceKind"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Path"
+          },
+          "uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Uri"
+          },
+          "locator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Locator"
+          },
+          "hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Hash"
+          },
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "excerpt": {
+            "default": "",
+            "title": "Excerpt",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind"
+        ],
+        "title": "EvidenceRef",
+        "type": "object"
+      },
+      "Feature": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "$ref": "#/$defs/Claim"
+          },
+          "implemented": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ],
+        "title": "Feature",
+        "type": "object"
+      },
+      "Integration": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "claim": {
+            "$ref": "#/$defs/Claim"
+          }
+        },
+        "required": [
+          "name",
+          "claim"
+        ],
+        "title": "Integration",
+        "type": "object"
+      },
+      "Journey": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "beats": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Beats",
+            "type": "array"
+          },
+          "claim": {
+            "$ref": "#/$defs/Claim"
+          }
+        },
+        "required": [
+          "name",
+          "claim"
+        ],
+        "title": "Journey",
+        "type": "object"
+      },
+      "Limitation": {
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "claim": {
+            "$ref": "#/$defs/Claim"
+          }
+        },
+        "required": [
+          "text",
+          "claim"
+        ],
+        "title": "Limitation",
+        "type": "object"
+      },
+      "ProjectIdentity": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "one_liner": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "description": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "ProjectIdentity",
+        "type": "object"
+      },
+      "Screen": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Path"
+          },
+          "claim": {
+            "$ref": "#/$defs/Claim"
+          }
+        },
+        "required": [
+          "name",
+          "claim"
+        ],
+        "title": "Screen",
+        "type": "object"
+      },
+      "VisualIdentity": {
+        "properties": {
+          "background": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "accent": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "text_color": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "display_font": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "body_font": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "strongest_visual": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "VisualIdentity",
+        "type": "object"
+      }
+    },
+    "properties": {
+      "identity": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ProjectIdentity"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "problem": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "solution": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "users": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "features": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Feature"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Features"
+      },
+      "journeys": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Journey"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Journeys"
+      },
+      "screens": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Screen"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Screens"
+      },
+      "architecture": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "stack": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Claim"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Stack"
+      },
+      "dependencies": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Claim"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Dependencies"
+      },
+      "integrations": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Integration"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Integrations"
+      },
+      "apis": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/ApiEndpoint"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Apis"
+      },
+      "database": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "auth": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "deployment": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "implemented_functionality": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Claim"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Implemented Functionality"
+      },
+      "runtime": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "demo_opportunities": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Claim"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Demo Opportunities"
+      },
+      "marketing": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "hackathon": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Claim"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "web3": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Claim"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Web3"
+      },
+      "limitations": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Limitation"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Limitations"
+      },
+      "unverified_claims": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/$defs/Claim"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Unverified Claims"
+      },
+      "visual": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/VisualIdentity"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "notes": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Notes"
+      }
+    },
+    "title": "ProjectBrainUpdate",
+    "type": "object"
+  },
+  "instruction": "Reason only over evidence.json and the messages. Do not inspect parent directories. Do not run shell commands. Return ONLY JSON matching the schema."
+}

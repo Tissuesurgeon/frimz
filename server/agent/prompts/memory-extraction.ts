@@ -26,6 +26,9 @@ Rules:
 - The idea is the piece of work the conversation develops: a product, a project, a plan, or a problem the user keeps working on. Include idea whenever the conversation develops one, and give the memories about it the same ideaTitle. Leave idea out only for small talk or a one-off question.
 - When the conversation continues the current idea or one of the other ideas listed, use that exact title for idea.title and ideaTitle, even when the framing changes. Describe the change in the description and as an idea_change memory. A new title is for a genuinely different idea.
 - Preferences are working style only: response length, technical depth, number of alternatives, challenge level, communication style, structure, brainstorming style.
+- Qualities of the thing they are planning, once they have stated them, are insights on that idea. They are not communication-style preferences. Do not announce them.
+- An option they drop is a rejection, with the reason they gave.
+- A choice they make ("let's do X") is a decision. When they later say it is no longer what they want, set supersedes to that decision and record an idea_change. The old choice is history, not the current instruction.
 - Do not turn a preference into an idea event. Leave ideaTitle empty for preferences.
 - Set changesIdea true only when an insight changes the idea's direction.
 - Set supersedes when the user changed their mind, so the older statement can be retired.
